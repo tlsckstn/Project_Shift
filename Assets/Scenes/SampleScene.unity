@@ -129,6 +129,8 @@ GameObject:
   m_Component:
   - component: {fileID: 306120834}
   - component: {fileID: 306120833}
+  - component: {fileID: 306120836}
+  - component: {fileID: 306120835}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -157,6 +159,8 @@ MonoBehaviour:
   selectedRowColor: {r: 0.9, g: 0.8, b: 0.2, a: 0.35}
   robotColor: {r: 0.3, g: 0.6, b: 1, a: 1}
   exitColor: {r: 1, g: 0.4, b: 0.3, a: 1}
+  shiftsColor: {r: 1, g: 1, b: 1, a: 1}
+  noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &306120834
 Transform:
   m_ObjectHideFlags: 0
@@ -172,6 +176,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &306120835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306120832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd7d6243d765c5d4793ef537cc9b6cf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Input.InputController
+  stageManager: {fileID: 306120836}
+--- !u!114 &306120836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306120832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f975b958599dea40b847f1149deb07f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Stage.StageManager
+  stages:
+  - {fileID: 11400000, guid: 36e0845573b21a146bb2e384ea135ab5, type: 2}
+  - {fileID: 11400000, guid: d0f23fece4c9bb84da252889f7000786, type: 2}
+  - {fileID: 11400000, guid: 49c0752a7a1eee849bde56c47f5985ec, type: 2}
+  - {fileID: 11400000, guid: 48809d633232e0f45ae0b279c5589961, type: 2}
+  - {fileID: 11400000, guid: 0b1d77bcb48e9be468b1aa5be2afbf50, type: 2}
+  view: {fileID: 306120833}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

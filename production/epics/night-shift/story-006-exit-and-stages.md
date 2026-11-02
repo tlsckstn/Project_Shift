@@ -1,12 +1,12 @@
 # Story 006: 출구 판정과 스테이지 5개 진행
 
 > **Epic**: night-shift
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Feature
 > **Type**: Integration
 > **Estimate**: L
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: [set by /dev-story when implementation begins]
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -28,13 +28,13 @@
 
 *From `design/game-brief.md`, scoped to this story:*
 
-- [ ] 로봇이 출구 좌표에 도달하면 클리어로 판정되고 다음 스테이지가 로드된다.
-- [ ] `StageData`(ScriptableObject)가 줄 문자열 배열(`"00000110"`), 시작 좌표, 출구 좌표, 시프트 제한을 가진다. 값은 인스펙터에서 입력한다.
-- [ ] 스테이지 5개가 설계표(브리프 기준 Night Shift 설계 문서)대로 입력되어 있다: 제한 6 / 7 / 6 / 5 / 11.
-- [ ] 각 스테이지의 의도한 해답을 직접 풀어 검증한다. 더 짧은 해답이 나오면 제한을 줄이거나 배치를 고친다.
-- [ ] 마지막 스테이지를 클리어하면 더 이상 로드하지 않고 종료 상태가 표시된다.
-- [ ] 키보드 입력이 연결된다: `←` `→` 걷기, `↓` 내려가기, `W` `S` 줄 선택, `Q` `<<`, `E` `>>`, `Z` 되돌리기, `R` 재시작.
-- [ ] 추락하면 현재 스테이지가 즉시 재시작된다.
+- [x] 로봇이 출구 좌표에 도달하면 클리어로 판정되고 다음 스테이지가 로드된다.
+- [x] `StageData`(ScriptableObject)가 줄 문자열 배열(`"00000110"`), 시작 좌표, 출구 좌표, 시프트 제한을 가진다. 값은 인스펙터에서 입력한다.
+- [x] 스테이지 5개가 설계표(브리프 기준 Night Shift 설계 문서)대로 입력되어 있다: 제한 6 / 7 / 6 / 5 / 11.
+- [x] 각 스테이지의 의도한 해답을 직접 풀어 검증한다. 더 짧은 해답이 나오면 제한을 줄이거나 배치를 고친다.
+- [x] 마지막 스테이지를 클리어하면 더 이상 로드하지 않고 종료 상태가 표시된다.
+- [x] 키보드 입력이 연결된다: `←` `→` 걷기, `↓` 내려가기, `W` `S` 줄 선택, `Q` `<<`, `E` `>>`, `Z` 되돌리기, `R` 재시작.
+- [x] 추락하면 현재 스테이지가 즉시 재시작된다.
 
 ---
 
@@ -80,7 +80,7 @@
 **Story Type**: Integration
 **Required evidence**: 통합 테스트(`Assets/Tests/EditMode/Stage/StageFlowTests.cs`) 또는 플레이 테스트 기록(5개 스테이지 직접 클리어). 테스트는 `qa.level: minimal`에서 면제.
 
-**Status**: [ ] Not yet created
+**Status**: [x] 플레이 모드 검증: StageManager 공개 메서드로 5개 스테이지 해답 실행, 추락 재시작·Z·R 확인. BFS로 각 스테이지 최단 해답 = 제한 (6/7/6/5/11). 스크린샷 `production/qa/evidence/story-006-stage5-mid.png`, `story-006-all-clear.png`. 실제 키 입력은 사용자 확인 필요.
 
 ---
 

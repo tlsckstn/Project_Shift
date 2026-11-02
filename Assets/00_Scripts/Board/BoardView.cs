@@ -89,7 +89,7 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Redraws the board. Rows are drawn top to bottom; the robot and exit sit on top of their cell.
-        /// The exit is passed in because BoardState does not hold it yet (Story 006).
+        /// The exit (row, column) comes from StageData, not BoardState, because it never changes during a stage.
         /// </summary>
         public void Render(BoardState state, int selectedRow, Vector2Int exitCell)
         {
@@ -150,6 +150,14 @@ namespace ProjectShift.Board
                     shiftsLabel.SetText("SHIFTS 0  Z undo / R restart");
                 }
             }
+        }
+
+        /// <summary>Replaces the shifts label with a message until the next Render (e.g. a fall or the end screen).</summary>
+        public void ShowMessage(string text)
+        {
+            shownShifts = -1; // forces the next Render to bring the shifts count back
+            shiftsLabel.color = shiftsColor;
+            shiftsLabel.SetText(text);
         }
 
         private Vector3 CellPosition(int row, int col, int rowCount)
