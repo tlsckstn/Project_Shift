@@ -24,6 +24,8 @@ namespace ProjectShift.Stage
         [SerializeField] private string hint;
         [Tooltip("Row indices (0 = top) that cannot be shifted.")]
         [SerializeField] private int[] lockedRows;
+        [Tooltip("Firewall cells fixed to the board, x = row, y = column. Never place one on the exit.")]
+        [SerializeField] private Vector2Int[] firewalls;
 
         /// <summary>Exit cell as (row, column).</summary>
         public Vector2Int Exit => exit;
@@ -37,7 +39,7 @@ namespace ProjectShift.Stage
         /// <summary>One-line rule hint shown during the stage; empty or null means no hint.</summary>
         public string Hint => hint;
 
-        /// <summary>Builds a fresh board state from the row strings, start position, shift limit and locked rows.</summary>
+        /// <summary>Builds a fresh board state from the row strings, start position, shift limit, locked rows and firewalls.</summary>
         public BoardState CreateState()
         {
             var bytes = new byte[rows.Length];
@@ -56,7 +58,17 @@ namespace ProjectShift.Stage
                 }
             }
 
-            return new BoardState(bytes, start.x, start.y, shiftLimit, locked);
+            bool[] walls = null;
+            if (firewalls != null && firewalls.Length > 0)
+            {
+                walls = new bool[rows.Length * BoardState.Columns];
+                foreach (Vector2Int cell in firewalls)
+                {
+                    walls[cell.x * BoardState.Columns + cell.y] = true;
+                }
+            }
+
+            return new BoardState(bytes, start.x, start.y, shiftLimit, locked, walls);
         }
     }
 }

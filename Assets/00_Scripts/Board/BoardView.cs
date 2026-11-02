@@ -28,6 +28,7 @@ namespace ProjectShift.Board
         [SerializeField] private Color offColor = new Color(0.15f, 0.15f, 0.2f);
         [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
         [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
+        [SerializeField] private Color firewallColor = new Color(1f, 0.55f, 0.1f);
         [SerializeField] private Color robotColor = new Color(0.3f, 0.6f, 1f);
         [SerializeField] private Color exitColor = new Color(1f, 0.4f, 0.3f);
         [SerializeField] private Color shiftsColor = Color.white;
@@ -36,6 +37,8 @@ namespace ProjectShift.Board
         private Transform cachedTransform;
         private SpriteRenderer[] cells;
         private Transform[] cellTransforms;
+        private SpriteRenderer[] firewallMarks;
+        private Transform[] firewallTransforms;
         private SpriteRenderer[] rowHighlights;
         private Transform[] highlightTransforms;
         private SpriteRenderer[] lockFrames;
@@ -59,6 +62,8 @@ namespace ProjectShift.Board
             int cellCount = MaxRows * BoardState.Columns;
             cells = new SpriteRenderer[cellCount];
             cellTransforms = new Transform[cellCount];
+            firewallMarks = new SpriteRenderer[cellCount];
+            firewallTransforms = new Transform[cellCount];
             rowHighlights = new SpriteRenderer[MaxRows];
             highlightTransforms = new Transform[MaxRows];
             lockFrames = new SpriteRenderer[MaxRows];
@@ -88,8 +93,11 @@ namespace ProjectShift.Board
                 for (int c = 0; c < BoardState.Columns; c++)
                 {
                     int i = r * BoardState.Columns + c;
-                    cells[i] = CreateSquare("Cell", offColor, 1, Vector3.one * (cellSize * 0.9f));
+                    cells[i] = CreateSquare("Cell", offColor, 2, Vector3.one * (cellSize * 0.9f));
                     cellTransforms[i] = cells[i].transform;
+                    // Larger square under the cell: shows as a thick outline around a firewall cell.
+                    firewallMarks[i] = CreateSquare("Firewall", firewallColor, 1, Vector3.one * (cellSize * 1.2f));
+                    firewallTransforms[i] = firewallMarks[i].transform;
                 }
 
                 // Adding TextMeshPro replaces the Transform with a RectTransform, so cache it afterwards.
@@ -104,9 +112,9 @@ namespace ProjectShift.Board
                 shownValues[r] = -1;
             }
 
-            exit = CreateSquare("Exit", exitColor, 2, Vector3.one * (cellSize * 0.8f));
+            exit = CreateSquare("Exit", exitColor, 3, Vector3.one * (cellSize * 0.8f));
             exitTransform = exit.transform;
-            robot = CreateSquare("Robot", robotColor, 3, Vector3.one * (cellSize * 0.5f));
+            robot = CreateSquare("Robot", robotColor, 4, Vector3.one * (cellSize * 0.5f));
             robotTransform = robot.transform;
 
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
@@ -166,6 +174,7 @@ namespace ProjectShift.Board
                 {
                     int i = r * BoardState.Columns + c;
                     cells[i].enabled = used;
+                    firewallMarks[i].enabled = used && state.IsFirewall(r, c);
                     if (!used)
                     {
                         continue;
@@ -173,6 +182,7 @@ namespace ProjectShift.Board
 
                     cells[i].color = state.GetCell(r, c) ? onColor : offColor;
                     cellTransforms[i].localPosition = CellPosition(r, c, state.RowCount);
+                    firewallTransforms[i].localPosition = cellTransforms[i].localPosition;
                 }
 
                 if (!used)

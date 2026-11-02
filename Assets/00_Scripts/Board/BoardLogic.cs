@@ -59,12 +59,13 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Walks the robot one cell along its row (<paramref name="direction"/> is -1 for left, 1 for right).
-        /// Succeeds only when the target cell is on. Returns false and does nothing otherwise.
+        /// Succeeds only when the target cell is on and is not a firewall. Returns false and does nothing otherwise.
         /// </summary>
         public static bool TryWalk(BoardState state, int direction)
         {
             int col = state.RobotCol + direction;
-            if (state.IsRobotFallen || col < 0 || col >= BoardState.Columns || !state.GetCell(state.RobotRow, col))
+            if (state.IsRobotFallen || col < 0 || col >= BoardState.Columns || !state.GetCell(state.RobotRow, col)
+                || state.IsFirewall(state.RobotRow, col))
             {
                 return false;
             }
@@ -74,13 +75,14 @@ namespace ProjectShift.Board
         }
 
         /// <summary>
-        /// Moves the robot down one row when the cell directly below is on. There is no way up.
+        /// Moves the robot down one row when the cell directly below is on and is not a firewall. There is no way up.
         /// Returns false and does nothing otherwise.
         /// </summary>
         public static bool TryDescend(BoardState state)
         {
             int row = state.RobotRow + 1;
-            if (state.IsRobotFallen || row >= state.RowCount || !state.GetCell(row, state.RobotCol))
+            if (state.IsRobotFallen || row >= state.RowCount || !state.GetCell(row, state.RobotCol)
+                || state.IsFirewall(row, state.RobotCol))
             {
                 return false;
             }
@@ -90,6 +92,7 @@ namespace ProjectShift.Board
         }
 
         // The robot rides its row even when the cell under it was shifted away; it only falls past an end.
+        // Firewalls never stop a ride: the robot may be carried into or through one.
         private static void MoveRobotWithRow(BoardState state, int row, int direction)
         {
             if (state.RobotRow == row)

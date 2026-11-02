@@ -19,15 +19,19 @@ namespace ProjectShift.Board
         private int shiftsLeft;
         // Fixed for the whole stage, so clones share it. Null means no locked rows.
         private readonly bool[] lockedRows;
+        // Indexed row * Columns + column. Fixed for the whole stage, so clones share it. Null means no firewalls.
+        private readonly bool[] firewalls;
 
         /// <summary>
         /// Creates a state. The rows array is copied, so the caller keeps its own array.
-        /// <paramref name="lockedRows"/> (one flag per row, may be null) is kept by reference and must not change afterwards.
+        /// <paramref name="lockedRows"/> (one flag per row) and <paramref name="firewalls"/> (one flag per cell, row * Columns + column)
+        /// may be null; they are kept by reference and must not change afterwards.
         /// </summary>
-        public BoardState(byte[] rows, int robotRow, int robotCol, int shiftsLeft, bool[] lockedRows = null)
+        public BoardState(byte[] rows, int robotRow, int robotCol, int shiftsLeft, bool[] lockedRows = null, bool[] firewalls = null)
         {
             this.rows = (byte[])rows.Clone();
             this.lockedRows = lockedRows;
+            this.firewalls = firewalls;
             this.robotRow = robotRow;
             this.robotCol = robotCol;
             this.shiftsLeft = shiftsLeft;
@@ -52,6 +56,12 @@ namespace ProjectShift.Board
         public bool IsRowLocked(int row)
         {
             return lockedRows != null && lockedRows[row];
+        }
+
+        /// <summary>True when board cell (<paramref name="row"/>, <paramref name="col"/>) is a firewall. Firewalls are fixed to the board and do not move with shifts.</summary>
+        public bool IsFirewall(int row, int col)
+        {
+            return firewalls != null && firewalls[row * Columns + col];
         }
 
         /// <summary>Returns the raw 8-bit value of row <paramref name="row"/>.</summary>
@@ -85,10 +95,10 @@ namespace ProjectShift.Board
             shiftsLeft--;
         }
 
-        /// <summary>Returns an independent copy (the rows array is duplicated; the fixed locked-row flags are shared).</summary>
+        /// <summary>Returns an independent copy (the rows array is duplicated; the fixed locked-row and firewall flags are shared).</summary>
         public BoardState Clone()
         {
-            return new BoardState(rows, robotRow, robotCol, shiftsLeft, lockedRows);
+            return new BoardState(rows, robotRow, robotCol, shiftsLeft, lockedRows, firewalls);
         }
     }
 }
