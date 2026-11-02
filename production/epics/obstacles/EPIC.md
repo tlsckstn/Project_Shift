@@ -3,7 +3,7 @@
 > **Layer**: Core (BoardLogic 규칙) + Feature (스테이지)
 > **GDD**: design/game-brief.md ("다음 단계 — 플레이테스트 2026-11-02 반영": 버그 칸, 방화벽, 잠긴 줄)
 > **Architecture Module**: Board (BoardState, BoardLogic, BoardView) + Stage (StageData)
-> **Status**: In progress
+> **Status**: Complete
 > **Depends on**: onboarding (안내문 필드, par 표시를 소개 스테이지에서 재사용)
 > **Stories**: 4 stories (see below)
 
@@ -27,7 +27,7 @@
 | 001 | 잠긴 줄 | Logic | Complete | N/A |
 | 002 | 방화벽 | Logic | Complete | N/A |
 | 003 | 버그 칸 | Logic | Complete | N/A |
-| 004 | 장애물 소개·활용 스테이지 | Config/Data | Ready | N/A |
+| 004 | 장애물 소개·활용 스테이지 | Config/Data | Complete | N/A |
 
 ## Definition of Done
 

@@ -1,7 +1,7 @@
 # Story 004: 장애물 소개·활용 스테이지
 
 > **Epic**: obstacles
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Config/Data
 > **Estimate**: L
@@ -28,13 +28,13 @@
 
 *From `design/game-brief.md` "다음 단계" and "Player goal & fail state", scoped to this story:*
 
-- [ ] 장애물마다 소개 스테이지 1개와 활용 스테이지 1~2개가 있다 (잠긴 줄 → 방화벽 → 버그 칸 순).
-- [ ] 새 스테이지는 Stage05 뒤에 순서대로 진행된다. 튜토리얼과 Stage01-05의 순서와 동작은 바뀌지 않는다.
-- [ ] 소개 스테이지는 그 장애물 하나만 새로 등장하고, 영어 안내문 한 줄(약 55자 이하, 규칙만, 키 설명 없음)로 규칙을 설명한다.
-- [ ] 활용 스테이지는 그 장애물을 써야만(또는 피해야만) 풀린다. 안내문은 비워도 된다.
-- [ ] 모든 새 스테이지의 par는 장애물 규칙을 반영한 BFS 최소값이고, `shiftLimit`은 par + 2다.
-- [ ] 모든 새 스테이지가 클리어 가능하며, 마지막 스테이지 다음에 ALL CLEAR가 나온다.
-- [ ] 방화벽 칸을 출구로 두지 않는다 (Story 002 기준).
+- [x] 장애물마다 소개 스테이지 1개와 활용 스테이지 1~2개가 있다 (잠긴 줄 → 방화벽 → 버그 칸 순).
+- [x] 새 스테이지는 Stage05 뒤에 순서대로 진행된다. 튜토리얼과 Stage01-05의 순서와 동작은 바뀌지 않는다.
+- [x] 소개 스테이지는 그 장애물 하나만 새로 등장하고, 영어 안내문 한 줄(약 55자 이하, 규칙만, 키 설명 없음)로 규칙을 설명한다.
+- [x] 활용 스테이지는 그 장애물을 써야만(또는 피해야만) 풀린다. 안내문은 비워도 된다.
+- [x] 모든 새 스테이지의 par는 장애물 규칙을 반영한 BFS 최소값이고, `shiftLimit`은 par + 2다.
+- [x] 모든 새 스테이지가 클리어 가능하며, 마지막 스테이지 다음에 ALL CLEAR가 나온다.
+- [x] 방화벽 칸을 출구로 두지 않는다 (Story 002 기준).
 
 ---
 
@@ -56,8 +56,13 @@
 
 ## Files
 
-- `Assets/Data/Stages/` 신규 에셋 (장애물별 소개 1 + 활용 1~2)
-- `Assets/Scenes/SampleScene.unity` (`StageManager.stages` 배열, 사용자 확인 후)
+- `Assets/Data/Stages/Stage06.asset` (잠긴 줄 소개, par 3)
+- `Assets/Data/Stages/Stage07.asset` (잠긴 줄 활용, par 7)
+- `Assets/Data/Stages/Stage08.asset` (방화벽 소개, par 1)
+- `Assets/Data/Stages/Stage09.asset` (방화벽 활용, par 6)
+- `Assets/Data/Stages/Stage10.asset` (버그 칸 소개, par 4)
+- `Assets/Data/Stages/Stage11.asset` (버그 칸 활용, par 6)
+- `Assets/Scenes/SampleScene.unity` (`StageManager.stages` 끝에 6개 추가, 사용자 확인 2026-11-02. BoardView 새 색 필드도 기본값으로 함께 저장됨)
 
 ---
 
@@ -72,7 +77,7 @@
 **Story Type**: Config/Data
 **Required evidence**: smoke check (advisory) + BFS 검증 기록. 플레이어가 보는 변화이므로 새 스테이지별 retained screenshot을 `production/qa/evidence/story-004-obstacle-stages/`에 남긴다.
 
-**Status**: [ ] Not yet created
+**Status**: [x] `production/qa/evidence/story-004-obstacle-stages/` — `stage06~11.png` (960x600), `bfs-and-play.md` (솔버 검증 14/14, 설계 표, 저장 데이터 재검증 14/14, 플레이 재생 14/14 → ALL CLEAR), `stamp.txt`.
 
 ---
 
@@ -80,3 +85,12 @@
 
 - Depends on: `production/epics/obstacles/story-001-locked-row.md`, `production/epics/obstacles/story-002-firewall.md`, `production/epics/obstacles/story-003-bug-cell.md`
 - Unlocks: None
+
+---
+
+## Completion Notes
+**Completed**: 2026-11-02
+**Criteria**: 7/7 passing
+**Deviations**: One use stage per obstacle (scope allowed 1~2). Scene edited through the Editor API with user approval (also saved BoardView's new color fields at their defaults). BFS, design search and verify scripts kept in scratchpad only; method and results in `bfs-and-play.md`. Fun and difficulty flow not assessed: needs a human playtest.
+**Test Evidence**: smoke via play-mode replay of all 14 stages to ALL CLEAR; screenshots and BFS record `production/qa/evidence/story-004-obstacle-stages/`
+**Reviewed by**: skipped — Solo mode
