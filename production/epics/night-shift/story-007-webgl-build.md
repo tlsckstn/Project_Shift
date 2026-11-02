@@ -1,7 +1,7 @@
 # Story 007: WebGL 빌드 확인
 
 > **Epic**: night-shift
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Feature
 > **Type**: Config/Data
 > **Estimate**: S
@@ -28,11 +28,11 @@
 
 *From `design/game-brief.md`, scoped to this story:*
 
-- [ ] 에디터에서 WebGL 플랫폼으로 빌드가 오류 없이 끝난다.
-- [ ] 빌드 결과를 브라우저(로컬 서버)에서 열면 스테이지 1이 보이고 키보드 입력이 동작한다.
-- [ ] itch.io에 올릴 수 있는 형태(zip, `index.html` 루트)임을 확인한다.
-- [ ] WebGL에서 막히는 API 사용이 없음을 확인한다 (스레드, 파일 I/O 등).
-- [ ] 확인한 빌드 방법과 결과(성공/실패, 크기)를 README나 evidence 문서에 한 줄 남긴다.
+- [x] 에디터에서 WebGL 플랫폼으로 빌드가 오류 없이 끝난다.
+- [x] 빌드 결과를 브라우저(로컬 서버)에서 열면 스테이지 1이 보이고 키보드 입력이 동작한다.
+- [x] itch.io에 올릴 수 있는 형태(zip, `index.html` 루트)임을 확인한다.
+- [x] WebGL에서 막히는 API 사용이 없음을 확인한다 (스레드, 파일 I/O 등).
+- [x] 확인한 빌드 방법과 결과(성공/실패, 크기)를 README나 evidence 문서에 한 줄 남긴다.
 
 ---
 
@@ -70,7 +70,7 @@
 **Story Type**: Config/Data
 **Required evidence**: 스모크 체크 기록 `production/qa/smoke-[date].md` (advisory)
 
-**Status**: [ ] Not yet created
+**Status**: [x] `production/qa/smoke-2026-11-02.md`
 
 ---
 
