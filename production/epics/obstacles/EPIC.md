@@ -5,7 +5,7 @@
 > **Architecture Module**: Board (BoardState, BoardLogic, BoardView) + Stage (StageData)
 > **Status**: Ready
 > **Depends on**: onboarding (안내문 필드, par 표시를 소개 스테이지에서 재사용)
-> **Stories**: Not yet created — run `/create-stories obstacles`
+> **Stories**: 4 stories (see below)
 
 ## Overview
 
@@ -19,6 +19,15 @@
 2. 방화벽: 보드 좌표에 고정. 걷기·내려가기로 진입 불가, 줄에 실려 밀리면 통과, 벽 칸 위에서 멈추면 서 있을 수 있음 + 표시
 3. 버그 칸: 보드 좌표에 고정. 걷기·내려가기·줄에 실려 밀리기 중 어떤 방식으로든 진입하면 추락과 같은 실패 + 표시
 4. 장애물별 소개 스테이지 1개 + 활용 스테이지 1~2개. 안내문 한 줄과 par를 쓰고 BFS로 검증. `StageData[]` 배열에 끼워 넣는다 (코드 변경 없음)
+
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | 잠긴 줄 | Logic | Ready | N/A |
+| 002 | 방화벽 | Logic | Ready | N/A |
+| 003 | 버그 칸 | Logic | Ready | N/A |
+| 004 | 장애물 소개·활용 스테이지 | Config/Data | Ready | N/A |
 
 ## Definition of Done
 
