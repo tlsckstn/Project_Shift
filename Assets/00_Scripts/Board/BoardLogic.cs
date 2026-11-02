@@ -8,11 +8,12 @@ namespace ProjectShift.Board
     {
         /// <summary>
         /// Shifts a row (<paramref name="direction"/> is -1 for left, 1 for right) and spends one shift.
-        /// A shift that only pushes out lost bits still costs one. Returns false and does nothing when no shifts are left.
+        /// A shift that only pushes out lost bits still costs one. Returns false and does nothing when no shifts are left
+        /// or the row is locked (a locked row costs nothing).
         /// </summary>
         public static bool TryShift(BoardState state, int row, int direction)
         {
-            if (state.ShiftsLeft <= 0)
+            if (state.ShiftsLeft <= 0 || state.IsRowLocked(row))
             {
                 return false;
             }

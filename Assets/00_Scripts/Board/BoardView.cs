@@ -27,6 +27,7 @@ namespace ProjectShift.Board
         [SerializeField] private Color onColor = new Color(0.3f, 0.9f, 0.5f);
         [SerializeField] private Color offColor = new Color(0.15f, 0.15f, 0.2f);
         [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
+        [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
         [SerializeField] private Color robotColor = new Color(0.3f, 0.6f, 1f);
         [SerializeField] private Color exitColor = new Color(1f, 0.4f, 0.3f);
         [SerializeField] private Color shiftsColor = Color.white;
@@ -37,6 +38,9 @@ namespace ProjectShift.Board
         private Transform[] cellTransforms;
         private SpriteRenderer[] rowHighlights;
         private Transform[] highlightTransforms;
+        private SpriteRenderer[] lockFrames;
+        private Transform[] lockFrameTransforms;
+        private TextMeshPro[] lockLabels;
         private TextMeshPro[] valueLabels;
         private Transform[] labelTransforms;
         private int[] shownValues;
@@ -57,6 +61,9 @@ namespace ProjectShift.Board
             cellTransforms = new Transform[cellCount];
             rowHighlights = new SpriteRenderer[MaxRows];
             highlightTransforms = new Transform[MaxRows];
+            lockFrames = new SpriteRenderer[MaxRows];
+            lockFrameTransforms = new Transform[MaxRows];
+            lockLabels = new TextMeshPro[MaxRows];
             valueLabels = new TextMeshPro[MaxRows];
             labelTransforms = new Transform[MaxRows];
             shownValues = new int[MaxRows];
@@ -66,6 +73,17 @@ namespace ProjectShift.Board
             {
                 rowHighlights[r] = CreateSquare("RowHighlight", selectedRowColor, 0, highlightScale);
                 highlightTransforms[r] = rowHighlights[r].transform;
+
+                // Solid frame drawn under the selection tint, so a locked row still shows when selected.
+                lockFrames[r] = CreateSquare("LockFrame", lockedRowColor, -1, highlightScale);
+                lockFrameTransforms[r] = lockFrames[r].transform;
+                lockLabels[r] = new GameObject("LockLabel").AddComponent<TextMeshPro>();
+                lockLabels[r].rectTransform.SetParent(cachedTransform, false);
+                lockLabels[r].rectTransform.sizeDelta = new Vector2(2f * cellSize, cellSize);
+                lockLabels[r].fontSize = labelFontSize * 0.6f;
+                lockLabels[r].alignment = TextAlignmentOptions.MidlineRight;
+                lockLabels[r].color = lockedRowColor;
+                lockLabels[r].SetText("LOCK");
 
                 for (int c = 0; c < BoardState.Columns; c++)
                 {
@@ -139,6 +157,9 @@ namespace ProjectShift.Board
             {
                 bool used = r < state.RowCount;
                 rowHighlights[r].enabled = used && r == selectedRow;
+                bool locked = used && state.IsRowLocked(r);
+                lockFrames[r].enabled = locked;
+                lockLabels[r].enabled = locked;
                 valueLabels[r].enabled = used;
 
                 for (int c = 0; c < BoardState.Columns; c++)
@@ -161,6 +182,8 @@ namespace ProjectShift.Board
 
                 Vector3 rowCenter = new Vector3(0f, CellPosition(r, 0, state.RowCount).y, 0f);
                 highlightTransforms[r].localPosition = rowCenter;
+                lockFrameTransforms[r].localPosition = rowCenter;
+                lockLabels[r].rectTransform.localPosition = rowCenter + Vector3.left * (BoardState.Columns * 0.5f * cellSize + 1.4f * cellSize);
                 labelTransforms[r].localPosition = rowCenter + Vector3.right * (BoardState.Columns * 0.5f * cellSize + 0.5f);
 
                 // Only rebuild the label text when the value changed.

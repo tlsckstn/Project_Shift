@@ -17,11 +17,17 @@ namespace ProjectShift.Board
         private int robotRow;
         private int robotCol;
         private int shiftsLeft;
+        // Fixed for the whole stage, so clones share it. Null means no locked rows.
+        private readonly bool[] lockedRows;
 
-        /// <summary>Creates a state. The rows array is copied, so the caller keeps its own array.</summary>
-        public BoardState(byte[] rows, int robotRow, int robotCol, int shiftsLeft)
+        /// <summary>
+        /// Creates a state. The rows array is copied, so the caller keeps its own array.
+        /// <paramref name="lockedRows"/> (one flag per row, may be null) is kept by reference and must not change afterwards.
+        /// </summary>
+        public BoardState(byte[] rows, int robotRow, int robotCol, int shiftsLeft, bool[] lockedRows = null)
         {
             this.rows = (byte[])rows.Clone();
+            this.lockedRows = lockedRows;
             this.robotRow = robotRow;
             this.robotCol = robotCol;
             this.shiftsLeft = shiftsLeft;
@@ -41,6 +47,12 @@ namespace ProjectShift.Board
 
         /// <summary>True when the robot was pushed past cell 0 or cell 7. The column stays out of range until restart.</summary>
         public bool IsRobotFallen => robotCol < 0 || robotCol >= Columns;
+
+        /// <summary>True when row <paramref name="row"/> cannot be shifted.</summary>
+        public bool IsRowLocked(int row)
+        {
+            return lockedRows != null && lockedRows[row];
+        }
 
         /// <summary>Returns the raw 8-bit value of row <paramref name="row"/>.</summary>
         public byte GetRow(int row)
@@ -73,10 +85,10 @@ namespace ProjectShift.Board
             shiftsLeft--;
         }
 
-        /// <summary>Returns an independent deep copy (the rows array is duplicated).</summary>
+        /// <summary>Returns an independent copy (the rows array is duplicated; the fixed locked-row flags are shared).</summary>
         public BoardState Clone()
         {
-            return new BoardState(rows, robotRow, robotCol, shiftsLeft);
+            return new BoardState(rows, robotRow, robotCol, shiftsLeft, lockedRows);
         }
     }
 }

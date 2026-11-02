@@ -22,6 +22,8 @@ namespace ProjectShift.Stage
         [SerializeField] private int par;
         [Tooltip("Optional one-line hint in English. Explains rules only, never keys. Empty hides it.")]
         [SerializeField] private string hint;
+        [Tooltip("Row indices (0 = top) that cannot be shifted.")]
+        [SerializeField] private int[] lockedRows;
 
         /// <summary>Exit cell as (row, column).</summary>
         public Vector2Int Exit => exit;
@@ -35,7 +37,7 @@ namespace ProjectShift.Stage
         /// <summary>One-line rule hint shown during the stage; empty or null means no hint.</summary>
         public string Hint => hint;
 
-        /// <summary>Builds a fresh board state from the row strings, start position and shift limit.</summary>
+        /// <summary>Builds a fresh board state from the row strings, start position, shift limit and locked rows.</summary>
         public BoardState CreateState()
         {
             var bytes = new byte[rows.Length];
@@ -44,7 +46,17 @@ namespace ProjectShift.Stage
                 bytes[i] = Convert.ToByte(rows[i], 2);
             }
 
-            return new BoardState(bytes, start.x, start.y, shiftLimit);
+            bool[] locked = null;
+            if (lockedRows != null && lockedRows.Length > 0)
+            {
+                locked = new bool[rows.Length];
+                foreach (int row in lockedRows)
+                {
+                    locked[row] = true;
+                }
+            }
+
+            return new BoardState(bytes, start.x, start.y, shiftLimit, locked);
         }
     }
 }
