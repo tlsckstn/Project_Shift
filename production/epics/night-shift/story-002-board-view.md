@@ -70,7 +70,7 @@
 **Story Type**: UI
 **Required evidence**: 터치한 화면의 스크린샷을 `production/qa/evidence/`에 보존한다 (`qa.level: minimal`에서도 면제되지 않음).
 
-**Status**: [ ] Not yet created
+**Status**: [x] `production/qa/evidence/story-002-board-view.png` (1280x720, 3줄 샘플 보드: 6 / 240 / 31, 선택 줄 1, 로봇 (0,5), 출구 (2,7))
 
 ---
 
