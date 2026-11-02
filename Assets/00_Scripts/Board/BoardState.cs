@@ -67,6 +67,12 @@ namespace ProjectShift.Board
             robotCol = col;
         }
 
+        /// <summary>Spends one shift. Used by BoardLogic, which checks the count first.</summary>
+        public void UseShift()
+        {
+            shiftsLeft--;
+        }
+
         /// <summary>Returns an independent deep copy (the rows array is duplicated).</summary>
         public BoardState Clone()
         {

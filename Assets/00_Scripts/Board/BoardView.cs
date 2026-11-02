@@ -20,6 +20,8 @@ namespace ProjectShift.Board
         [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
         [SerializeField] private Color robotColor = new Color(0.3f, 0.6f, 1f);
         [SerializeField] private Color exitColor = new Color(1f, 0.4f, 0.3f);
+        [SerializeField] private Color shiftsColor = Color.white;
+        [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
 
         private Transform cachedTransform;
         private SpriteRenderer[] cells;
@@ -33,6 +35,8 @@ namespace ProjectShift.Board
         private Transform robotTransform;
         private SpriteRenderer exit;
         private Transform exitTransform;
+        private TextMeshPro shiftsLabel;
+        private int shownShifts = -1;
 
         private void Awake()
         {
@@ -75,6 +79,12 @@ namespace ProjectShift.Board
             exitTransform = exit.transform;
             robot = CreateSquare("Robot", robotColor, 3, Vector3.one * (cellSize * 0.5f));
             robotTransform = robot.transform;
+
+            shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
+            shiftsLabel.rectTransform.SetParent(cachedTransform, false);
+            shiftsLabel.fontSize = labelFontSize;
+            shiftsLabel.alignment = TextAlignmentOptions.Center;
+            shiftsLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
         }
 
         /// <summary>
@@ -123,6 +133,23 @@ namespace ProjectShift.Board
             Vector3 standOffset = Vector3.up * (cellSize * 0.75f);
             robotTransform.localPosition = CellPosition(state.RobotRow, state.RobotCol, state.RowCount) + standOffset;
             exitTransform.localPosition = CellPosition(exitCell.x, exitCell.y, state.RowCount) + standOffset;
+
+            // Sits above the top row; only rebuilt when the count changes.
+            shiftsLabel.rectTransform.localPosition = new Vector3(0f, CellPosition(0, 0, state.RowCount).y + rowSpacing, 0f);
+            if (shownShifts != state.ShiftsLeft)
+            {
+                shownShifts = state.ShiftsLeft;
+                if (shownShifts > 0)
+                {
+                    shiftsLabel.color = shiftsColor;
+                    shiftsLabel.SetText("SHIFTS {0}", shownShifts);
+                }
+                else
+                {
+                    shiftsLabel.color = noShiftsColor;
+                    shiftsLabel.SetText("SHIFTS 0  Z undo / R restart");
+                }
+            }
         }
 
         private Vector3 CellPosition(int row, int col, int rowCount)

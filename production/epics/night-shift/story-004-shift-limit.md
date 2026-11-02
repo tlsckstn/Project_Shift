@@ -1,12 +1,12 @@
 # Story 004: 시프트 횟수 제한과 표시
 
 > **Epic**: night-shift
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: S
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: [set by /dev-story when implementation begins]
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -28,11 +28,11 @@
 
 *From `design/game-brief.md`, scoped to this story:*
 
-- [ ] 시프트 한 번(`<<` 또는 `>>`)마다 `shiftsLeft`가 1 줄어든다.
-- [ ] `shiftsLeft`가 0이면 더 이상 시프트할 수 없다 (걷기·내려가기는 계속 가능).
-- [ ] 남은 횟수가 화면에 표시되고 시프트할 때마다 갱신된다.
-- [ ] 횟수를 다 쓰고도 출구에 못 가면 되돌리기 또는 재시작이 필요한 상태임을 알 수 있다.
-- [ ] 소실된 비트만 밀려나는 시프트(값이 안 변하는 시프트)도 횟수를 소모한다.
+- [x] 시프트 한 번(`<<` 또는 `>>`)마다 `shiftsLeft`가 1 줄어든다.
+- [x] `shiftsLeft`가 0이면 더 이상 시프트할 수 없다 (걷기·내려가기는 계속 가능).
+- [x] 남은 횟수가 화면에 표시되고 시프트할 때마다 갱신된다.
+- [x] 횟수를 다 쓰고도 출구에 못 가면 되돌리기 또는 재시작이 필요한 상태임을 알 수 있다. (0이 되면 출구 도달 여부와 무관하게 빨간 `SHIFTS 0  Z undo / R restart` 표시 — 출구는 Story 006에서 BoardState로 들어옴)
+- [x] 소실된 비트만 밀려나는 시프트(값이 안 변하는 시프트)도 횟수를 소모한다.
 
 ---
 
@@ -69,7 +69,7 @@
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/Board/ShiftLimitTests.cs` (tests are waived at `qa.level: minimal`)
 
-**Status**: [ ] Not yet created
+**Status**: [x] Tests waived (minimal). Verified 7/7 via `unity command script eval_file`. Screenshots: `production/qa/evidence/story-004-shifts-left.png`, `story-004-shifts-zero.png`.
 
 ---
 

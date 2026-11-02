@@ -3,10 +3,33 @@ namespace ProjectShift.Board
     /// <summary>
     /// Pure-C# board rules (no MonoBehaviour, callable from Edit Mode tests):
     /// row shifts, robot walking and descending, and falling off a row end.
-    /// Shift counting lives elsewhere.
     /// </summary>
     public static class BoardLogic
     {
+        /// <summary>
+        /// Shifts a row (<paramref name="direction"/> is -1 for left, 1 for right) and spends one shift.
+        /// A shift that only pushes out lost bits still costs one. Returns false and does nothing when no shifts are left.
+        /// </summary>
+        public static bool TryShift(BoardState state, int row, int direction)
+        {
+            if (state.ShiftsLeft <= 0)
+            {
+                return false;
+            }
+
+            if (direction < 0)
+            {
+                ShiftLeft(state, row);
+            }
+            else
+            {
+                ShiftRight(state, row);
+            }
+
+            state.UseShift();
+            return true;
+        }
+
         /// <summary>
         /// Shifts a row one cell left (cell 1 moves to cell 0). The right end becomes 0 and the bit pushed past the left end is lost.
         /// A robot on that row moves left with it and falls if it leaves cell 0.
