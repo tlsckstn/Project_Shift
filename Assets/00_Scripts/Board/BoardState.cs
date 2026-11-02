@@ -39,6 +39,9 @@ namespace ProjectShift.Board
         /// <summary>Shifts the player has left.</summary>
         public int ShiftsLeft => shiftsLeft;
 
+        /// <summary>True when the robot was pushed past cell 0 or cell 7. The column stays out of range until restart.</summary>
+        public bool IsRobotFallen => robotCol < 0 || robotCol >= Columns;
+
         /// <summary>Returns the raw 8-bit value of row <paramref name="row"/>.</summary>
         public byte GetRow(int row)
         {
@@ -55,6 +58,13 @@ namespace ProjectShift.Board
         public void SetRow(int row, byte value)
         {
             rows[row] = value;
+        }
+
+        /// <summary>Moves the robot. Used by BoardLogic; no bounds check, so a fall can be represented.</summary>
+        public void SetRobot(int row, int col)
+        {
+            robotRow = row;
+            robotCol = col;
         }
 
         /// <summary>Returns an independent deep copy (the rows array is duplicated).</summary>

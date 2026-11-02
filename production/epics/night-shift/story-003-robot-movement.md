@@ -1,12 +1,12 @@
 # Story 003: 로봇 이동·줄과 함께 밀림·추락
 
 > **Epic**: night-shift
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: [set by /dev-story when implementation begins]
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -28,12 +28,12 @@
 
 *From `design/game-brief.md`, scoped to this story:*
 
-- [ ] 같은 줄에서 옆 칸이 켜져 있으면 로봇이 좌우로 걷는다. 꺼져 있으면 걷지 못한다.
-- [ ] 바로 아래 칸이 켜져 있으면 아래 줄로 내려간다. 위로는 올라가지 못한다.
-- [ ] 걷기와 내려가기는 횟수 제한이 없다 (시프트 횟수만 소모한다).
-- [ ] 로봇이 서 있는 줄을 밀면 로봇도 같은 방향으로 한 칸 같이 이동한다.
-- [ ] 로봇이 칸 0~7 밖으로 밀려나면 추락으로 판정되고 즉시 재시작 대상이 된다.
-- [ ] 다른 줄을 밀 때는 로봇이 움직이지 않는다.
+- [x] 같은 줄에서 옆 칸이 켜져 있으면 로봇이 좌우로 걷는다. 꺼져 있으면 걷지 못한다.
+- [x] 바로 아래 칸이 켜져 있으면 아래 줄로 내려간다. 위로는 올라가지 못한다.
+- [x] 걷기와 내려가기는 횟수 제한이 없다 (시프트 횟수만 소모한다).
+- [x] 로봇이 서 있는 줄을 밀면 로봇도 같은 방향으로 한 칸 같이 이동한다.
+- [x] 로봇이 칸 0~7 밖으로 밀려나면 추락으로 판정되고 즉시 재시작 대상이 된다.
+- [x] 다른 줄을 밀 때는 로봇이 움직이지 않는다.
 
 ---
 
@@ -71,7 +71,7 @@
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/Board/RobotMovementTests.cs` (tests are waived at `qa.level: minimal`)
 
-**Status**: [ ] Not yet created
+**Status**: Waived (qa.level minimal, no asmdef). Verified 2026-11-02 by editor `script eval_file`: 14/14 checks PASS (walk, descend, no up, ride row, other row, fall at 0 and 7).
 
 ---
 
