@@ -1,12 +1,12 @@
 # Story 004: Undo·재시작에 선택 로봇 포함
 
 > **Epic**: two-robots
-> **Status**: Ready
+> **Status**: In Progress
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: S
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -52,11 +52,7 @@
 
 ## Files
 
-- `Assets/00_Scripts/Board/BoardHistory.cs`
-- `Assets/00_Scripts/Stage/StageManager.cs`
-- `Assets/Tests/EditMode/Board/TwoRobotUndoTests.cs`
-
----
+- None changed. `BoardHistory` stores `BoardState.Clone()` snapshots, and `Clone()` has kept the selected robot since story 001, so Undo and Restart needed no code. The `Q` switch is not saved as an undo step (`StageManager.SwitchRobot`, story 002).
 
 ## QA Test Cases
 
@@ -69,7 +65,7 @@
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/Board/TwoRobotUndoTests.cs` (tests are waived at `qa.level: minimal`)
 
-**Status**: [ ] Not yet created
+**Status**: [x] Tests waived (minimal). Checked through the real StageManager Undo/SwitchRobot/Restart path in play mode on a temporary in-memory two-robot stage: walk then Q then Undo restores the walker and its selection (undo steps 1 to 0); Q alone adds no undo step; Q then walk then Q then Undo restores the robot that walked and selection 1; shift then Undo restores shifts, rows and positions; Undo with nothing to undo changes nothing; Restart restores both robots, selection 0, shifts and clears the stack. One-robot stage: walk, Undo, shift, Restart behave as before. Console errors 0.
 
 ---
 
