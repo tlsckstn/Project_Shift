@@ -108,11 +108,12 @@ namespace ProjectShift.Stage
         {
             history.Save(before);
 
-            if (state.IsRobotFallen)
+            if (state.IsFailed)
             {
+                string message = state.IsRobotFallen ? "FELL! Restarted" : "BUG! Restarted";
                 state = history.Restart();
                 Render();
-                view.ShowMessage("FELL! Restarted");
+                view.ShowMessage(message);
                 return;
             }
 

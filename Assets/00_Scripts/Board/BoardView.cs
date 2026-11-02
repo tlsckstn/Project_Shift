@@ -29,6 +29,7 @@ namespace ProjectShift.Board
         [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
         [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
         [SerializeField] private Color firewallColor = new Color(1f, 0.55f, 0.1f);
+        [SerializeField] private Color bugColor = new Color(0.9f, 0.2f, 0.9f);
         [SerializeField] private Color robotColor = new Color(0.3f, 0.6f, 1f);
         [SerializeField] private Color exitColor = new Color(1f, 0.4f, 0.3f);
         [SerializeField] private Color shiftsColor = Color.white;
@@ -39,6 +40,8 @@ namespace ProjectShift.Board
         private Transform[] cellTransforms;
         private SpriteRenderer[] firewallMarks;
         private Transform[] firewallTransforms;
+        private SpriteRenderer[] bugMarks;
+        private Transform[] bugTransforms;
         private SpriteRenderer[] rowHighlights;
         private Transform[] highlightTransforms;
         private SpriteRenderer[] lockFrames;
@@ -64,6 +67,8 @@ namespace ProjectShift.Board
             cellTransforms = new Transform[cellCount];
             firewallMarks = new SpriteRenderer[cellCount];
             firewallTransforms = new Transform[cellCount];
+            bugMarks = new SpriteRenderer[cellCount];
+            bugTransforms = new Transform[cellCount];
             rowHighlights = new SpriteRenderer[MaxRows];
             highlightTransforms = new Transform[MaxRows];
             lockFrames = new SpriteRenderer[MaxRows];
@@ -98,6 +103,10 @@ namespace ProjectShift.Board
                     // Larger square under the cell: shows as a thick outline around a firewall cell.
                     firewallMarks[i] = CreateSquare("Firewall", firewallColor, 1, Vector3.one * (cellSize * 1.2f));
                     firewallTransforms[i] = firewallMarks[i].transform;
+                    // Diamond (square turned 45 degrees) on top of the cell, so its shape differs from the square robot and exit.
+                    bugMarks[i] = CreateSquare("Bug", bugColor, 3, Vector3.one * (cellSize * 0.45f));
+                    bugTransforms[i] = bugMarks[i].transform;
+                    bugTransforms[i].localRotation = Quaternion.Euler(0f, 0f, 45f);
                 }
 
                 // Adding TextMeshPro replaces the Transform with a RectTransform, so cache it afterwards.
@@ -175,6 +184,7 @@ namespace ProjectShift.Board
                     int i = r * BoardState.Columns + c;
                     cells[i].enabled = used;
                     firewallMarks[i].enabled = used && state.IsFirewall(r, c);
+                    bugMarks[i].enabled = used && state.IsBugCell(r, c);
                     if (!used)
                     {
                         continue;
@@ -183,6 +193,7 @@ namespace ProjectShift.Board
                     cells[i].color = state.GetCell(r, c) ? onColor : offColor;
                     cellTransforms[i].localPosition = CellPosition(r, c, state.RowCount);
                     firewallTransforms[i].localPosition = cellTransforms[i].localPosition;
+                    bugTransforms[i].localPosition = cellTransforms[i].localPosition;
                 }
 
                 if (!used)

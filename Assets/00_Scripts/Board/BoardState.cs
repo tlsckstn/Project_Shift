@@ -21,17 +21,20 @@ namespace ProjectShift.Board
         private readonly bool[] lockedRows;
         // Indexed row * Columns + column. Fixed for the whole stage, so clones share it. Null means no firewalls.
         private readonly bool[] firewalls;
+        // Same layout and lifetime as firewalls. Null means no bug cells.
+        private readonly bool[] bugCells;
 
         /// <summary>
         /// Creates a state. The rows array is copied, so the caller keeps its own array.
-        /// <paramref name="lockedRows"/> (one flag per row) and <paramref name="firewalls"/> (one flag per cell, row * Columns + column)
-        /// may be null; they are kept by reference and must not change afterwards.
+        /// <paramref name="lockedRows"/> (one flag per row), <paramref name="firewalls"/> and <paramref name="bugCells"/>
+        /// (one flag per cell, row * Columns + column) may be null; they are kept by reference and must not change afterwards.
         /// </summary>
-        public BoardState(byte[] rows, int robotRow, int robotCol, int shiftsLeft, bool[] lockedRows = null, bool[] firewalls = null)
+        public BoardState(byte[] rows, int robotRow, int robotCol, int shiftsLeft, bool[] lockedRows = null, bool[] firewalls = null, bool[] bugCells = null)
         {
             this.rows = (byte[])rows.Clone();
             this.lockedRows = lockedRows;
             this.firewalls = firewalls;
+            this.bugCells = bugCells;
             this.robotRow = robotRow;
             this.robotCol = robotCol;
             this.shiftsLeft = shiftsLeft;
@@ -52,6 +55,12 @@ namespace ProjectShift.Board
         /// <summary>True when the robot was pushed past cell 0 or cell 7. The column stays out of range until restart.</summary>
         public bool IsRobotFallen => robotCol < 0 || robotCol >= Columns;
 
+        /// <summary>True when the robot entered a bug cell, by any move.</summary>
+        public bool IsRobotOnBug => !IsRobotFallen && IsBugCell(robotRow, robotCol);
+
+        /// <summary>True when the stage is lost and must restart: the robot fell or entered a bug cell.</summary>
+        public bool IsFailed => IsRobotFallen || IsRobotOnBug;
+
         /// <summary>True when row <paramref name="row"/> cannot be shifted.</summary>
         public bool IsRowLocked(int row)
         {
@@ -62,6 +71,12 @@ namespace ProjectShift.Board
         public bool IsFirewall(int row, int col)
         {
             return firewalls != null && firewalls[row * Columns + col];
+        }
+
+        /// <summary>True when board cell (<paramref name="row"/>, <paramref name="col"/>) is a bug cell. Bug cells are fixed to the board and do not move with shifts.</summary>
+        public bool IsBugCell(int row, int col)
+        {
+            return bugCells != null && bugCells[row * Columns + col];
         }
 
         /// <summary>Returns the raw 8-bit value of row <paramref name="row"/>.</summary>
@@ -95,10 +110,10 @@ namespace ProjectShift.Board
             shiftsLeft--;
         }
 
-        /// <summary>Returns an independent copy (the rows array is duplicated; the fixed locked-row and firewall flags are shared).</summary>
+        /// <summary>Returns an independent copy (the rows array is duplicated; the fixed locked-row, firewall and bug-cell flags are shared).</summary>
         public BoardState Clone()
         {
-            return new BoardState(rows, robotRow, robotCol, shiftsLeft, lockedRows, firewalls);
+            return new BoardState(rows, robotRow, robotCol, shiftsLeft, lockedRows, firewalls, bugCells);
         }
     }
 }

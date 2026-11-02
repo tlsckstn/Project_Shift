@@ -26,7 +26,7 @@
 |---|-------|------|--------|-----|
 | 001 | 잠긴 줄 | Logic | Complete | N/A |
 | 002 | 방화벽 | Logic | Complete | N/A |
-| 003 | 버그 칸 | Logic | Ready | N/A |
+| 003 | 버그 칸 | Logic | Complete | N/A |
 | 004 | 장애물 소개·활용 스테이지 | Config/Data | Ready | N/A |
 
 ## Definition of Done

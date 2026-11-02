@@ -26,6 +26,8 @@ namespace ProjectShift.Stage
         [SerializeField] private int[] lockedRows;
         [Tooltip("Firewall cells fixed to the board, x = row, y = column. Never place one on the exit.")]
         [SerializeField] private Vector2Int[] firewalls;
+        [Tooltip("Bug cells fixed to the board, x = row, y = column. Entering one by any move fails the stage. Never place one on the start or exit.")]
+        [SerializeField] private Vector2Int[] bugCells;
 
         /// <summary>Exit cell as (row, column).</summary>
         public Vector2Int Exit => exit;
@@ -39,7 +41,7 @@ namespace ProjectShift.Stage
         /// <summary>One-line rule hint shown during the stage; empty or null means no hint.</summary>
         public string Hint => hint;
 
-        /// <summary>Builds a fresh board state from the row strings, start position, shift limit, locked rows and firewalls.</summary>
+        /// <summary>Builds a fresh board state from the row strings, start position, shift limit, locked rows, firewalls and bug cells.</summary>
         public BoardState CreateState()
         {
             var bytes = new byte[rows.Length];
@@ -58,17 +60,24 @@ namespace ProjectShift.Stage
                 }
             }
 
-            bool[] walls = null;
-            if (firewalls != null && firewalls.Length > 0)
+            return new BoardState(bytes, start.x, start.y, shiftLimit, locked, ToCellFlags(firewalls), ToCellFlags(bugCells));
+        }
+
+        // One flag per board cell (row * Columns + column); null when the list is empty.
+        private bool[] ToCellFlags(Vector2Int[] cells)
+        {
+            if (cells == null || cells.Length == 0)
             {
-                walls = new bool[rows.Length * BoardState.Columns];
-                foreach (Vector2Int cell in firewalls)
-                {
-                    walls[cell.x * BoardState.Columns + cell.y] = true;
-                }
+                return null;
             }
 
-            return new BoardState(bytes, start.x, start.y, shiftLimit, locked, walls);
+            var flags = new bool[rows.Length * BoardState.Columns];
+            foreach (Vector2Int cell in cells)
+            {
+                flags[cell.x * BoardState.Columns + cell.y] = true;
+            }
+
+            return flags;
         }
     }
 }
