@@ -67,8 +67,9 @@ namespace ProjectShift.Board
         private Transform selectedFrameTransform;
         private TextMeshPro keysLabel;
         private bool shownMultiRobot;
-        private SpriteRenderer exit;
-        private Transform exitTransform;
+        // One exit per robot, same order as the robots.
+        private SpriteRenderer[] exitMarks;
+        private Transform[] exitTransforms;
         private TextMeshPro shiftsLabel;
         private TextMeshPro hintLabel;
         private int shownShifts = -1;
@@ -136,8 +137,14 @@ namespace ProjectShift.Board
                 shownValues[r] = -1;
             }
 
-            exit = CreateSquare("Exit", exitColor, 3, Vector3.one * (cellSize * 0.8f));
-            exitTransform = exit.transform;
+            exitMarks = new SpriteRenderer[MaxRobots];
+            exitTransforms = new Transform[MaxRobots];
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                exitMarks[i] = CreateSquare("Exit", exitColor, 3, Vector3.one * (cellSize * 0.8f));
+                exitTransforms[i] = exitMarks[i].transform;
+            }
+
             // Frame first and one sorting order below the robots, so it shows as an outline behind the selected one.
             selectedFrame = CreateSquare("SelectedRobot", selectedRobotColor, 4, Vector3.one * (cellSize * 0.7f));
             selectedFrameTransform = selectedFrame.transform;
@@ -188,10 +195,11 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Redraws the board. Rows are drawn top to bottom; the robot and exit sit on top of their cell.
-        /// The exit (row, column) comes from StageData, not BoardState, because it never changes during a stage.
+        /// The exits (row, column), one per robot in robot order, come from StageData, not BoardState, because they never change during a stage.
+        /// With more than one robot each exit takes its robot's color.
         /// <paramref name="parLeft"/> is the shifts still inside par; a negative value hides the PAR text.
         /// </summary>
-        public void Render(BoardState state, int selectedRow, Vector2Int exitCell, int parLeft)
+        public void Render(BoardState state, int selectedRow, Vector2Int[] exits, int parLeft)
         {
             for (int r = 0; r < MaxRows; r++)
             {
@@ -267,7 +275,18 @@ namespace ProjectShift.Board
                 keysLabel.SetText(multiRobot ? KeysTextMultiRobot : KeysText);
             }
 
-            exitTransform.localPosition = CellPosition(exitCell.x, exitCell.y, state.RowCount) + standOffset;
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                bool hasExit = i < exits.Length;
+                exitMarks[i].enabled = hasExit;
+                if (!hasExit)
+                {
+                    continue;
+                }
+
+                exitMarks[i].color = multiRobot ? robotColors[i] : exitColor;
+                exitTransforms[i].localPosition = CellPosition(exits[i].x, exits[i].y, state.RowCount) + standOffset;
+            }
 
             // Sits above the top row; only rebuilt when the count or par changes.
             shiftsLabel.rectTransform.localPosition = new Vector3(0f, CellPosition(0, 0, state.RowCount).y + rowSpacing, 0f);
