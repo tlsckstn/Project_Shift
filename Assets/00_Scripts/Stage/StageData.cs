@@ -20,12 +20,17 @@ namespace ProjectShift.Stage
         [SerializeField] private int shiftLimit;
         [Tooltip("Fewest shifts that clear the stage (verified by BFS). 0 hides PAR.")]
         [SerializeField] private int par;
+        [Tooltip("Optional one-line hint in English. Explains rules only, never keys. Empty hides it.")]
+        [SerializeField] private string hint;
 
         /// <summary>Exit cell as (row, column).</summary>
         public Vector2Int Exit => exit;
 
         /// <summary>Fewest shifts that clear the stage; 0 means not set and is not shown.</summary>
         public int Par => par;
+
+        /// <summary>One-line rule hint shown during the stage; empty or null means no hint.</summary>
+        public string Hint => hint;
 
         /// <summary>Builds a fresh board state from the row strings, start position and shift limit.</summary>
         public BoardState CreateState()

@@ -20,6 +20,10 @@ namespace ProjectShift.Board
         [SerializeField] private float keysFontSize = 3.5f;
         [Tooltip("Local y of the key panel; keep it inside the camera's bottom edge (orthographic size 5).")]
         [SerializeField] private float keysPanelY = -4.3f;
+        [SerializeField] private float hintFontSize = 4f;
+        [Tooltip("Local y of the stage hint; between the bottom board row (3 rows reach about -2.5) and the key panel.")]
+        [SerializeField] private float hintY = -3.4f;
+        [SerializeField] private Color hintColor = new Color(0.9f, 0.8f, 0.2f);
         [SerializeField] private Color onColor = new Color(0.3f, 0.9f, 0.5f);
         [SerializeField] private Color offColor = new Color(0.15f, 0.15f, 0.2f);
         [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
@@ -41,6 +45,7 @@ namespace ProjectShift.Board
         private SpriteRenderer exit;
         private Transform exitTransform;
         private TextMeshPro shiftsLabel;
+        private TextMeshPro hintLabel;
         private int shownShifts = -1;
         private int shownPar = -1;
 
@@ -101,6 +106,26 @@ namespace ProjectShift.Board
             keysLabel.alignment = TextAlignmentOptions.Center;
             keysLabel.color = shiftsColor;
             keysLabel.SetText(KeysText);
+
+            hintLabel = new GameObject("StageHint").AddComponent<TextMeshPro>();
+            hintLabel.rectTransform.SetParent(cachedTransform, false);
+            hintLabel.rectTransform.localPosition = new Vector3(0f, hintY, 0f);
+            hintLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
+            hintLabel.fontSize = hintFontSize;
+            hintLabel.alignment = TextAlignmentOptions.Center;
+            hintLabel.color = hintColor;
+            hintLabel.enabled = false;
+        }
+
+        /// <summary>Shows the stage's one-line hint, or hides the hint line when it is empty. Call on stage load only.</summary>
+        public void ShowHint(string hint)
+        {
+            bool hasHint = !string.IsNullOrEmpty(hint);
+            hintLabel.enabled = hasHint;
+            if (hasHint)
+            {
+                hintLabel.SetText(hint);
+            }
         }
 
         /// <summary>

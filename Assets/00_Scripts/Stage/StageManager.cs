@@ -132,11 +132,13 @@ namespace ProjectShift.Stage
                 isFinished = true;
                 Render(); // show the winning move before the end message
                 view.ShowMessage("ALL CLEAR");
+                view.ShowHint(string.Empty);
                 return;
             }
 
             stageIndex = index;
             state = stages[index].CreateState();
+            view.ShowHint(stages[index].Hint);
             history = new BoardHistory(state);
             selectedRow = 0;
             Render();
