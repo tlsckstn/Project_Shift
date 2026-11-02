@@ -1,7 +1,7 @@
 # Story 005: 되돌리기(Undo)와 재시작
 
 > **Epic**: night-shift
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: S
@@ -28,12 +28,12 @@
 
 *From `design/game-brief.md`, scoped to this story:*
 
-- [ ] 시프트·걷기·내려가기 직전마다 `BoardState` 복사본이 `Stack`에 저장된다.
-- [ ] `Z`를 누르면 마지막 행동 이전 상태로 돌아간다 (줄 값, 로봇 위치, 남은 횟수 모두).
-- [ ] 되돌리기 후 저장된 이전 상태와 현재 상태가 같은 `rows` 배열을 공유하지 않는다 (깊은 복사).
-- [ ] 스택이 비어 있을 때 `Z`는 아무 일도 하지 않는다 (오류 없음).
-- [ ] `R`을 누르면 스테이지 시작 상태로 돌아가고 되돌리기 스택이 비워진다.
-- [ ] 추락한 직후에도 `Z`로 직전 상태로 돌아갈 수 있다.
+- [x] 시프트·걷기·내려가기 직전마다 `BoardState` 복사본이 `Stack`에 저장된다.
+- [x] `Z`를 누르면 마지막 행동 이전 상태로 돌아간다 (줄 값, 로봇 위치, 남은 횟수 모두).
+- [x] 되돌리기 후 저장된 이전 상태와 현재 상태가 같은 `rows` 배열을 공유하지 않는다 (깊은 복사).
+- [x] 스택이 비어 있을 때 `Z`는 아무 일도 하지 않는다 (오류 없음).
+- [x] `R`을 누르면 스테이지 시작 상태로 돌아가고 되돌리기 스택이 비워진다.
+- [x] 추락한 직후에도 `Z`로 직전 상태로 돌아갈 수 있다.
 
 ---
 
@@ -70,7 +70,7 @@
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/Board/BoardHistoryTests.cs` (tests are waived at `qa.level: minimal`)
 
-**Status**: [ ] Not yet created
+**Status**: Waived (qa.level minimal). Verified 8/8 checks via `unity cmd script eval_file` on 2026-11-02.
 
 ---
 
