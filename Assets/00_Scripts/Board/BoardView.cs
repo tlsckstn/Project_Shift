@@ -130,10 +130,10 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Redraws the board. Rows are drawn top to bottom; the robot and exit sit on top of their cell.
-        /// The exit (row, column) and par come from StageData, not BoardState, because they never change during a stage.
-        /// A par of 0 hides the PAR text.
+        /// The exit (row, column) comes from StageData, not BoardState, because it never changes during a stage.
+        /// <paramref name="parLeft"/> is the shifts still inside par; a negative value hides the PAR text.
         /// </summary>
-        public void Render(BoardState state, int selectedRow, Vector2Int exitCell, int par)
+        public void Render(BoardState state, int selectedRow, Vector2Int exitCell, int parLeft)
         {
             for (int r = 0; r < MaxRows; r++)
             {
@@ -178,16 +178,16 @@ namespace ProjectShift.Board
 
             // Sits above the top row; only rebuilt when the count or par changes.
             shiftsLabel.rectTransform.localPosition = new Vector3(0f, CellPosition(0, 0, state.RowCount).y + rowSpacing, 0f);
-            if (shownShifts != state.ShiftsLeft || shownPar != par)
+            if (shownShifts != state.ShiftsLeft || shownPar != parLeft)
             {
                 shownShifts = state.ShiftsLeft;
-                shownPar = par;
+                shownPar = parLeft;
                 if (shownShifts > 0)
                 {
                     shiftsLabel.color = shiftsColor;
-                    if (par > 0)
+                    if (parLeft >= 0)
                     {
-                        shiftsLabel.SetText("SHIFTS {0}  PAR {1}", shownShifts, par);
+                        shiftsLabel.SetText("SHIFTS {0}  PAR {1}", shownShifts, parLeft);
                     }
                     else
                     {

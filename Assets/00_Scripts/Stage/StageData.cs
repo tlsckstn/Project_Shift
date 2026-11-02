@@ -29,6 +29,9 @@ namespace ProjectShift.Stage
         /// <summary>Fewest shifts that clear the stage; 0 means not set and is not shown.</summary>
         public int Par => par;
 
+        /// <summary>Shifts the stage starts with.</summary>
+        public int ShiftLimit => shiftLimit;
+
         /// <summary>One-line rule hint shown during the stage; empty or null means no hint.</summary>
         public string Hint => hint;
 

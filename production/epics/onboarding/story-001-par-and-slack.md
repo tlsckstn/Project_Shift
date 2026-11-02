@@ -94,3 +94,6 @@
 **Deviations**: Implemented directly instead of via ui-programmer agent (size S); no engine-specialist review.
 **Test Evidence**: waived at qa.level minimal; screenshot `production/qa/evidence/story-001-par-and-slack/stage01-par.png`
 **Reviewed by**: skipped — Solo mode
+
+## Change 2026-11-02 (사용자 요청)
+PAR는 이제 "par 안에 남은 시프트 수"를 보여 준다: 시프트마다 SHIFTS와 함께 1씩 줄고, par를 넘기면 0에서 멈추며, Undo·재시작하면 다시 올라간다 (`StageManager.Render`의 `parLeft`, `StageData.ShiftLimit` 추가). 위 기준 "par 표시는 스테이지가 바뀔 때만 갱신"은 이 변경으로 대체됨 (문자열은 여전히 값이 바뀔 때만 재생성). 증거: `production/qa/evidence/story-004-tutorial-stages/par-countdown.png` (Tutorial01, 1회 시프트 후 `SHIFTS 5  PAR 3`).

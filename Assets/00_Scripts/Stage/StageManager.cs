@@ -146,7 +146,10 @@ namespace ProjectShift.Stage
 
         private void Render()
         {
-            view.Render(state, selectedRow, stages[stageIndex].Exit, stages[stageIndex].Par);
+            StageData stage = stages[stageIndex];
+            // Shifts still inside par: counts down with every shift, stops at 0 once over par; -1 hides PAR.
+            int parLeft = stage.Par > 0 ? Mathf.Max(0, stage.Par - (stage.ShiftLimit - state.ShiftsLeft)) : -1;
+            view.Render(state, selectedRow, stage.Exit, parLeft);
         }
     }
 }
