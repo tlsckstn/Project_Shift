@@ -154,6 +154,11 @@ MonoBehaviour:
   cellSize: 1
   rowSpacing: 2
   labelFontSize: 6
+  keysFontSize: 3.5
+  keysPanelY: -4.3
+  hintFontSize: 4
+  hintY: -3.4
+  hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
   offColor: {r: 0.15, g: 0.15, b: 0.2, a: 1}
   selectedRowColor: {r: 0.9, g: 0.8, b: 0.2, a: 0.35}
@@ -202,6 +207,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Stage.StageManager
   stages:
+  - {fileID: 11400000, guid: 7acd9c8200efb7a42b8607f377afc6bb, type: 2}
+  - {fileID: 11400000, guid: 7198b31df2879eb4ab2ebcd480cef797, type: 2}
+  - {fileID: 11400000, guid: dab618eb557f0034bbf02e9322731258, type: 2}
   - {fileID: 11400000, guid: 36e0845573b21a146bb2e384ea135ab5, type: 2}
   - {fileID: 11400000, guid: d0f23fece4c9bb84da252889f7000786, type: 2}
   - {fileID: 11400000, guid: 49c0752a7a1eee849bde56c47f5985ec, type: 2}
