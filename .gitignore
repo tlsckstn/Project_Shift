@@ -120,3 +120,10 @@ production/session-state/
 docs/consistency-failures.md
 /reports/
 /test-results/
+
+# Unity CLI pipeline package: editor-local state (Run In Background override), changes on every CLI use
+/ProjectSettings/Packages/com.unity.pipeline/
+
+# Tool state and generated graph output (oh-my-claudecode, graphify): local only, not game source
+.omc/
+graphify-out/
