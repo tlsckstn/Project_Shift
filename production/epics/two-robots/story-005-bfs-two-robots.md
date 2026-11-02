@@ -1,7 +1,7 @@
 # Story 005: BFS 여러 로봇 확장
 
 > **Epic**: two-robots
-> **Status**: In Progress
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: M

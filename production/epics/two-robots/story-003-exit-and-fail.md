@@ -1,7 +1,7 @@
 # Story 003: 출구·실패 판정
 
 > **Epic**: two-robots
-> **Status**: In Progress
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: S

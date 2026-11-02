@@ -1,7 +1,7 @@
 # Story 004: Undo·재시작에 선택 로봇 포함
 
 > **Epic**: two-robots
-> **Status**: In Progress
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: S

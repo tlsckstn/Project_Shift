@@ -1,12 +1,12 @@
 # Story 006: 여러 로봇 소개·활용 스테이지 (2대·3대)
 
 > **Epic**: two-robots
-> **Status**: Ready
+> **Status**: In Progress
 > **Layer**: Feature
 > **Type**: Config/Data
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -59,9 +59,13 @@
 
 ## Files
 
-- `Assets/00_Scripts/Stage/StageData.cs` 또는 `StageData[]`가 정의된 에셋/배열 위치 (구현 때 확정)
-
----
+- `Assets/Data/Stages/Stage12.asset` (new, 2 robots, intro)
+- `Assets/Data/Stages/Stage13.asset` (new, 2 robots, locked row)
+- `Assets/Data/Stages/Stage14.asset` (new, 2 robots, firewall)
+- `Assets/Data/Stages/Stage15.asset` (new, 2 robots, bug cell)
+- `Assets/Data/Stages/Stage16.asset` (new, 3 robots)
+- `Assets/Data/Stages/Stage17.asset` (new, 3 robots, final)
+- `Assets/Scenes/SampleScene.unity` (StageManager.stages: six appended; the save also wrote BoardView fields robotColors and selectedRobotColor from story 002)
 
 ## QA Test Cases
 
@@ -74,7 +78,7 @@
 **Story Type**: Config/Data
 **Required evidence**: smoke check pass (`production/qa/smoke-*.md`) + 플레이어가 보는 변화이므로 retained screenshot (`production/qa/evidence/story-006-two-robot-stages/`)
 
-**Status**: [ ] Not yet created
+**Status**: [x] Screenshots retained in `production/qa/evidence/story-006-two-robot-stages/` (01 Stage12 intro, 02 Stage15 bug, 03 Stage16 three robots, 04 Stage17 three robots final, 05 ALL CLEAR). Solver (story 005) confirmed every par: Stage12=2, 13=5, 14=5, 15=6, 16=6, 17=8; limit = par + 2. Replay of every solver solution through the real StageManager in play mode: all 20 scene stages cleared (14 existing + 6 new) and the run ended in ALL CLEAR, console errors 0. NOT checked: the WebGL build (needs a rebuild; also covers A/D/Q from story 002).
 
 ---
 

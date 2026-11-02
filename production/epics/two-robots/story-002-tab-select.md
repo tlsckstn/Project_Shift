@@ -1,7 +1,7 @@
 # Story 002: Q 전환과 선택 표시
 
 > **Epic**: two-robots
-> **Status**: In Progress
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: UI
 > **Estimate**: M

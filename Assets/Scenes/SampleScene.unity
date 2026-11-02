@@ -165,7 +165,11 @@ MonoBehaviour:
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
   firewallColor: {r: 1, g: 0.55, b: 0.1, a: 1}
   bugColor: {r: 0.9, g: 0.2, b: 0.9, a: 1}
-  robotColor: {r: 0.3, g: 0.6, b: 1, a: 1}
+  robotColors:
+  - {r: 0.3, g: 0.6, b: 1, a: 1}
+  - {r: 1, g: 0.5, b: 0.75, a: 1}
+  - {r: 1, g: 0.85, b: 0.25, a: 1}
+  selectedRobotColor: {r: 1, g: 1, b: 1, a: 1}
   exitColor: {r: 1, g: 0.4, b: 0.3, a: 1}
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
@@ -224,6 +228,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 01fe38444da98f14981aab6d022a4e90, type: 2}
   - {fileID: 11400000, guid: 53ecb90bc9c650f49b6794fbdd52242a, type: 2}
   - {fileID: 11400000, guid: cf68d304ec4113b4c8428518e064b8db, type: 2}
+  - {fileID: 11400000, guid: 5eef4e6181561c741b55405a5aa102ee, type: 2}
+  - {fileID: 11400000, guid: 7b2ca42fa03033e40932a1940f0445bb, type: 2}
+  - {fileID: 11400000, guid: c29ca5c69d3565e4aa6942a12a164af4, type: 2}
+  - {fileID: 11400000, guid: 3e53987c701255249b73cf7946eb4c2d, type: 2}
+  - {fileID: 11400000, guid: e55b84edd97ea2c408d6253310a32400, type: 2}
+  - {fileID: 11400000, guid: 688a1aafb92c8d441a497a9bd9fc5cc6, type: 2}
   view: {fileID: 306120833}
 --- !u!1 &519420028
 GameObject:
