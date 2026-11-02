@@ -32,7 +32,7 @@
 - [ ] `Q` 전환은 시프트 0회로 취급한다 (전환만 하는 순환 상태가 무한 루프를 만들지 않는다).
 - [ ] 최소 시프트 횟수(par)를 구한다. 풀 수 없는 스테이지는 "풀 수 없음"으로 보고한다.
 - [ ] 이동 규칙은 `BoardLogic`을 그대로 호출해 만든다 (규칙을 BFS 안에서 다시 구현하지 않는다).
-- [ ] 기존 11개 스테이지의 par가 이전 BFS 결과와 정확히 같다 (회귀).
+- [ ] 기존 14개 스테이지의 par가 이전 BFS 결과와 정확히 같다 (회귀).
 - [ ] 2대 스테이지와 3대 스테이지를 각각 검증하는 데 에디터에서 몇 초 안에 끝난다. 3대가 느리면 구현 전에 사용자에게 알린다 (상태 키 압축, 3대 스테이지의 줄 수 제한 등).
 - [ ] 해답 경로(행동 목록)를 얻을 수 있어 스테이지 해답을 직접 재생해 볼 수 있다.
 
@@ -69,7 +69,7 @@
 ## Test Evidence
 
 **Story Type**: Logic
-**Required evidence**: `Assets/Tests/EditMode/Stage/TwoRobotBfsTests.cs` (tests are waived at `qa.level: minimal`). 11개 스테이지 par 전후 비교 결과를 Completion Notes에 남긴다.
+**Required evidence**: `Assets/Tests/EditMode/Stage/TwoRobotBfsTests.cs` (tests are waived at `qa.level: minimal`). 14개 스테이지 par 전후 비교 결과를 Completion Notes에 남긴다.
 
 **Status**: [ ] Not yet created
 
