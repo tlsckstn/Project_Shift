@@ -559,6 +559,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "SwitchRobot",
+                    "type": "Button",
+                    "id": "8c5f3b2e-6a41-4d7e-9b13-2f0e7a64c1d5",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -620,7 +629,7 @@
                 {
                     "name": "",
                     "id": "e5591b57-a63c-4647-a16f-354b9f02474d",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -631,7 +640,7 @@
                 {
                     "name": "",
                     "id": "42924934-5275-493c-b98c-18177184242d",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -658,6 +667,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Restart",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b27d90a4-3e58-4f16-8c0b-5d1a6e93f7c2",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "SwitchRobot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

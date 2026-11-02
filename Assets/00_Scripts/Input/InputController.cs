@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 namespace ProjectShift.Input
 {
     /// <summary>
-    /// Maps the project-wide "Puzzle" action map to stage actions: walk, descend, select a row, shift it, undo, restart.
+    /// Maps the project-wide "Puzzle" action map to stage actions: walk, descend, select a row, shift it, switch robot, undo, restart.
     /// Bindings live in Assets/InputSystem_Actions.inputactions.
     /// </summary>
     public class InputController : MonoBehaviour
@@ -20,6 +20,7 @@ namespace ProjectShift.Input
         private InputAction rowDown;
         private InputAction shiftLeft;
         private InputAction shiftRight;
+        private InputAction switchRobot;
         private InputAction undo;
         private InputAction restart;
 
@@ -33,6 +34,7 @@ namespace ProjectShift.Input
             rowDown = puzzleMap.FindAction("RowDown", true);
             shiftLeft = puzzleMap.FindAction("ShiftLeft", true);
             shiftRight = puzzleMap.FindAction("ShiftRight", true);
+            switchRobot = puzzleMap.FindAction("SwitchRobot", true);
             undo = puzzleMap.FindAction("Undo", true);
             restart = puzzleMap.FindAction("Restart", true);
         }
@@ -56,6 +58,7 @@ namespace ProjectShift.Input
             if (rowDown.WasPressedThisFrame()) stageManager.SelectRow(1);
             if (shiftLeft.WasPressedThisFrame()) stageManager.Shift(-1);
             if (shiftRight.WasPressedThisFrame()) stageManager.Shift(1);
+            if (switchRobot.WasPressedThisFrame()) stageManager.SwitchRobot();
             if (undo.WasPressedThisFrame()) stageManager.Undo();
             if (restart.WasPressedThisFrame()) stageManager.Restart();
         }

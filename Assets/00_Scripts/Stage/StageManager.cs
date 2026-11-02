@@ -80,6 +80,18 @@ namespace ProjectShift.Stage
             Render();
         }
 
+        /// <summary>Selects the next robot. Does nothing with one robot; costs no shift and is not an undo step.</summary>
+        public void SwitchRobot()
+        {
+            if (isFinished || state.RobotCount < 2)
+            {
+                return;
+            }
+
+            state.SelectNextRobot();
+            Render();
+        }
+
         /// <summary>Reverts the last walk, descend or shift.</summary>
         public void Undo()
         {

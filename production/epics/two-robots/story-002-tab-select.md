@@ -1,12 +1,12 @@
 # Story 002: Q 전환과 선택 표시
 
 > **Epic**: two-robots
-> **Status**: Ready
+> **Status**: In Progress
 > **Layer**: Feature
 > **Type**: UI
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -60,11 +60,10 @@
 
 ## Files
 
+- `Assets/InputSystem_Actions.inputactions`
 - `Assets/00_Scripts/Input/InputController.cs`
-- `Assets/00_Scripts/Board/BoardView.cs`
 - `Assets/00_Scripts/Stage/StageManager.cs`
-
----
+- `Assets/00_Scripts/Board/BoardView.cs`
 
 ## QA Test Cases
 
@@ -77,7 +76,7 @@
 **Story Type**: UI
 **Required evidence**: 2대·3대 스테이지에서 로봇 선택 전환 전·후 스크린샷, 1대 스테이지 스크린샷을 `production/qa/evidence/story-002-tab-select/`에 retained (tests waived at `qa.level: minimal`, screenshot is not).
 
-**Status**: [ ] Not yet created
+**Status**: [x] Screenshots retained in `production/qa/evidence/story-002-tab-select/` (01 two robots robot 0 selected, 02 after Q robot 1 selected, 03 three robots overlapping robot 2 selected on top, 04 one-robot stage: no outline, no Q in panel). Real key path checked in play mode via the input queue: Q cycles 0-1 (2 robots) and 0-1-2-0 (3 robots) with no shift spent, Q is a no-op with 1 robot, A/D shift (cost 1), old Q/E shift keys gone (E does nothing). Console errors 0. Two-robot states were injected in memory (no two-robot StageData yet). NOT checked: WebGL build with A/D/Q (no rebuild yet).
 
 ---
 

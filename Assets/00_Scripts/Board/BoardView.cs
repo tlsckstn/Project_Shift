@@ -10,8 +10,11 @@ namespace ProjectShift.Board
     public class BoardView : MonoBehaviour
     {
         private const int MaxRows = 3;
+        private const int MaxRobots = 3;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
-        private const string KeysText = "←/→ walk    ↓ descend    W/S select row    Q/E shift    Z undo    R restart";
+        private const string KeysText = "←/→ walk    ↓ descend    W/S select row    A/D shift    Z undo    R restart";
+        // Shown instead of KeysText on stages with more than one robot.
+        private const string KeysTextMultiRobot = "←/→ walk    ↓ descend    W/S select row    A/D shift    Q switch robot    Z undo    R restart";
 
         [SerializeField] private Sprite cellSprite;
         [SerializeField] private float cellSize = 1f;
@@ -30,7 +33,15 @@ namespace ProjectShift.Board
         [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
         [SerializeField] private Color firewallColor = new Color(1f, 0.55f, 0.1f);
         [SerializeField] private Color bugColor = new Color(0.9f, 0.2f, 0.9f);
-        [SerializeField] private Color robotColor = new Color(0.3f, 0.6f, 1f);
+        [Tooltip("One color per robot (up to 3), in robot order.")]
+        [SerializeField] private Color[] robotColors =
+        {
+            new Color(0.3f, 0.6f, 1f),
+            new Color(1f, 0.5f, 0.75f),
+            new Color(1f, 0.85f, 0.25f)
+        };
+        [Tooltip("Outline drawn behind the robot you control; only shown when the stage has more than one robot.")]
+        [SerializeField] private Color selectedRobotColor = Color.white;
         [SerializeField] private Color exitColor = new Color(1f, 0.4f, 0.3f);
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
@@ -50,8 +61,12 @@ namespace ProjectShift.Board
         private TextMeshPro[] valueLabels;
         private Transform[] labelTransforms;
         private int[] shownValues;
-        private SpriteRenderer robot;
-        private Transform robotTransform;
+        private SpriteRenderer[] robots;
+        private Transform[] robotTransforms;
+        private SpriteRenderer selectedFrame;
+        private Transform selectedFrameTransform;
+        private TextMeshPro keysLabel;
+        private bool shownMultiRobot;
         private SpriteRenderer exit;
         private Transform exitTransform;
         private TextMeshPro shiftsLabel;
@@ -123,8 +138,16 @@ namespace ProjectShift.Board
 
             exit = CreateSquare("Exit", exitColor, 3, Vector3.one * (cellSize * 0.8f));
             exitTransform = exit.transform;
-            robot = CreateSquare("Robot", robotColor, 4, Vector3.one * (cellSize * 0.5f));
-            robotTransform = robot.transform;
+            // Frame first and one sorting order below the robots, so it shows as an outline behind the selected one.
+            selectedFrame = CreateSquare("SelectedRobot", selectedRobotColor, 4, Vector3.one * (cellSize * 0.7f));
+            selectedFrameTransform = selectedFrame.transform;
+            robots = new SpriteRenderer[MaxRobots];
+            robotTransforms = new Transform[MaxRobots];
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                robots[i] = CreateSquare("Robot", robotColors[i], 5, Vector3.one * (cellSize * 0.5f));
+                robotTransforms[i] = robots[i].transform;
+            }
 
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
             shiftsLabel.rectTransform.SetParent(cachedTransform, false);
@@ -132,8 +155,8 @@ namespace ProjectShift.Board
             shiftsLabel.alignment = TextAlignmentOptions.Center;
             shiftsLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
 
-            // Static: set once, never rebuilt.
-            var keysLabel = new GameObject("KeyPanel").AddComponent<TextMeshPro>();
+            // Only rebuilt when the stage switches between one robot and several (see Render).
+            keysLabel = new GameObject("KeyPanel").AddComponent<TextMeshPro>();
             keysLabel.rectTransform.SetParent(cachedTransform, false);
             keysLabel.rectTransform.localPosition = new Vector3(0f, keysPanelY, 0f);
             keysLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
@@ -217,7 +240,33 @@ namespace ProjectShift.Board
             }
 
             Vector3 standOffset = Vector3.up * (cellSize * 0.75f);
-            robotTransform.localPosition = CellPosition(state.RobotRow, state.RobotCol, state.RowCount) + standOffset;
+            bool multiRobot = state.RobotCount > 1;
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                bool present = i < state.RobotCount;
+                robots[i].enabled = present;
+                if (!present)
+                {
+                    continue;
+                }
+
+                robotTransforms[i].localPosition = CellPosition(state.GetRobotRow(i), state.GetRobotCol(i), state.RowCount) + standOffset;
+                // The controlled robot draws on top when robots overlap.
+                robots[i].sortingOrder = multiRobot && i == state.SelectedRobot ? 6 : 5;
+            }
+
+            selectedFrame.enabled = multiRobot;
+            if (multiRobot)
+            {
+                selectedFrameTransform.localPosition = robotTransforms[state.SelectedRobot].localPosition;
+            }
+
+            if (multiRobot != shownMultiRobot)
+            {
+                shownMultiRobot = multiRobot;
+                keysLabel.SetText(multiRobot ? KeysTextMultiRobot : KeysText);
+            }
+
             exitTransform.localPosition = CellPosition(exitCell.x, exitCell.y, state.RowCount) + standOffset;
 
             // Sits above the top row; only rebuilt when the count or par changes.
