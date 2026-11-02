@@ -26,15 +26,15 @@
 
 ## Acceptance Criteria
 
-*From `design/game-brief.md` "두 번째 로봇", scoped to this story:*
+*From `design/game-brief.md` "여러 로봇", scoped to this story:*
 
-- [ ] `Q`를 누르면 조종 대상이 다른 로봇으로 바뀐다 (Story 001의 선택 전환 메서드 호출). 시프트 횟수·PAR는 변하지 않는다.
-- [ ] 두 로봇은 서로 다른 색이고, 선택된 로봇에는 테두리가 있어 한눈에 구분된다.
+- [ ] `Q`를 누르면 조종 대상이 다음 로봇으로 차례로 바뀐다 (0 → 1 → 2 → 0) (Story 001의 선택 전환 메서드 호출). 시프트 횟수·PAR는 변하지 않는다.
+- [ ] 로봇마다(최대 3대) 서로 다른 색이고, 선택된 로봇에는 테두리가 있어 한눈에 구분된다.
 - [ ] 로봇이 1대인 스테이지에서는 `Q`를 눌러도 아무 일도 없고, 표시도 기존과 같다.
-- [ ] 같은 칸에 두 로봇이 겹쳐도 선택된 쪽이 구분된다.
-- [ ] 조작키 패널에 `Q` 항목이 2대 스테이지에서만 보인다 (규칙 설명이 아니라 키 안내이므로 패널에 둔다).
-- [ ] 줄 밀기 키를 `Q`/`E`에서 `A`/`D`로 바꾼다 (`A` = 왼쪽 `<<`, `D` = 오른쪽 `>>`). `E`는 더 이상 쓰지 않는다. 1대·2대 스테이지 모두 적용된다.
-- [ ] 조작키 패널이 새 배치(`W`/`S` 줄 선택, `A`/`D` 줄 밀기, 2대 스테이지에서만 `Q` 로봇 전환)를 보여 준다.
+- [ ] 같은 칸에 로봇 2~3대가 겹쳐도 선택된 쪽이 구분된다.
+- [ ] 조작키 패널에 `Q` 항목이 여러 로봇 스테이지에서만 보인다 (규칙 설명이 아니라 키 안내이므로 패널에 둔다).
+- [ ] 줄 밀기 키를 `Q`/`E`에서 `A`/`D`로 바꾼다 (`A` = 왼쪽 `<<`, `D` = 오른쪽 `>>`). `E`는 더 이상 쓰지 않는다. 로봇 수와 관계없이 모든 스테이지에 적용된다.
+- [ ] 조작키 패널이 새 배치(`W`/`S` 줄 선택, `A`/`D` 줄 밀기, 여러 로봇 스테이지에서만 `Q` 로봇 전환)를 보여 준다.
 - [ ] WebGL 빌드에서 `A`/`D`/`Q`가 동작한다.
 - [ ] 각 스테이지 화면 스크린샷이 `production/qa/evidence/story-002-tab-select/`에 남아 있다.
 
@@ -75,7 +75,7 @@
 ## Test Evidence
 
 **Story Type**: UI
-**Required evidence**: 2대 스테이지에서 로봇 선택 전환 전·후 스크린샷, 1대 스테이지 스크린샷을 `production/qa/evidence/story-002-tab-select/`에 retained (tests waived at `qa.level: minimal`, screenshot is not).
+**Required evidence**: 2대·3대 스테이지에서 로봇 선택 전환 전·후 스크린샷, 1대 스테이지 스크린샷을 `production/qa/evidence/story-002-tab-select/`에 retained (tests waived at `qa.level: minimal`, screenshot is not).
 
 **Status**: [ ] Not yet created
 

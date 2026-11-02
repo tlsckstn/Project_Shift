@@ -1,4 +1,4 @@
-# Story 005: BFS 두 로봇 확장
+# Story 005: BFS 여러 로봇 확장
 
 > **Epic**: two-robots
 > **Status**: Ready
@@ -11,7 +11,7 @@
 ## Context
 
 **GDD**: `design/game-brief.md`
-**Requirement**: Brief MVP 5 — "BFS 검증을 두 로봇 상태로 확장 (par 계산)"
+**Requirement**: Brief MVP 5 — "BFS 검증을 여러 로봇 상태로 확장 (par 계산, 3대도 에디터에서 몇 초 안)"
 
 **ADR Governing Implementation**: N/A (minimal — no ADRs)
 **ADR Decision Summary**: N/A (minimal — no ADRs)
@@ -26,14 +26,14 @@
 
 ## Acceptance Criteria
 
-*From `design/game-brief.md` "두 번째 로봇" + "다음 단계" (모든 스테이지는 BFS로 최소 횟수를 검증한다):*
+*From `design/game-brief.md` "여러 로봇" + "다음 단계" (모든 스테이지는 BFS로 최소 횟수를 검증한다):*
 
-- [ ] BFS 상태가 줄 값, 두 로봇 위치, 선택 로봇을 모두 포함한다.
+- [ ] BFS 상태가 줄 값, 모든 로봇 위치(1~3대), 선택 로봇을 포함한다. 로봇 수를 고정하지 않는다.
 - [ ] `Q` 전환은 시프트 0회로 취급한다 (전환만 하는 순환 상태가 무한 루프를 만들지 않는다).
 - [ ] 최소 시프트 횟수(par)를 구한다. 풀 수 없는 스테이지는 "풀 수 없음"으로 보고한다.
 - [ ] 이동 규칙은 `BoardLogic`을 그대로 호출해 만든다 (규칙을 BFS 안에서 다시 구현하지 않는다).
 - [ ] 기존 11개 스테이지의 par가 이전 BFS 결과와 정확히 같다 (회귀).
-- [ ] 2대 스테이지 하나를 검증하는 데 에디터에서 몇 초 안에 끝난다.
+- [ ] 2대 스테이지와 3대 스테이지를 각각 검증하는 데 에디터에서 몇 초 안에 끝난다. 3대가 느리면 구현 전에 사용자에게 알린다 (상태 키 압축, 3대 스테이지의 줄 수 제한 등).
 - [ ] 해답 경로(행동 목록)를 얻을 수 있어 스테이지 해답을 직접 재생해 볼 수 있다.
 
 ---

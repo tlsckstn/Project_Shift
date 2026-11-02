@@ -11,7 +11,7 @@
 ## Context
 
 **GDD**: `design/game-brief.md`
-**Requirement**: Brief MVP 3 — "두 로봇 모두 출구 도달 판정, 한 명이라도 추락·버그 칸이면 실패"
+**Requirement**: Brief MVP 3 — "모든 로봇 출구 도달 판정, 한 대라도 추락·버그 칸이면 실패"
 
 **ADR Governing Implementation**: N/A (minimal — no ADRs)
 **ADR Decision Summary**: N/A (minimal — no ADRs)
@@ -26,11 +26,11 @@
 
 ## Acceptance Criteria
 
-*From `design/game-brief.md` "두 번째 로봇", scoped to this story:*
+*From `design/game-brief.md` "여러 로봇", scoped to this story:*
 
 - [ ] `StageData`에 로봇별 시작 위치와 출구 위치(row, col)가 있다. 로봇 1대 스테이지는 기존 출구 필드 그대로 동작한다.
-- [ ] 클리어 = 두 로봇이 같은 순간에 각자 자기 출구에 서 있다.
-- [ ] 한 로봇만 출구에 있으면 클리어가 아니다.
+- [ ] 클리어 = 모든 로봇(2대 또는 3대)이 같은 순간에 각자 자기 출구에 서 있다.
+- [ ] 일부 로봇만 출구에 있으면 클리어가 아니다.
 - [ ] 출구에 도착한 로봇이 이후 줄에 밀려 출구를 벗어나면 도착 상태가 풀린다 (현재 상태로만 판정한다).
 - [ ] 한 로봇이라도 추락하거나 버그 칸에 있으면 실패다. 둘 중 누가 실패해도 같은 재시작 경로·메시지를 쓴다 (`BoardState.IsFailed` 한 경로).
 - [ ] 실패 후 Undo 기록, 남은 시프트, PAR는 기존 추락 때와 똑같이 처리된다.

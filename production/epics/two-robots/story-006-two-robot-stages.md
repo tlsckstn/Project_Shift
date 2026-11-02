@@ -1,4 +1,4 @@
-# Story 006: 두 로봇 소개·활용 스테이지
+# Story 006: 여러 로봇 소개·활용 스테이지 (2대·3대)
 
 > **Epic**: two-robots
 > **Status**: Ready
@@ -11,7 +11,7 @@
 ## Context
 
 **GDD**: `design/game-brief.md`
-**Requirement**: Brief MVP 6 — "두 로봇 소개 스테이지 1개 + 활용 스테이지 2~3개, 안내문 한 줄"
+**Requirement**: Brief MVP 6 — "2대 소개 스테이지 1개 + 2대 활용 2~3개 + 3대 스테이지 1~2개(맨 끝), 안내문 한 줄"
 
 **ADR Governing Implementation**: N/A (minimal — no ADRs)
 **ADR Decision Summary**: N/A (minimal — no ADRs)
@@ -26,17 +26,18 @@
 
 ## Acceptance Criteria
 
-*From `design/game-brief.md` "두 번째 로봇" + "다음 단계":*
+*From `design/game-brief.md` "여러 로봇" + "다음 단계":*
 
-- [ ] 소개 스테이지 1개 + 활용 스테이지 2~3개가 `StageData[]`의 기존 11개 뒤에 순서대로 들어 있다 (기존 스테이지 변경 없음).
+- [ ] 2대 소개 1개 → 2대 활용 2~3개 → 3대 스테이지 1~2개 순서로 `StageData[]`의 기존 11개(장애물 소개·활용 포함) 뒤에 들어 있다 (기존 스테이지 변경 없음).
 - [ ] 소개 스테이지는 `Q`로 로봇을 한 번 이상 바꿔야만 풀린다 (BFS 해답에 전환이 포함됨).
-- [ ] 활용 스테이지는 기존 장애물(방화벽, 버그 칸, 잠긴 줄) 중 하나 이상과 두 로봇을 함께 쓴다.
+- [ ] 활용 스테이지와 3대 스테이지는 기존 장애물(방화벽, 버그 칸, 잠긴 줄) 중 하나 이상을 함께 쓴다.
+- [ ] 3대 스테이지는 세 로봇을 모두 한 번 이상 조종해야 풀린다 (BFS 해답 기준).
 - [ ] 모든 스테이지는 Story 005의 BFS로 풀 수 있음을 확인했고 par가 입력되어 있다. 시프트 제한 = par + 2.
 - [ ] 각 스테이지에 안내문 한 줄(영어, 규칙만 설명하고 키는 설명하지 않는다)이 있다.
 - [ ] 소개 스테이지의 안내문은 "두 로봇 모두 출구에 도달해야 하고 시프트는 공유된다"는 규칙을 담는다.
 - [ ] 각 스테이지를 실제 플레이로 해답대로 풀어 클리어된다 (BFS 해답 재생 또는 수동).
 - [ ] 소개 스테이지 화면 스크린샷이 `production/qa/evidence/story-006-two-robot-stages/`에 남아 있다.
-- [ ] WebGL 빌드에서 2대 스테이지까지 진행됨을 확인한다 (`Build Finished, Result: Success.` + 스크린샷).
+- [ ] WebGL 빌드에서 3대 스테이지까지 진행됨을 확인한다 (`Build Finished, Result: Success.` + 스크린샷).
 
 ---
 
