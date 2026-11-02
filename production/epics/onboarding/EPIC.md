@@ -3,7 +3,7 @@
 > **Layer**: Feature
 > **GDD**: design/game-brief.md ("다음 단계 — 플레이테스트 2026-11-02 반영": 튜토리얼, 제한값)
 > **Architecture Module**: Stage (StageData, StageManager) + BoardView
-> **Status**: Ready
+> **Status**: In progress
 > **Stories**: 4 stories (see below)
 
 ## Overview

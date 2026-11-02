@@ -1,6 +1,6 @@
 # Epic: Night Shift <<
 
-> **Status**: In progress
+> **Status**: Complete
 > **Source**: `design/game-brief.md` (minimal tier, no GDD or ADR)
 
 ## Goal
@@ -20,9 +20,9 @@ CPU 안에서 야간 근무하는 작은 로봇이 비트 줄을 `<<` `>>`로 �
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
 | 001 | 시프트·소실 로직 (BoardLogic) | Logic | Complete | N/A |
-| 002 | 보드 표시와 10진수 값 (BoardView) | UI | Ready | N/A |
-| 003 | 로봇 이동·줄과 함께 밀림·추락 | Logic | Ready | N/A |
-| 004 | 시프트 횟수 제한과 표시 | Logic | Ready | N/A |
-| 005 | 되돌리기(Undo)와 재시작 | Logic | Ready | N/A |
-| 006 | 출구 판정과 스테이지 5개 진행 | Integration | Ready | N/A |
-| 007 | WebGL 빌드 확인 | Config/Data | Ready | N/A |
+| 002 | 보드 표시와 10진수 값 (BoardView) | UI | Complete | N/A |
+| 003 | 로봇 이동·줄과 함께 밀림·추락 | Logic | Complete | N/A |
+| 004 | 시프트 횟수 제한과 표시 | Logic | Complete | N/A |
+| 005 | 되돌리기(Undo)와 재시작 | Logic | Complete | N/A |
+| 006 | 출구 판정과 스테이지 5개 진행 | Integration | Complete | N/A |
+| 007 | WebGL 빌드 확인 | Config/Data | Complete | N/A |

@@ -1,7 +1,7 @@
 # Story 002: 보드 표시와 10진수 값 (BoardView)
 
 > **Epic**: night-shift
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: M
