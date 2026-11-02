@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Engine Version** | Unity 6.3 LTS |
-| **Installed at pin time** | NOT DETERMINED — `/setup-engine` §3 probes the installed editor and records the result here. |
+| **Installed at pin time** | 6000.3.14f1 (matches the pinned Unity 6.3 LTS; 12 patch releases behind the latest 6000.3.26f1). Probed 2026-11-02 via the Hub editor directory and `ProjectSettings/ProjectVersion.txt`. |
 | **Release Date** | December 2025 |
 | **Latest editor on the pinned line** | 6000.3.26f1 (Oct 8, 2026) |
 | **Project Pinned** | 2026-02-13 |

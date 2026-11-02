@@ -1,0 +1,7 @@
+{
+  "tool_name": "mcp__claude_ai_Claude_Docs__read",
+  "tool_input_preview": "{\"ref\":{\"object\":\"node\",\"id\":\"692b04ff-b146\"}}",
+  "error": "{\"verdict\":\"deny\",\"reason\":\"bad_request\",\"detail\":\"container:required — a tab, its contents, a comment or an upload is addressed together with its doc: add container {\\\"kind\\\":\\\"project\\\",\\\"id\\\":\\\"<doc uuid>\\\"} — the doc's own id (from its link, or the read that listed its files), never a tab's or its contents'; an id that IS the doc reads as ref {\\\"object\\\":\\\"project\\\",\\\"id\\\":\\\"<doc uuid>\\\"} with no container\",\"data\":{\"code\":\"bad_request\",\"problem\":\"required\",\"at\":[\"container\"],\"expected\":{\"kin...",
+  "timestamp": "2026-11-02T06:19:19.593Z",
+  "retry_count": 1
+}

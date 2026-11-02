@@ -119,9 +119,171 @@
   "hotPaths": [
     {
       "path": "CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1793599851686,
+      "accessCount": 4,
+      "lastAccessed": 1793600763821,
       "type": "file"
+    },
+    {
+      "path": "project.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1793600768020,
+      "type": "file"
+    },
+    {
+      "path": "docs/engine-reference/unity/VERSION.md",
+      "accessCount": 2,
+      "lastAccessed": 1793600769237,
+      "type": "file"
+    },
+    {
+      "path": ".claude/docs/technical-preferences.md",
+      "accessCount": 2,
+      "lastAccessed": 1793600780011,
+      "type": "file"
+    },
+    {
+      "path": "production/epics/night-shift/story-001-shift-logic.md",
+      "accessCount": 2,
+      "lastAccessed": 1793601248665,
+      "type": "file"
+    },
+    {
+      "path": "Assets/Scripts/Board/BoardState.cs",
+      "accessCount": 2,
+      "lastAccessed": 1793601274854,
+      "type": "file"
+    },
+    {
+      "path": "Assets/Scripts/Board/BoardLogic.cs",
+      "accessCount": 2,
+      "lastAccessed": 1793601275430,
+      "type": "file"
+    },
+    {
+      "path": "C:/Users/abcds/.claude/projects/D--Projects-Unity-Project-Shift/memory/korean-language.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600168696,
+      "type": "file"
+    },
+    {
+      "path": "C:/Users/abcds/.claude/projects/D--Projects-Unity-Project-Shift/memory/MEMORY.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600170053,
+      "type": "file"
+    },
+    {
+      "path": "C:/Users/abcds/.claude/projects/D--Projects-Unity-Project-Shift/memory/game-off-2026.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600173248,
+      "type": "file"
+    },
+    {
+      "path": ".claude/docs/templates/game-brief.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600388584,
+      "type": "file"
+    },
+    {
+      "path": "design/game-brief.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600457800,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/3-version.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600499803,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/4-claude-md-stack.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600569795,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/5-technical-preferences.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600570176,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/5.5-project-yaml.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600570733,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/6-knowledge-gap.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600580579,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/7-reference-docs.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600580926,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/7.5-scaffold.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600581321,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/8-verify.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600581653,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/setup-engine/references/12-output-summary.md",
+      "accessCount": 1,
+      "lastAccessed": 1793600581957,
+      "type": "file"
+    },
+    {
+      "path": "production/epics/night-shift/EPIC.md",
+      "accessCount": 1,
+      "lastAccessed": 1793601003186,
+      "type": "file"
+    },
+    {
+      "path": "production/epics/night-shift/story-002-board-view.md",
+      "accessCount": 1,
+      "lastAccessed": 1793601018015,
+      "type": "file"
+    },
+    {
+      "path": "production/epics/night-shift/story-003-robot-movement.md",
+      "accessCount": 1,
+      "lastAccessed": 1793601025319,
+      "type": "file"
+    },
+    {
+      "path": "production/epics/night-shift/story-004-shift-limit.md",
+      "accessCount": 1,
+      "lastAccessed": 1793601031580,
+      "type": "file"
+    },
+    {
+      "path": "production/epics/night-shift/story-005-undo-restart.md",
+      "accessCount": 1,
+      "lastAccessed": 1793601038357,
+      "type": "file"
+    },
+    {
+      "path": "production/epics/night-shift/story-006-exit-and-stages.md",
+      "accessCount": 1,
+      "lastAccessed": 1793601047832,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1793601249464,
+      "type": "directory"
     }
   ],
   "userDirectives": []
