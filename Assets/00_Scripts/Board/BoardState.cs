@@ -1,7 +1,7 @@
 namespace ProjectShift.Board
 {
     /// <summary>
-    /// Board state: 8-bit rows (cell 0 is the MSB), robot position and remaining shifts.
+    /// Board state: 8-bit rows (cell 0 is the MSB), robot positions (one or more, one of them selected) and remaining shifts.
     /// Not thread-safe.
     /// </summary>
     /// <example>
@@ -14,8 +14,10 @@ namespace ProjectShift.Board
         public const int Columns = 8;
 
         private readonly byte[] rows;
-        private int robotRow;
-        private int robotCol;
+        // One entry per robot. Walking and descending move only the selected one; shifts move every robot on the row.
+        private readonly int[] robotRows;
+        private readonly int[] robotCols;
+        private int selectedRobot;
         private int shiftsLeft;
         // Fixed for the whole stage, so clones share it. Null means no locked rows.
         private readonly bool[] lockedRows;
@@ -30,36 +32,100 @@ namespace ProjectShift.Board
         /// (one flag per cell, row * Columns + column) may be null; they are kept by reference and must not change afterwards.
         /// </summary>
         public BoardState(byte[] rows, int robotRow, int robotCol, int shiftsLeft, bool[] lockedRows = null, bool[] firewalls = null, bool[] bugCells = null)
+            : this(rows, new[] { robotRow }, new[] { robotCol }, shiftsLeft, lockedRows, firewalls, bugCells)
+        {
+        }
+
+        /// <summary>
+        /// Creates a state with several robots: robot i stands at (<paramref name="robotRows"/>[i], <paramref name="robotCols"/>[i]).
+        /// The robot arrays are copied. <paramref name="selectedRobot"/> is the robot the player controls.
+        /// </summary>
+        public BoardState(byte[] rows, int[] robotRows, int[] robotCols, int shiftsLeft, bool[] lockedRows = null, bool[] firewalls = null, bool[] bugCells = null, int selectedRobot = 0)
         {
             this.rows = (byte[])rows.Clone();
             this.lockedRows = lockedRows;
             this.firewalls = firewalls;
             this.bugCells = bugCells;
-            this.robotRow = robotRow;
-            this.robotCol = robotCol;
+            this.robotRows = (int[])robotRows.Clone();
+            this.robotCols = (int[])robotCols.Clone();
+            this.selectedRobot = selectedRobot;
             this.shiftsLeft = shiftsLeft;
         }
 
         /// <summary>Number of rows.</summary>
         public int RowCount => rows.Length;
 
-        /// <summary>Row the robot stands on.</summary>
-        public int RobotRow => robotRow;
+        /// <summary>Number of robots on the board.</summary>
+        public int RobotCount => robotRows.Length;
 
-        /// <summary>Column the robot stands on.</summary>
-        public int RobotCol => robotCol;
+        /// <summary>Index of the robot the player controls.</summary>
+        public int SelectedRobot => selectedRobot;
 
-        /// <summary>Shifts the player has left.</summary>
+        /// <summary>Row the selected robot stands on.</summary>
+        public int RobotRow => robotRows[selectedRobot];
+
+        /// <summary>Column the selected robot stands on.</summary>
+        public int RobotCol => robotCols[selectedRobot];
+
+        /// <summary>Row robot <paramref name="robot"/> stands on.</summary>
+        public int GetRobotRow(int robot)
+        {
+            return robotRows[robot];
+        }
+
+        /// <summary>Column robot <paramref name="robot"/> stands on.</summary>
+        public int GetRobotCol(int robot)
+        {
+            return robotCols[robot];
+        }
+
+        /// <summary>Shifts the player has left. One count is shared by all robots.</summary>
         public int ShiftsLeft => shiftsLeft;
 
-        /// <summary>True when the robot was pushed past cell 0 or cell 7. The column stays out of range until restart.</summary>
-        public bool IsRobotFallen => robotCol < 0 || robotCol >= Columns;
+        /// <summary>True when the selected robot was pushed past cell 0 or cell 7. The column stays out of range until restart.</summary>
+        public bool IsSelectedRobotFallen => IsFallen(selectedRobot);
 
-        /// <summary>True when the robot entered a bug cell, by any move.</summary>
-        public bool IsRobotOnBug => !IsRobotFallen && IsBugCell(robotRow, robotCol);
+        /// <summary>True when any robot was pushed past cell 0 or cell 7. The column stays out of range until restart.</summary>
+        public bool IsRobotFallen
+        {
+            get
+            {
+                for (int i = 0; i < robotCols.Length; i++)
+                {
+                    if (IsFallen(i))
+                    {
+                        return true;
+                    }
+                }
 
-        /// <summary>True when the stage is lost and must restart: the robot fell or entered a bug cell.</summary>
+                return false;
+            }
+        }
+
+        /// <summary>True when any robot entered a bug cell, by any move.</summary>
+        public bool IsRobotOnBug
+        {
+            get
+            {
+                for (int i = 0; i < robotCols.Length; i++)
+                {
+                    if (!IsFallen(i) && IsBugCell(robotRows[i], robotCols[i]))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>True when the stage is lost and must restart: a robot fell or entered a bug cell.</summary>
         public bool IsFailed => IsRobotFallen || IsRobotOnBug;
+
+        private bool IsFallen(int robot)
+        {
+            return robotCols[robot] < 0 || robotCols[robot] >= Columns;
+        }
 
         /// <summary>True when row <paramref name="row"/> cannot be shifted.</summary>
         public bool IsRowLocked(int row)
@@ -97,11 +163,23 @@ namespace ProjectShift.Board
             rows[row] = value;
         }
 
-        /// <summary>Moves the robot. Used by BoardLogic; no bounds check, so a fall can be represented.</summary>
+        /// <summary>Moves the selected robot. Used by BoardLogic; no bounds check, so a fall can be represented.</summary>
         public void SetRobot(int row, int col)
         {
-            robotRow = row;
-            robotCol = col;
+            SetRobot(selectedRobot, row, col);
+        }
+
+        /// <summary>Moves robot <paramref name="robot"/>. Used by BoardLogic; no bounds check, so a fall can be represented.</summary>
+        public void SetRobot(int robot, int row, int col)
+        {
+            robotRows[robot] = row;
+            robotCols[robot] = col;
+        }
+
+        /// <summary>Selects the next robot, wrapping around. Costs no shift; with one robot it changes nothing.</summary>
+        public void SelectNextRobot()
+        {
+            selectedRobot = (selectedRobot + 1) % robotRows.Length;
         }
 
         /// <summary>Spends one shift. Used by BoardLogic, which checks the count first.</summary>
@@ -110,10 +188,10 @@ namespace ProjectShift.Board
             shiftsLeft--;
         }
 
-        /// <summary>Returns an independent copy (the rows array is duplicated; the fixed locked-row, firewall and bug-cell flags are shared).</summary>
+        /// <summary>Returns an independent copy (the rows and robot arrays are duplicated, the selection is kept; the fixed locked-row, firewall and bug-cell flags are shared).</summary>
         public BoardState Clone()
         {
-            return new BoardState(rows, robotRow, robotCol, shiftsLeft, lockedRows, firewalls, bugCells);
+            return new BoardState(rows, robotRows, robotCols, shiftsLeft, lockedRows, firewalls, bugCells, selectedRobot);
         }
     }
 }

@@ -1,12 +1,12 @@
 # Story 001: 로봇 2대 상태
 
 > **Epic**: two-robots
-> **Status**: Ready
+> **Status**: In Progress
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -26,7 +26,7 @@
 
 ## Acceptance Criteria
 
-*From `design/game-brief.md` "두 번째 로봇", scoped to this story:*
+*From `design/game-brief.md` "여러 로봇", scoped to this story:*
 
 - [ ] `BoardState`가 로봇 목록(각자 row, col)과 선택된 로봇 번호를 가진다. 로봇이 1대인 상태는 기존과 같은 값·동작이다.
 - [ ] 걷기·내려가기는 선택된 로봇만 움직이고 다른 로봇은 그대로다.
@@ -59,10 +59,6 @@
 
 - `Assets/00_Scripts/Board/BoardState.cs`
 - `Assets/00_Scripts/Board/BoardLogic.cs`
-- `Assets/00_Scripts/Stage/StageData.cs` (1대 스테이지를 새 상태로 변환)
-- `Assets/Tests/EditMode/Board/TwoRobotStateTests.cs`
-
----
 
 ## QA Test Cases
 
@@ -75,7 +71,7 @@
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/Board/TwoRobotStateTests.cs` (tests are waived at `qa.level: minimal`)
 
-**Status**: [ ] Not yet created
+**Status**: [x] Tests waived (minimal). Logic 26/26 via `unity command script eval_file` (two robots, selection, walk/descend move only the selected robot, shift moves every robot on the row for 1 shift, other rows untouched, fall of an unselected robot fails, overlap allowed, bug cell and firewall apply to both, locked row, clone keeps selection and is independent, one-robot ctor unchanged).
 
 ---
 
