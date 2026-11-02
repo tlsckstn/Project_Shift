@@ -17,4 +17,5 @@ MonoBehaviour:
   - 00000101
   start: {x: 0, y: 0}
   exit: {x: 1, y: 7}
-  shiftLimit: 5
+  shiftLimit: 7
+  par: 5

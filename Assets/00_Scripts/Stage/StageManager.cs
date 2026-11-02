@@ -144,7 +144,7 @@ namespace ProjectShift.Stage
 
         private void Render()
         {
-            view.Render(state, selectedRow, stages[stageIndex].Exit);
+            view.Render(state, selectedRow, stages[stageIndex].Exit, stages[stageIndex].Par);
         }
     }
 }

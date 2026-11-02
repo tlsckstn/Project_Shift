@@ -37,6 +37,7 @@ namespace ProjectShift.Board
         private Transform exitTransform;
         private TextMeshPro shiftsLabel;
         private int shownShifts = -1;
+        private int shownPar = -1;
 
         private void Awake()
         {
@@ -89,9 +90,10 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Redraws the board. Rows are drawn top to bottom; the robot and exit sit on top of their cell.
-        /// The exit (row, column) comes from StageData, not BoardState, because it never changes during a stage.
+        /// The exit (row, column) and par come from StageData, not BoardState, because they never change during a stage.
+        /// A par of 0 hides the PAR text.
         /// </summary>
-        public void Render(BoardState state, int selectedRow, Vector2Int exitCell)
+        public void Render(BoardState state, int selectedRow, Vector2Int exitCell, int par)
         {
             for (int r = 0; r < MaxRows; r++)
             {
@@ -134,15 +136,23 @@ namespace ProjectShift.Board
             robotTransform.localPosition = CellPosition(state.RobotRow, state.RobotCol, state.RowCount) + standOffset;
             exitTransform.localPosition = CellPosition(exitCell.x, exitCell.y, state.RowCount) + standOffset;
 
-            // Sits above the top row; only rebuilt when the count changes.
+            // Sits above the top row; only rebuilt when the count or par changes.
             shiftsLabel.rectTransform.localPosition = new Vector3(0f, CellPosition(0, 0, state.RowCount).y + rowSpacing, 0f);
-            if (shownShifts != state.ShiftsLeft)
+            if (shownShifts != state.ShiftsLeft || shownPar != par)
             {
                 shownShifts = state.ShiftsLeft;
+                shownPar = par;
                 if (shownShifts > 0)
                 {
                     shiftsLabel.color = shiftsColor;
-                    shiftsLabel.SetText("SHIFTS {0}", shownShifts);
+                    if (par > 0)
+                    {
+                        shiftsLabel.SetText("SHIFTS {0}  PAR {1}", shownShifts, par);
+                    }
+                    else
+                    {
+                        shiftsLabel.SetText("SHIFTS {0}", shownShifts);
+                    }
                 }
                 else
                 {

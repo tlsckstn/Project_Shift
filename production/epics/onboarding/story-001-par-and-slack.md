@@ -1,7 +1,7 @@
 # Story 001: 시프트 제한 여유와 par 표시
 
 > **Epic**: onboarding
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: UI
 > **Estimate**: S
@@ -28,13 +28,13 @@
 
 *From `design/game-brief.md` "다음 단계", scoped to this story:*
 
-- [ ] `StageData`에 `par`(최소 시프트 횟수) 필드가 있고 읽기 전용 프로퍼티로 노출된다.
-- [ ] HUD에 남은 시프트와 별개로 par가 표시된다 (영어, 예: `SHIFTS 7  PAR 6`).
-- [ ] par 표시는 스테이지가 바뀔 때만 갱신된다 (매 프레임 문자열 조합 없음).
-- [ ] Stage01-05의 par가 BFS 최소값 6/7/6/5/11로 입력된다.
-- [ ] Stage01-05의 `shiftLimit`이 각각 par + 1~2로 재조정된다.
-- [ ] 시프트를 다 쓴 상태의 빨간 `SHIFTS 0  Z undo / R restart` 표시는 그대로 동작한다.
-- [ ] par가 0인 스테이지(값 미입력)는 par를 표시하지 않는다.
+- [x] `StageData`에 `par`(최소 시프트 횟수) 필드가 있고 읽기 전용 프로퍼티로 노출된다.
+- [x] HUD에 남은 시프트와 별개로 par가 표시된다 (영어, 예: `SHIFTS 7  PAR 6`).
+- [x] par 표시는 스테이지가 바뀔 때만 갱신된다 (매 프레임 문자열 조합 없음). (남은 횟수 또는 par가 바뀔 때만 라벨 재생성)
+- [x] Stage01-05의 par가 BFS 최소값 6/7/6/5/11로 입력된다.
+- [x] Stage01-05의 `shiftLimit`이 각각 par + 1~2로 재조정된다. (사용자 결정: 전부 +2 → 8/9/8/7/13)
+- [x] 시프트를 다 쓴 상태의 빨간 `SHIFTS 0  Z undo / R restart` 표시는 그대로 동작한다.
+- [x] par가 0인 스테이지(값 미입력)는 par를 표시하지 않는다.
 
 ---
 
@@ -58,7 +58,11 @@
 - `Assets/00_Scripts/Stage/StageData.cs`
 - `Assets/00_Scripts/Stage/StageManager.cs`
 - `Assets/00_Scripts/Board/BoardView.cs`
-- `Assets/Data/Stages/Stage01.asset` ~ `Stage05.asset`
+- `Assets/Data/Stages/Stage01.asset`
+- `Assets/Data/Stages/Stage02.asset`
+- `Assets/Data/Stages/Stage03.asset`
+- `Assets/Data/Stages/Stage04.asset`
+- `Assets/Data/Stages/Stage05.asset`
 
 ---
 
@@ -73,7 +77,7 @@
 **Story Type**: UI
 **Required evidence**: retained screenshot in `production/qa/evidence/` (par 표시가 보이는 스테이지 화면). Tests waived at `qa.level: minimal`.
 
-**Status**: [ ] Not yet created
+**Status**: [x] `production/qa/evidence/story-001-par-and-slack/stage01-par.png` (+ `stamp.txt`). Play mode eval: label `SHIFTS 8  PAR 6`, par 0 → `SHIFTS 8`, 0 shifts → red `SHIFTS 0  Z undo / R restart`, restart → `SHIFTS 8  PAR 6`.
 
 ---
 
@@ -81,3 +85,12 @@
 
 - Depends on: `production/epics/night-shift/story-006-exit-and-stages.md` (Done)
 - Unlocks: `production/epics/onboarding/story-004-tutorial-stages.md`
+
+---
+
+## Completion Notes
+**Completed**: 2026-11-02
+**Criteria**: 7/7 passing
+**Deviations**: Implemented directly instead of via ui-programmer agent (size S); no engine-specialist review.
+**Test Evidence**: waived at qa.level minimal; screenshot `production/qa/evidence/story-001-par-and-slack/stage01-par.png`
+**Reviewed by**: skipped — Solo mode
