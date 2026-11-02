@@ -1,7 +1,7 @@
 # Story 002: 조작키 상시 표시
 
 > **Epic**: onboarding
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: UI
 > **Estimate**: S
@@ -28,10 +28,10 @@
 
 *From `design/game-brief.md` "다음 단계", scoped to this story:*
 
-- [ ] 화면 하단에 조작키 안내가 모든 스테이지에서 항상 보인다.
-- [ ] 문구는 영어이고 `InputController`의 실제 키와 일치한다: ←/→ walk, ↓ descend, W/S select row, Q/E shift `<<` `>>`, Z undo, R restart.
-- [ ] 안내가 보드, 남은 횟수, 안내문(Story 003) 표시와 겹치지 않는다.
-- [ ] 정적 텍스트이며 런타임에 매 프레임 갱신하지 않는다.
+- [x] 화면 하단에 조작키 안내가 모든 스테이지에서 항상 보인다.
+- [x] 문구는 영어이고 `InputController`의 실제 키와 일치한다: ←/→ walk, ↓ descend, W/S select row, Q/E shift `<<` `>>`, Z undo, R restart.
+- [x] 안내가 보드, 남은 횟수, 안내문(Story 003) 표시와 겹치지 않는다. (보드·남은 횟수는 3줄 스테이지에서 확인. 안내문 위치는 Story 003에서 이 패널을 피해 배치)
+- [x] 정적 텍스트이며 런타임에 매 프레임 갱신하지 않는다.
 
 ---
 
@@ -51,8 +51,7 @@
 
 ## Files
 
-- `Assets/00_Scripts/Board/BoardView.cs` (또는 씬의 정적 라벨만)
-- `Assets/Scenes/` 메인 씬 (사용자 확인 후)
+- `Assets/00_Scripts/Board/BoardView.cs` (씬 수정 없음: 라벨을 코드에서 생성)
 
 ---
 
@@ -67,7 +66,7 @@
 **Story Type**: UI
 **Required evidence**: retained screenshot in `production/qa/evidence/` (하단 키 안내가 보이는 화면, WebGL 해상도 포함)
 
-**Status**: [ ] Not yet created
+**Status**: [x] `production/qa/evidence/story-002-key-panel/` — `stage01-keys.png`, `stage05-keys.png` (1920x1080), `stage05-keys-960x600.png` (itch.io 기본 크기), `stamp.txt`. 콘솔 에러 0.
 
 ---
 
@@ -75,3 +74,12 @@
 
 - Depends on: None
 - Unlocks: None
+
+---
+
+## Completion Notes
+**Completed**: 2026-11-02
+**Criteria**: 4/4 passing (hint overlap re-checked in Story 003)
+**Deviations**: Implemented directly instead of via ui-programmer agent (size S); no engine-specialist review. No scene edit (label built in code).
+**Test Evidence**: waived at qa.level minimal; screenshots `production/qa/evidence/story-002-key-panel/`
+**Reviewed by**: skipped — Solo mode

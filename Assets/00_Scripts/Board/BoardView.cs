@@ -10,11 +10,16 @@ namespace ProjectShift.Board
     public class BoardView : MonoBehaviour
     {
         private const int MaxRows = 3;
+        // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
+        private const string KeysText = "←/→ walk    ↓ descend    W/S select row    Q/E shift    Z undo    R restart";
 
         [SerializeField] private Sprite cellSprite;
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private float rowSpacing = 2f;
         [SerializeField] private float labelFontSize = 6f;
+        [SerializeField] private float keysFontSize = 3.5f;
+        [Tooltip("Local y of the key panel; keep it inside the camera's bottom edge (orthographic size 5).")]
+        [SerializeField] private float keysPanelY = -4.3f;
         [SerializeField] private Color onColor = new Color(0.3f, 0.9f, 0.5f);
         [SerializeField] private Color offColor = new Color(0.15f, 0.15f, 0.2f);
         [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
@@ -86,6 +91,16 @@ namespace ProjectShift.Board
             shiftsLabel.fontSize = labelFontSize;
             shiftsLabel.alignment = TextAlignmentOptions.Center;
             shiftsLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
+
+            // Static: set once, never rebuilt.
+            var keysLabel = new GameObject("KeyPanel").AddComponent<TextMeshPro>();
+            keysLabel.rectTransform.SetParent(cachedTransform, false);
+            keysLabel.rectTransform.localPosition = new Vector3(0f, keysPanelY, 0f);
+            keysLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
+            keysLabel.fontSize = keysFontSize;
+            keysLabel.alignment = TextAlignmentOptions.Center;
+            keysLabel.color = shiftsColor;
+            keysLabel.SetText(KeysText);
         }
 
         /// <summary>
