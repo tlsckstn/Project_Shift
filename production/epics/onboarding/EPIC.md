@@ -4,7 +4,7 @@
 > **GDD**: design/game-brief.md ("다음 단계 — 플레이테스트 2026-11-02 반영": 튜토리얼, 제한값)
 > **Architecture Module**: Stage (StageData, StageManager) + BoardView
 > **Status**: Ready
-> **Stories**: Not yet created — run `/create-stories onboarding`
+> **Stories**: 4 stories (see below)
 
 ## Overview
 
@@ -18,6 +18,15 @@
 2. 조작키 상시 표시 (화면 하단, 영어)
 3. 스테이지별 안내문 한 줄 (`StageData` 선택 필드, 비어 있으면 표시 안 함, 규칙만 설명)
 4. 튜토리얼 스테이지 2~3개 (스테이지 1 앞, 기본 규칙만: 걷기, 줄 밀기와 함께 밀림, 내려가기, 추락)
+
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | 시프트 제한 여유와 par 표시 | UI | Ready | N/A |
+| 002 | 조작키 상시 표시 | UI | Ready | N/A |
+| 003 | 스테이지별 안내문 한 줄 | UI | Ready | N/A |
+| 004 | 튜토리얼 스테이지 2~3개 | Config/Data | Ready | N/A |
 
 ## Definition of Done
 
