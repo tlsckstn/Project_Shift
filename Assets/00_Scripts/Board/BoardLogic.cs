@@ -2,7 +2,7 @@ namespace ProjectShift.Board
 {
     /// <summary>
     /// Pure-C# board rules (no MonoBehaviour, callable from Edit Mode tests):
-    /// row shifts, robot walking and descending, and falling off a row end.
+    /// row shifts, walking and descending (selected robot only), and falling off a row end.
     /// </summary>
     public static class BoardLogic
     {
@@ -64,7 +64,7 @@ namespace ProjectShift.Board
         public static bool TryWalk(BoardState state, int direction)
         {
             int col = state.RobotCol + direction;
-            if (state.IsRobotFallen || col < 0 || col >= BoardState.Columns || !state.GetCell(state.RobotRow, col)
+            if (state.IsSelectedRobotFallen || col < 0 || col >= BoardState.Columns || !state.GetCell(state.RobotRow, col)
                 || state.IsFirewall(state.RobotRow, col))
             {
                 return false;
@@ -81,7 +81,7 @@ namespace ProjectShift.Board
         public static bool TryDescend(BoardState state)
         {
             int row = state.RobotRow + 1;
-            if (state.IsRobotFallen || row >= state.RowCount || !state.GetCell(row, state.RobotCol)
+            if (state.IsSelectedRobotFallen || row >= state.RowCount || !state.GetCell(row, state.RobotCol)
                 || state.IsFirewall(row, state.RobotCol))
             {
                 return false;
@@ -91,13 +91,16 @@ namespace ProjectShift.Board
             return true;
         }
 
-        // The robot rides its row even when the cell under it was shifted away; it only falls past an end.
-        // Firewalls never stop a ride: the robot may be carried into or through one.
+        // Every robot on the row rides it, even when the cell under it was shifted away; it only falls past an end.
+        // Firewalls never stop a ride: a robot may be carried into or through one.
         private static void MoveRobotWithRow(BoardState state, int row, int direction)
         {
-            if (state.RobotRow == row)
+            for (int i = 0; i < state.RobotCount; i++)
             {
-                state.SetRobot(row, state.RobotCol + direction);
+                if (state.GetRobotRow(i) == row)
+                {
+                    state.SetRobot(i, row, state.GetRobotCol(i) + direction);
+                }
             }
         }
     }

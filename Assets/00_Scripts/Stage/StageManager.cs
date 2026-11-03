@@ -5,7 +5,7 @@ namespace ProjectShift.Stage
 {
     /// <summary>
     /// Runs the stage sequence: owns the live board state and its undo history, applies player actions,
-    /// restarts on a fall and loads the next stage when the robot reaches the exit.
+    /// restarts on a fall and loads the next stage when every robot stands on its exit.
     /// </summary>
     public class StageManager : MonoBehaviour
     {
@@ -16,6 +16,7 @@ namespace ProjectShift.Stage
         private BoardState state;
         private BoardHistory history;
         private int selectedRow;
+        private Vector2Int[] exits;
         private bool isFinished;
 
         private void Start()
@@ -80,6 +81,18 @@ namespace ProjectShift.Stage
             Render();
         }
 
+        /// <summary>Selects the next robot. Does nothing with one robot; costs no shift and is not an undo step.</summary>
+        public void SwitchRobot()
+        {
+            if (isFinished || state.RobotCount < 2)
+            {
+                return;
+            }
+
+            state.SelectNextRobot();
+            Render();
+        }
+
         /// <summary>Reverts the last walk, descend or shift.</summary>
         public void Undo()
         {
@@ -117,7 +130,7 @@ namespace ProjectShift.Stage
                 return;
             }
 
-            if (state.RobotRow == stages[stageIndex].Exit.x && state.RobotCol == stages[stageIndex].Exit.y)
+            if (stages[stageIndex].IsCleared(state))
             {
                 LoadStage(stageIndex + 1);
                 return;
@@ -139,6 +152,7 @@ namespace ProjectShift.Stage
 
             stageIndex = index;
             state = stages[index].CreateState();
+            exits = stages[index].GetExits();
             view.ShowHint(stages[index].Hint);
             history = new BoardHistory(state);
             selectedRow = 0;
@@ -150,7 +164,7 @@ namespace ProjectShift.Stage
             StageData stage = stages[stageIndex];
             // Shifts still inside par: counts down with every shift, stops at 0 once over par; -1 hides PAR.
             int parLeft = stage.Par > 0 ? Mathf.Max(0, stage.Par - (stage.ShiftLimit - state.ShiftsLeft)) : -1;
-            view.Render(state, selectedRow, stage.Exit, parLeft);
+            view.Render(state, selectedRow, exits, parLeft);
         }
     }
 }

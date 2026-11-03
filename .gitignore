@@ -127,3 +127,13 @@ docs/consistency-failures.md
 # Tool state and generated graph output (oh-my-claudecode, graphify): local only, not game source
 .omc/
 graphify-out/
+
+# AI tooling and internal production docs: kept locally, not published (public jam repo ships game source only)
+/.claude/
+CLAUDE.md
+/project.yaml
+/.worktreeinclude
+/src/
+/docs/
+/production/
+/design/registry/
