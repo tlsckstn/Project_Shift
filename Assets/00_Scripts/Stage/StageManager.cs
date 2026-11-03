@@ -17,6 +17,10 @@ namespace ProjectShift.Stage
         private BoardHistory history;
         private int selectedRow;
         private Vector2Int[] exits;
+        // Per row, rebuilt on stage load and refilled on every Render: the decimal value the player reads (robots cover their cell
+        // when the stage says so) and the number-lock target (-1 when the row has none).
+        private int[] rowValues;
+        private int[] lockTargets;
         private bool isFinished;
 
         private void Start()
@@ -153,6 +157,19 @@ namespace ProjectShift.Stage
             stageIndex = index;
             state = stages[index].CreateState();
             exits = stages[index].GetExits();
+            rowValues = new int[state.RowCount];
+            lockTargets = new int[state.RowCount];
+            for (int r = 0; r < lockTargets.Length; r++)
+            {
+                lockTargets[r] = -1;
+            }
+
+            for (int i = 0; i < stages[index].NumberLockCount; i++)
+            {
+                Vector2Int numberLock = stages[index].GetNumberLock(i);
+                lockTargets[numberLock.x] = numberLock.y;
+            }
+
             view.ShowHint(stages[index].Hint);
             history = new BoardHistory(state);
             selectedRow = 0;
@@ -164,7 +181,12 @@ namespace ProjectShift.Stage
             StageData stage = stages[stageIndex];
             // Shifts still inside par: counts down with every shift, stops at 0 once over par; -1 hides PAR.
             int parLeft = stage.Par > 0 ? Mathf.Max(0, stage.Par - (stage.ShiftLimit - state.ShiftsLeft)) : -1;
-            view.Render(state, selectedRow, exits, parLeft);
+            for (int r = 0; r < rowValues.Length; r++)
+            {
+                rowValues[r] = BoardLogic.GetRowValue(state, r, stage.RobotsCoverBits);
+            }
+
+            view.Render(state, selectedRow, exits, parLeft, rowValues, lockTargets);
         }
     }
 }

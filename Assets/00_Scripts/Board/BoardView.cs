@@ -11,6 +11,8 @@ namespace ProjectShift.Board
     {
         private const int MaxRows = 3;
         private const int MaxRobots = 3;
+        // Exits are drawn faint while any number lock is unmet, and solid once every lock is met.
+        private const float LockedExitAlpha = 0.35f;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
         private const string KeysText = "←/→ walk    ↓ descend    W/S select row    A/D shift    Z undo    R restart";
         // Shown instead of KeysText on stages with more than one robot.
@@ -61,6 +63,10 @@ namespace ProjectShift.Board
         private TextMeshPro[] valueLabels;
         private Transform[] labelTransforms;
         private int[] shownValues;
+        // Number-lock goal under each row value ("GOAL 176"), only shown on rows that have a lock.
+        private TextMeshPro[] goalLabels;
+        private int[] shownGoals;
+        private bool[] shownGoalMet;
         private SpriteRenderer[] robots;
         private Transform[] robotTransforms;
         private SpriteRenderer selectedFrame;
@@ -93,6 +99,9 @@ namespace ProjectShift.Board
             valueLabels = new TextMeshPro[MaxRows];
             labelTransforms = new Transform[MaxRows];
             shownValues = new int[MaxRows];
+            goalLabels = new TextMeshPro[MaxRows];
+            shownGoals = new int[MaxRows];
+            shownGoalMet = new bool[MaxRows];
 
             Vector3 highlightScale = new Vector3(BoardState.Columns * cellSize + 0.4f, cellSize + 0.4f, 1f);
             for (int r = 0; r < MaxRows; r++)
@@ -135,6 +144,14 @@ namespace ProjectShift.Board
                 valueLabels[r].rectTransform.sizeDelta = new Vector2(3f * cellSize, cellSize);
                 valueLabels[r].rectTransform.pivot = new Vector2(0f, 0.5f);
                 shownValues[r] = -1;
+
+                goalLabels[r] = new GameObject("RowGoal").AddComponent<TextMeshPro>();
+                goalLabels[r].rectTransform.SetParent(cachedTransform, false);
+                goalLabels[r].fontSize = labelFontSize * 0.6f;
+                goalLabels[r].alignment = TextAlignmentOptions.MidlineLeft;
+                goalLabels[r].rectTransform.sizeDelta = new Vector2(3f * cellSize, cellSize);
+                goalLabels[r].rectTransform.pivot = new Vector2(0f, 0.5f);
+                shownGoals[r] = -2;
             }
 
             exitMarks = new SpriteRenderer[MaxRobots];
@@ -198,9 +215,13 @@ namespace ProjectShift.Board
         /// The exits (row, column), one per robot in robot order, come from StageData, not BoardState, because they never change during a stage.
         /// With more than one robot each exit takes its robot's color.
         /// <paramref name="parLeft"/> is the shifts still inside par; a negative value hides the PAR text.
+        /// <paramref name="rowValues"/> is the decimal value to show for each row, and <paramref name="lockTargets"/> the number-lock
+        /// target of each row (-1 for no lock); both are computed by StageManager, so the view never calls BoardLogic.
+        /// A row whose value equals its target shows its goal in the "on" color; exits are faint while any lock is unmet.
         /// </summary>
-        public void Render(BoardState state, int selectedRow, Vector2Int[] exits, int parLeft)
+        public void Render(BoardState state, int selectedRow, Vector2Int[] exits, int parLeft, int[] rowValues, int[] lockTargets)
         {
+            bool anyLockUnmet = false;
             for (int r = 0; r < MaxRows; r++)
             {
                 bool used = r < state.RowCount;
@@ -209,6 +230,7 @@ namespace ProjectShift.Board
                 lockFrames[r].enabled = locked;
                 lockLabels[r].enabled = locked;
                 valueLabels[r].enabled = used;
+                goalLabels[r].enabled = used && lockTargets[r] >= 0;
 
                 for (int c = 0; c < BoardState.Columns; c++)
                 {
@@ -239,11 +261,26 @@ namespace ProjectShift.Board
                 labelTransforms[r].localPosition = rowCenter + Vector3.right * (BoardState.Columns * 0.5f * cellSize + 0.5f);
 
                 // Only rebuild the label text when the value changed.
-                int value = state.GetRow(r);
+                int value = rowValues[r];
                 if (shownValues[r] != value)
                 {
                     shownValues[r] = value;
                     valueLabels[r].SetText("{0}", value);
+                }
+
+                int goal = lockTargets[r];
+                if (goal >= 0)
+                {
+                    bool met = value == goal;
+                    anyLockUnmet |= !met;
+                    goalLabels[r].rectTransform.localPosition = labelTransforms[r].localPosition + Vector3.down * (0.7f * cellSize);
+                    if (shownGoals[r] != goal || shownGoalMet[r] != met)
+                    {
+                        shownGoals[r] = goal;
+                        shownGoalMet[r] = met;
+                        goalLabels[r].color = met ? onColor : lockedRowColor;
+                        goalLabels[r].SetText("GOAL {0}", goal);
+                    }
                 }
             }
 
@@ -284,7 +321,9 @@ namespace ProjectShift.Board
                     continue;
                 }
 
-                exitMarks[i].color = multiRobot ? robotColors[i] : exitColor;
+                Color exitTint = multiRobot ? robotColors[i] : exitColor;
+                exitTint.a = anyLockUnmet ? LockedExitAlpha : 1f;
+                exitMarks[i].color = exitTint;
                 exitTransforms[i].localPosition = CellPosition(exits[i].x, exits[i].y, state.RowCount) + standOffset;
             }
 
@@ -299,17 +338,19 @@ namespace ProjectShift.Board
                     shiftsLabel.color = shiftsColor;
                     if (parLeft >= 0)
                     {
-                        shiftsLabel.SetText("SHIFTS {0}  PAR {1}", shownShifts, parLeft);
+                        shiftsLabel.SetText("HOURS {0}  PAR {1}", shownShifts, parLeft);
                     }
                     else
                     {
-                        shiftsLabel.SetText("SHIFTS {0}", shownShifts);
+                        shiftsLabel.SetText("HOURS {0}", shownShifts);
                     }
                 }
                 else
                 {
+                    // Out of shifts the night is over: this label is the "Dawn" message. It comes from the state alone, so a clear,
+                    // a fall, an undo or a restart on the same action needs no special case.
                     shiftsLabel.color = noShiftsColor;
-                    shiftsLabel.SetText("SHIFTS 0  Z undo / R restart");
+                    shiftsLabel.SetText("DAWN  Z undo / R restart");
                 }
             }
         }

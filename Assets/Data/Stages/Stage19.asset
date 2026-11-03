@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 841cfe4ccb009614384c789e43aa29da, type: 3}
+  m_Name: Stage19
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Stage.StageData
+  rows:
+  - 11100001
+  - 01111110
+  - 00001111
+  start: {x: 1, y: 3}
+  exit: {x: 1, y: 1}
+  extraStarts: []
+  extraExits: []
+  shiftLimit: 7
+  par: 5
+  hint: 'Firewalls and bug cells still apply: meet the goal, then reach the exit.'
+  lockedRows: 
+  firewalls:
+  - {x: 1, y: 2}
+  bugCells:
+  - {x: 0, y: 0}
+  numberLocks:
+  - {x: 0, y: 33}
+  robotsCoverBits: 0

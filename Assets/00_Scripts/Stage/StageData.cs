@@ -35,8 +35,8 @@ namespace ProjectShift.Stage
         [SerializeField] private Vector2Int[] bugCells;
         [Tooltip("Number locks, x = row (0 = top), y = target decimal value 0-255. The stage clears only while every robot stands on its exit AND each locked row reads its target. At most one lock per row.")]
         [SerializeField] private Vector2Int[] numberLocks;
-        [Tooltip("When on, a cell with a robot on it counts as a 1 in the row's decimal value (shown value and number locks). Terrain is unchanged. Off by default.")]
-        [SerializeField] private bool robotsAreBits;
+        [Tooltip("When on, a robot covers the cell it stands on: that cell counts as 0 in the row's decimal value (shown value and number locks). Terrain is unchanged. Off by default.")]
+        [SerializeField] private bool robotsCoverBits;
 
         /// <summary>Number of robots: robot 0 plus the extra robots.</summary>
         public int RobotCount => 1 + (extraStarts == null ? 0 : extraStarts.Length);
@@ -68,14 +68,14 @@ namespace ProjectShift.Stage
             return numberLocks[index];
         }
 
-        /// <summary>True when this stage counts robots as bits in row values.</summary>
-        public bool RobotsAreBits => robotsAreBits;
+        /// <summary>True when robots cover the cell they stand on (counted as 0) in row values.</summary>
+        public bool RobotsCoverBits => robotsCoverBits;
 
         /// <summary>True when the locked row of number lock <paramref name="index"/> reads its target value right now.</summary>
         public bool IsNumberLockMet(BoardState state, int index)
         {
             Vector2Int numberLock = numberLocks[index];
-            return BoardLogic.GetRowValue(state, numberLock.x, robotsAreBits) == numberLock.y;
+            return BoardLogic.GetRowValue(state, numberLock.x, robotsCoverBits) == numberLock.y;
         }
 
         /// <summary>True when every robot stands on its own exit and every number lock is met at this moment.</summary>

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 841cfe4ccb009614384c789e43aa29da, type: 3}
+  m_Name: Stage22
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Stage.StageData
+  rows:
+  - 01110101
+  - 10110111
+  start: {x: 0, y: 1}
+  exit: {x: 1, y: 4}
+  extraStarts:
+  - {x: 0, y: 2}
+  extraExits:
+  - {x: 0, y: 6}
+  shiftLimit: 7
+  par: 5
+  hint: 'Walking a robot changes the number: place each one to match the goal.'
+  lockedRows: 
+  firewalls: []
+  bugCells: []
+  numberLocks:
+  - {x: 0, y: 5}
+  robotsCoverBits: 1

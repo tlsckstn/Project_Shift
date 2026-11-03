@@ -93,13 +93,14 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Decimal value of a row as the player reads it (cell 0 is the top bit, like the row strings).
-        /// With <paramref name="robotsAreBits"/> every robot standing on the row counts as a 1 on its cell; this changes the
-        /// value only, never the terrain. A fallen robot (column outside the row) counts for nothing.
+        /// With <paramref name="robotsCoverBits"/> every robot standing on the row covers its cell: that cell counts as 0.
+        /// A robot always stands on a 1 (it only walks or descends onto on-cells and rides its bit when the row shifts),
+        /// so covering lowers the value. It changes the value only, never the terrain. A fallen robot (column outside the row) covers nothing.
         /// </summary>
-        public static int GetRowValue(BoardState state, int row, bool robotsAreBits)
+        public static int GetRowValue(BoardState state, int row, bool robotsCoverBits)
         {
             int value = state.GetRow(row);
-            if (!robotsAreBits)
+            if (!robotsCoverBits)
             {
                 return value;
             }
@@ -109,7 +110,7 @@ namespace ProjectShift.Board
                 int col = state.GetRobotCol(i);
                 if (state.GetRobotRow(i) == row && col >= 0 && col < BoardState.Columns)
                 {
-                    value |= 1 << (BoardState.Columns - 1 - col);
+                    value &= ~(1 << (BoardState.Columns - 1 - col));
                 }
             }
 
