@@ -33,6 +33,10 @@ namespace ProjectShift.Stage
         [SerializeField] private Vector2Int[] firewalls;
         [Tooltip("Bug cells fixed to the board, x = row, y = column. Entering one by any move fails the stage. Never place one on the start or exit.")]
         [SerializeField] private Vector2Int[] bugCells;
+        [Tooltip("Number locks, x = row (0 = top), y = target decimal value 0-255. The stage clears only while every robot stands on its exit AND each locked row reads its target. At most one lock per row.")]
+        [SerializeField] private Vector2Int[] numberLocks;
+        [Tooltip("When on, a cell with a robot on it counts as a 1 in the row's decimal value (shown value and number locks). Terrain is unchanged. Off by default.")]
+        [SerializeField] private bool robotsAreBits;
 
         /// <summary>Number of robots: robot 0 plus the extra robots.</summary>
         public int RobotCount => 1 + (extraStarts == null ? 0 : extraStarts.Length);
@@ -55,13 +59,40 @@ namespace ProjectShift.Stage
             return exits;
         }
 
-        /// <summary>True when every robot stands on its own exit at this moment.</summary>
+        /// <summary>Number of number locks; 0 means a plain stage.</summary>
+        public int NumberLockCount => numberLocks == null ? 0 : numberLocks.Length;
+
+        /// <summary>Number lock <paramref name="index"/> as (row, target decimal value).</summary>
+        public Vector2Int GetNumberLock(int index)
+        {
+            return numberLocks[index];
+        }
+
+        /// <summary>True when this stage counts robots as bits in row values.</summary>
+        public bool RobotsAreBits => robotsAreBits;
+
+        /// <summary>True when the locked row of number lock <paramref name="index"/> reads its target value right now.</summary>
+        public bool IsNumberLockMet(BoardState state, int index)
+        {
+            Vector2Int numberLock = numberLocks[index];
+            return BoardLogic.GetRowValue(state, numberLock.x, robotsAreBits) == numberLock.y;
+        }
+
+        /// <summary>True when every robot stands on its own exit and every number lock is met at this moment.</summary>
         public bool IsCleared(BoardState state)
         {
             for (int i = 0; i < state.RobotCount; i++)
             {
                 Vector2Int robotExit = GetExit(i);
                 if (state.GetRobotRow(i) != robotExit.x || state.GetRobotCol(i) != robotExit.y)
+                {
+                    return false;
+                }
+            }
+
+            for (int i = 0; i < NumberLockCount; i++)
+            {
+                if (!IsNumberLockMet(state, i))
                 {
                     return false;
                 }
@@ -120,6 +151,21 @@ namespace ProjectShift.Stage
             if (starts != exits || starts > 2)
             {
                 Debug.LogWarning($"{name}: Extra Starts ({starts}) and Extra Exits ({exits}) must have the same length, at most 2.", this);
+            }
+
+            for (int i = 0; i < NumberLockCount; i++)
+            {
+                Vector2Int numberLock = numberLocks[i];
+                bool duplicate = false;
+                for (int j = 0; j < i; j++)
+                {
+                    duplicate |= numberLocks[j].x == numberLock.x;
+                }
+
+                if (numberLock.x < 0 || numberLock.x >= rows.Length || numberLock.y < 0 || numberLock.y > 255 || duplicate)
+                {
+                    Debug.LogWarning($"{name}: Number Lock {i} (row {numberLock.x}, target {numberLock.y}) needs a row inside the board, a target 0-255 and at most one lock per row.", this);
+                }
             }
         }
 

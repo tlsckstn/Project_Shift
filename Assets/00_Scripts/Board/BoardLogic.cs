@@ -91,6 +91,31 @@ namespace ProjectShift.Board
             return true;
         }
 
+        /// <summary>
+        /// Decimal value of a row as the player reads it (cell 0 is the top bit, like the row strings).
+        /// With <paramref name="robotsAreBits"/> every robot standing on the row counts as a 1 on its cell; this changes the
+        /// value only, never the terrain. A fallen robot (column outside the row) counts for nothing.
+        /// </summary>
+        public static int GetRowValue(BoardState state, int row, bool robotsAreBits)
+        {
+            int value = state.GetRow(row);
+            if (!robotsAreBits)
+            {
+                return value;
+            }
+
+            for (int i = 0; i < state.RobotCount; i++)
+            {
+                int col = state.GetRobotCol(i);
+                if (state.GetRobotRow(i) == row && col >= 0 && col < BoardState.Columns)
+                {
+                    value |= 1 << (BoardState.Columns - 1 - col);
+                }
+            }
+
+            return value;
+        }
+
         // Robots never share a cell. Only walking and descending can make them meet: a shift moves every robot on a row together.
         private static bool IsHeldByOtherRobot(BoardState state, int row, int col)
         {
