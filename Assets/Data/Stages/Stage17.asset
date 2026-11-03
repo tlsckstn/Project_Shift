@@ -23,8 +23,8 @@ MonoBehaviour:
   extraExits:
   - {x: 1, y: 4}
   - {x: 0, y: 5}
-  shiftLimit: 10
-  par: 8
+  shiftLimit: 12
+  par: 10
   hint: Every robot must stand on its own exit at once.
   lockedRows: 
   firewalls:

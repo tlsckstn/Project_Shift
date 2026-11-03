@@ -23,8 +23,8 @@ MonoBehaviour:
   extraExits:
   - {x: 1, y: 4}
   - {x: 1, y: 5}
-  shiftLimit: 8
-  par: 6
+  shiftLimit: 9
+  par: 7
   hint: Three robots, one shared shift count.
   lockedRows: 
   firewalls:

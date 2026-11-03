@@ -59,13 +59,13 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Walks the robot one cell along its row (<paramref name="direction"/> is -1 for left, 1 for right).
-        /// Succeeds only when the target cell is on and is not a firewall. Returns false and does nothing otherwise.
+        /// Succeeds only when the target cell is on, is not a firewall and holds no other robot. Returns false and does nothing otherwise.
         /// </summary>
         public static bool TryWalk(BoardState state, int direction)
         {
             int col = state.RobotCol + direction;
             if (state.IsSelectedRobotFallen || col < 0 || col >= BoardState.Columns || !state.GetCell(state.RobotRow, col)
-                || state.IsFirewall(state.RobotRow, col))
+                || state.IsFirewall(state.RobotRow, col) || IsHeldByOtherRobot(state, state.RobotRow, col))
             {
                 return false;
             }
@@ -75,20 +75,34 @@ namespace ProjectShift.Board
         }
 
         /// <summary>
-        /// Moves the robot down one row when the cell directly below is on and is not a firewall. There is no way up.
-        /// Returns false and does nothing otherwise.
+        /// Moves the robot down one row when the cell directly below is on, is not a firewall and holds no other robot.
+        /// There is no way up. Returns false and does nothing otherwise.
         /// </summary>
         public static bool TryDescend(BoardState state)
         {
             int row = state.RobotRow + 1;
             if (state.IsSelectedRobotFallen || row >= state.RowCount || !state.GetCell(row, state.RobotCol)
-                || state.IsFirewall(row, state.RobotCol))
+                || state.IsFirewall(row, state.RobotCol) || IsHeldByOtherRobot(state, row, state.RobotCol))
             {
                 return false;
             }
 
             state.SetRobot(row, state.RobotCol);
             return true;
+        }
+
+        // Robots never share a cell. Only walking and descending can make them meet: a shift moves every robot on a row together.
+        private static bool IsHeldByOtherRobot(BoardState state, int row, int col)
+        {
+            for (int i = 0; i < state.RobotCount; i++)
+            {
+                if (i != state.SelectedRobot && state.GetRobotRow(i) == row && state.GetRobotCol(i) == col)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // Every robot on the row rides it, even when the cell under it was shifted away; it only falls past an end.

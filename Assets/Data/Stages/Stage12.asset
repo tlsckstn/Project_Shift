@@ -22,7 +22,7 @@ MonoBehaviour:
   - {x: 0, y: 7}
   shiftLimit: 4
   par: 2
-  hint: Shifts are shared. Every robot must reach its own exit.
+  hint: Shifts are shared. Every robot must reach its own exit, and none may overlap.
   lockedRows: 
   firewalls: []
   bugCells: []
