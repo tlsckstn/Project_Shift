@@ -4,21 +4,46 @@ using UnityEngine;
 namespace ProjectShift.Board
 {
     /// <summary>
-    /// Draws a BoardState with pooled square sprites and one decimal label per row.
+    /// Draws a BoardState with pooled pixel-art sprites and one decimal label per row.
     /// Read-only: it never changes the state and never calls BoardLogic.
     /// </summary>
     public class BoardView : MonoBehaviour
     {
         private const int MaxRows = 3;
         private const int MaxRobots = 3;
-        // Exits are drawn faint while any number lock is unmet, and solid once every lock is met.
-        private const float LockedExitAlpha = 0.35f;
+        // Sprites are 36 pixels per unit: one cell pitch (32 px cell + 4 px gap) is 1 unit.
+        private const float PixelsPerUnit = 36f;
+        // Robot sprite centre above the cell centre: its tracks (16 px sprite, bottom row empty) rest on the cell top.
+        private const float RobotOffsetPixels = 23f;
+        // Exit sprite centre above the cell centre: the 24 px door frame's bottom touches the cell top.
+        private const float ExitOffsetPixels = 28f;
+        // Row tint and lock frame size in pixels: 8 cells plus a 10 px margin.
+        private const float RowFramePixelsX = 304f;
+        private const float RowFramePixelsY = 52f;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
         private const string KeysText = "←/→ walk    ↓ descend    W/S select row    A/D shift    Z undo    R restart";
         // Shown instead of KeysText on stages with more than one robot.
         private const string KeysTextMultiRobot = "←/→ walk    ↓ descend    W/S select row    A/D shift    Q switch robot    Z undo    R restart";
 
+        [Tooltip("Plain white square, used for the selected-row tint.")]
         [SerializeField] private Sprite cellSprite;
+        [SerializeField] private Sprite platformSprite;
+        [SerializeField] private Sprite gapSprite;
+        [Tooltip("A 1 cell under a robot on stages where robots cover bits.")]
+        [SerializeField] private Sprite coveredSprite;
+        [SerializeField] private Sprite bugSprite;
+        [SerializeField] private Sprite firewallSprite;
+        [SerializeField] private Sprite lockFrameSprite;
+        [Tooltip("Per crew in robot order (blue, pink, yellow).")]
+        [SerializeField] private Sprite[] robotIdleSprites;
+        [Tooltip("Per crew: the robot standing on its own exit.")]
+        [SerializeField] private Sprite[] robotExitSprites;
+        [Tooltip("Per crew: white silhouette outline behind the controlled robot.")]
+        [SerializeField] private Sprite[] robotOutlineSprites;
+        [Tooltip("Per crew: exit while any number lock is unmet.")]
+        [SerializeField] private Sprite[] exitLockedSprites;
+        [Tooltip("Per crew: exit once every number lock is met.")]
+        [SerializeField] private Sprite[] exitOpenSprites;
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private float rowSpacing = 2f;
         [SerializeField] private float labelFontSize = 6f;
@@ -29,21 +54,10 @@ namespace ProjectShift.Board
         [Tooltip("Local y of the stage hint; between the bottom board row (3 rows reach about -2.5) and the key panel.")]
         [SerializeField] private float hintY = -3.4f;
         [SerializeField] private Color hintColor = new Color(0.9f, 0.8f, 0.2f);
+        [Tooltip("GOAL label color once the row value matches its lock.")]
         [SerializeField] private Color onColor = new Color(0.3f, 0.9f, 0.5f);
-        [SerializeField] private Color offColor = new Color(0.15f, 0.15f, 0.2f);
         [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
         [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
-        [SerializeField] private Color firewallColor = new Color(1f, 0.55f, 0.1f);
-        [SerializeField] private Color bugColor = new Color(0.9f, 0.2f, 0.9f);
-        [Tooltip("One color per robot (up to 3), in robot order.")]
-        [SerializeField] private Color[] robotColors =
-        {
-            new Color(0.3f, 0.6f, 1f),
-            new Color(1f, 0.5f, 0.75f),
-            new Color(1f, 0.85f, 0.25f)
-        };
-        [Tooltip("Outline drawn behind the robot you control; only shown when the stage has more than one robot.")]
-        [SerializeField] private Color selectedRobotColor = Color.white;
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
 
@@ -102,14 +116,17 @@ namespace ProjectShift.Board
             shownGoals = new int[MaxRows];
             shownGoalMet = new bool[MaxRows];
 
-            Vector3 highlightScale = new Vector3(BoardState.Columns * cellSize + 0.4f, cellSize + 0.4f, 1f);
+            // cellSprite is a 1-unit square, so scale it to the row frame size.
+            Vector3 highlightScale = new Vector3(RowFramePixelsX / PixelsPerUnit, RowFramePixelsY / PixelsPerUnit, 1f);
             for (int r = 0; r < MaxRows; r++)
             {
-                rowHighlights[r] = CreateSquare("RowHighlight", selectedRowColor, 0, highlightScale);
+                rowHighlights[r] = CreateSprite("RowHighlight", cellSprite, 0);
+                rowHighlights[r].color = selectedRowColor;
                 highlightTransforms[r] = rowHighlights[r].transform;
+                highlightTransforms[r].localScale = highlightScale;
 
-                // Solid frame drawn under the selection tint, so a locked row still shows when selected.
-                lockFrames[r] = CreateSquare("LockFrame", lockedRowColor, -1, highlightScale);
+                // Hollow frame drawn under the selection tint, so a locked row still shows when selected.
+                lockFrames[r] = CreateSprite("LockFrame", lockFrameSprite, -1);
                 lockFrameTransforms[r] = lockFrames[r].transform;
                 lockLabels[r] = new GameObject("LockLabel").AddComponent<TextMeshPro>();
                 lockLabels[r].rectTransform.SetParent(cachedTransform, false);
@@ -122,15 +139,14 @@ namespace ProjectShift.Board
                 for (int c = 0; c < BoardState.Columns; c++)
                 {
                     int i = r * BoardState.Columns + c;
-                    cells[i] = CreateSquare("Cell", offColor, 2, Vector3.one * (cellSize * 0.9f));
+                    cells[i] = CreateSprite("Cell", gapSprite, 2);
                     cellTransforms[i] = cells[i].transform;
-                    // Larger square under the cell: shows as a thick outline around a firewall cell.
-                    firewallMarks[i] = CreateSquare("Firewall", firewallColor, 1, Vector3.one * (cellSize * 1.2f));
+                    // Ring that fills the gap around a firewall cell.
+                    firewallMarks[i] = CreateSprite("Firewall", firewallSprite, 1);
                     firewallTransforms[i] = firewallMarks[i].transform;
-                    // Diamond (square turned 45 degrees) on top of the cell, so its shape differs from the square robot and exit.
-                    bugMarks[i] = CreateSquare("Bug", bugColor, 3, Vector3.one * (cellSize * 0.45f));
+                    // Diamond on top of the cell, so its shape differs from the boxy robot and exit.
+                    bugMarks[i] = CreateSprite("Bug", bugSprite, 3);
                     bugTransforms[i] = bugMarks[i].transform;
-                    bugTransforms[i].localRotation = Quaternion.Euler(0f, 0f, 45f);
                 }
 
                 // Adding TextMeshPro replaces the Transform with a RectTransform, so cache it afterwards.
@@ -157,18 +173,18 @@ namespace ProjectShift.Board
             exitTransforms = new Transform[MaxRobots];
             for (int i = 0; i < MaxRobots; i++)
             {
-                exitMarks[i] = CreateSquare("Exit", robotColors[i], 3, Vector3.one * (cellSize * 0.8f));
+                exitMarks[i] = CreateSprite("Exit", exitLockedSprites[i], 3);
                 exitTransforms[i] = exitMarks[i].transform;
             }
 
-            // Frame first and one sorting order below the robots, so it shows as an outline behind the selected one.
-            selectedFrame = CreateSquare("SelectedRobot", selectedRobotColor, 4, Vector3.one * (cellSize * 0.7f));
+            // Outline one sorting order below the robots, so it shows behind the selected one. Its sprite follows the selection.
+            selectedFrame = CreateSprite("SelectedRobot", robotOutlineSprites[0], 4);
             selectedFrameTransform = selectedFrame.transform;
             robots = new SpriteRenderer[MaxRobots];
             robotTransforms = new Transform[MaxRobots];
             for (int i = 0; i < MaxRobots; i++)
             {
-                robots[i] = CreateSquare("Robot", robotColors[i], 5, Vector3.one * (cellSize * 0.5f));
+                robots[i] = CreateSprite("Robot", robotIdleSprites[i], 5);
                 robotTransforms[i] = robots[i].transform;
             }
 
@@ -216,9 +232,10 @@ namespace ProjectShift.Board
         /// <paramref name="parLeft"/> is the shifts still inside par; a negative value hides the PAR text.
         /// <paramref name="rowValues"/> is the decimal value to show for each row, and <paramref name="lockTargets"/> the number-lock
         /// target of each row (-1 for no lock); both are computed by StageManager, so the view never calls BoardLogic.
-        /// A row whose value equals its target shows its goal in the "on" color; exits are faint while any lock is unmet.
+        /// A row whose value equals its target shows its goal in the "on" color; exits show locked while any lock is unmet.
+        /// With <paramref name="robotsCoverBits"/> a 1 cell under a robot is drawn as covered (it counts as 0).
         /// </summary>
-        public void Render(BoardState state, int selectedRow, Vector2Int[] exits, int parLeft, int[] rowValues, int[] lockTargets)
+        public void Render(BoardState state, int selectedRow, Vector2Int[] exits, int parLeft, int[] rowValues, int[] lockTargets, bool robotsCoverBits)
         {
             bool anyLockUnmet = false;
             for (int r = 0; r < MaxRows; r++)
@@ -242,7 +259,13 @@ namespace ProjectShift.Board
                         continue;
                     }
 
-                    cells[i].color = state.GetCell(r, c) ? onColor : offColor;
+                    Sprite cellLook = gapSprite;
+                    if (state.GetCell(r, c))
+                    {
+                        cellLook = robotsCoverBits && HasRobotOn(state, r, c) ? coveredSprite : platformSprite;
+                    }
+
+                    cells[i].sprite = cellLook;
                     cellTransforms[i].localPosition = CellPosition(r, c, state.RowCount);
                     firewallTransforms[i].localPosition = cellTransforms[i].localPosition;
                     bugTransforms[i].localPosition = cellTransforms[i].localPosition;
@@ -283,7 +306,8 @@ namespace ProjectShift.Board
                 }
             }
 
-            Vector3 standOffset = Vector3.up * (cellSize * 0.75f);
+            Vector3 standOffset = Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
+            Vector3 exitOffset = Vector3.up * (ExitOffsetPixels / PixelsPerUnit);
             bool multiRobot = state.RobotCount > 1;
             for (int i = 0; i < MaxRobots; i++)
             {
@@ -294,7 +318,11 @@ namespace ProjectShift.Board
                     continue;
                 }
 
-                robotTransforms[i].localPosition = CellPosition(state.GetRobotRow(i), state.GetRobotCol(i), state.RowCount) + standOffset;
+                int robotRow = state.GetRobotRow(i);
+                int robotCol = state.GetRobotCol(i);
+                robotTransforms[i].localPosition = CellPosition(robotRow, robotCol, state.RowCount) + standOffset;
+                bool onOwnExit = i < exits.Length && exits[i].x == robotRow && exits[i].y == robotCol;
+                robots[i].sprite = onOwnExit ? robotExitSprites[i] : robotIdleSprites[i];
                 // The controlled robot draws on top when robots overlap.
                 robots[i].sortingOrder = multiRobot && i == state.SelectedRobot ? 6 : 5;
             }
@@ -302,6 +330,7 @@ namespace ProjectShift.Board
             selectedFrame.enabled = multiRobot;
             if (multiRobot)
             {
+                selectedFrame.sprite = robotOutlineSprites[state.SelectedRobot];
                 selectedFrameTransform.localPosition = robotTransforms[state.SelectedRobot].localPosition;
             }
 
@@ -320,10 +349,8 @@ namespace ProjectShift.Board
                     continue;
                 }
 
-                Color exitTint = robotColors[i];
-                exitTint.a = anyLockUnmet ? LockedExitAlpha : 1f;
-                exitMarks[i].color = exitTint;
-                exitTransforms[i].localPosition = CellPosition(exits[i].x, exits[i].y, state.RowCount) + standOffset;
+                exitMarks[i].sprite = anyLockUnmet ? exitLockedSprites[i] : exitOpenSprites[i];
+                exitTransforms[i].localPosition = CellPosition(exits[i].x, exits[i].y, state.RowCount) + exitOffset;
             }
 
             // Sits above the top row; only rebuilt when the count or par changes.
@@ -369,15 +396,26 @@ namespace ProjectShift.Board
             return new Vector3(x, y, 0f);
         }
 
-        private SpriteRenderer CreateSquare(string objectName, Color color, int sortingOrder, Vector3 scale)
+        // A fallen robot's column is outside the row, so it never matches a cell.
+        private static bool HasRobotOn(BoardState state, int row, int col)
         {
-            var square = new GameObject(objectName);
-            Transform squareTransform = square.transform;
-            squareTransform.SetParent(cachedTransform, false);
-            squareTransform.localScale = scale;
-            var spriteRenderer = square.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = cellSprite;
-            spriteRenderer.color = color;
+            for (int i = 0; i < state.RobotCount; i++)
+            {
+                if (state.GetRobotRow(i) == row && state.GetRobotCol(i) == col)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private SpriteRenderer CreateSprite(string objectName, Sprite sprite, int sortingOrder)
+        {
+            var spriteObject = new GameObject(objectName);
+            spriteObject.transform.SetParent(cachedTransform, false);
+            var spriteRenderer = spriteObject.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = sprite;
             spriteRenderer.sortingOrder = sortingOrder;
             return spriteRenderer;
         }

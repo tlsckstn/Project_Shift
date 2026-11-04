@@ -151,6 +151,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Board.BoardView
   cellSprite: {fileID: 7482667652216324306, guid: 8b477fd145c550e4cae6ec9ed85987a3, type: 3}
+  platformSprite: {fileID: 21300000, guid: c9afe56de51c31f48ba2325d04aacf58, type: 3}
+  gapSprite: {fileID: 21300000, guid: 0e564560b699e924ca2f43891986ad9e, type: 3}
+  coveredSprite: {fileID: 21300000, guid: b4799246da636864097f2928dd0f8100, type: 3}
+  bugSprite: {fileID: 21300000, guid: 933e84175b4b1d74e8e5ef5595997839, type: 3}
+  firewallSprite: {fileID: 21300000, guid: 9367617310677f14fadf031f98a47545, type: 3}
+  lockFrameSprite: {fileID: 21300000, guid: eb22a4f5fc66cd34f9d2d5884ec1579b, type: 3}
+  robotIdleSprites:
+  - {fileID: 21300000, guid: 4dcfdcb7c6b90d0458cb460d220506c7, type: 3}
+  - {fileID: 21300000, guid: 375260808de6a124ab17eaf1f1e9bb37, type: 3}
+  - {fileID: 21300000, guid: 9e128f4cb6258724cb8b2e679103181e, type: 3}
+  robotExitSprites:
+  - {fileID: 21300000, guid: 5cedf9dc1ea50e8449b62d97550b958e, type: 3}
+  - {fileID: 21300000, guid: 2bb21da8e1b1efa4da1ecc0fddaf5811, type: 3}
+  - {fileID: 21300000, guid: 4abe9ecdd03052e44a7933e10dbc36e4, type: 3}
+  robotOutlineSprites:
+  - {fileID: 21300000, guid: 1c15ca6a8b2512445aee6b8d7a3f0d3e, type: 3}
+  - {fileID: 21300000, guid: ad2b424419b23a2458b8cad24a1c4391, type: 3}
+  - {fileID: 21300000, guid: f780c7dab6cabb14d8d1599f7660e408, type: 3}
+  exitLockedSprites:
+  - {fileID: 21300000, guid: c35b0917e1f83c44eb85eaad9f52fdcd, type: 3}
+  - {fileID: 21300000, guid: 80f58ee6f936d254ab1ee1e3a37178dc, type: 3}
+  - {fileID: 21300000, guid: 22a9e846b2e40cf4bb2ba710b48a3afb, type: 3}
+  exitOpenSprites:
+  - {fileID: 21300000, guid: c42170d920f4d9645978f0f0d0dd076e, type: 3}
+  - {fileID: 21300000, guid: 71414d2c18f1ade4089e9fb2c0b6d978, type: 3}
+  - {fileID: 21300000, guid: 1e3380bf6042eb84b817ef15d6ccf4d2, type: 3}
   cellSize: 1
   rowSpacing: 2
   labelFontSize: 6
@@ -160,16 +186,8 @@ MonoBehaviour:
   hintY: -3.4
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
-  offColor: {r: 0.15, g: 0.15, b: 0.2, a: 1}
   selectedRowColor: {r: 0.9, g: 0.8, b: 0.2, a: 0.35}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
-  firewallColor: {r: 1, g: 0.55, b: 0.1, a: 1}
-  bugColor: {r: 0.9, g: 0.2, b: 0.9, a: 1}
-  robotColors:
-  - {r: 0.3, g: 0.6, b: 1, a: 1}
-  - {r: 1, g: 0.5, b: 0.75, a: 1}
-  - {r: 1, g: 0.85, b: 0.25, a: 1}
-  selectedRobotColor: {r: 1, g: 1, b: 1, a: 1}
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &306120834
@@ -520,6 +538,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Board.BoardView
   cellSprite: {fileID: 7482667652216324306, guid: 8b477fd145c550e4cae6ec9ed85987a3, type: 3}
+  platformSprite: {fileID: 21300000, guid: c9afe56de51c31f48ba2325d04aacf58, type: 3}
+  gapSprite: {fileID: 21300000, guid: 0e564560b699e924ca2f43891986ad9e, type: 3}
+  coveredSprite: {fileID: 21300000, guid: b4799246da636864097f2928dd0f8100, type: 3}
+  bugSprite: {fileID: 21300000, guid: 933e84175b4b1d74e8e5ef5595997839, type: 3}
+  firewallSprite: {fileID: 21300000, guid: 9367617310677f14fadf031f98a47545, type: 3}
+  lockFrameSprite: {fileID: 21300000, guid: eb22a4f5fc66cd34f9d2d5884ec1579b, type: 3}
+  robotIdleSprites:
+  - {fileID: 21300000, guid: 4dcfdcb7c6b90d0458cb460d220506c7, type: 3}
+  - {fileID: 21300000, guid: 375260808de6a124ab17eaf1f1e9bb37, type: 3}
+  - {fileID: 21300000, guid: 9e128f4cb6258724cb8b2e679103181e, type: 3}
+  robotExitSprites:
+  - {fileID: 21300000, guid: 5cedf9dc1ea50e8449b62d97550b958e, type: 3}
+  - {fileID: 21300000, guid: 2bb21da8e1b1efa4da1ecc0fddaf5811, type: 3}
+  - {fileID: 21300000, guid: 4abe9ecdd03052e44a7933e10dbc36e4, type: 3}
+  robotOutlineSprites:
+  - {fileID: 21300000, guid: 1c15ca6a8b2512445aee6b8d7a3f0d3e, type: 3}
+  - {fileID: 21300000, guid: ad2b424419b23a2458b8cad24a1c4391, type: 3}
+  - {fileID: 21300000, guid: f780c7dab6cabb14d8d1599f7660e408, type: 3}
+  exitLockedSprites:
+  - {fileID: 21300000, guid: c35b0917e1f83c44eb85eaad9f52fdcd, type: 3}
+  - {fileID: 21300000, guid: 80f58ee6f936d254ab1ee1e3a37178dc, type: 3}
+  - {fileID: 21300000, guid: 22a9e846b2e40cf4bb2ba710b48a3afb, type: 3}
+  exitOpenSprites:
+  - {fileID: 21300000, guid: c42170d920f4d9645978f0f0d0dd076e, type: 3}
+  - {fileID: 21300000, guid: 71414d2c18f1ade4089e9fb2c0b6d978, type: 3}
+  - {fileID: 21300000, guid: 1e3380bf6042eb84b817ef15d6ccf4d2, type: 3}
   cellSize: 1
   rowSpacing: 2
   labelFontSize: 6
@@ -529,16 +573,8 @@ MonoBehaviour:
   hintY: -3.4
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
-  offColor: {r: 0.15, g: 0.15, b: 0.2, a: 1}
   selectedRowColor: {r: 0.9, g: 0.8, b: 0.2, a: 0.35}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
-  firewallColor: {r: 1, g: 0.55, b: 0.1, a: 1}
-  bugColor: {r: 0.9, g: 0.2, b: 0.9, a: 1}
-  robotColors:
-  - {r: 0.3, g: 0.6, b: 1, a: 1}
-  - {r: 1, g: 0.5, b: 0.75, a: 1}
-  - {r: 1, g: 0.85, b: 0.25, a: 1}
-  selectedRobotColor: {r: 1, g: 1, b: 1, a: 1}
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &1804223273

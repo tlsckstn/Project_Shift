@@ -186,7 +186,7 @@ namespace ProjectShift.Stage
                 rowValues[r] = BoardLogic.GetRowValue(state, r, stage.RobotsCoverBits);
             }
 
-            view.Render(state, selectedRow, exits, parLeft, rowValues, lockTargets);
+            view.Render(state, selectedRow, exits, parLeft, rowValues, lockTargets, stage.RobotsCoverBits);
         }
     }
 }
