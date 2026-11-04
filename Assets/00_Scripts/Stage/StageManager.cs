@@ -32,11 +32,12 @@ namespace ProjectShift.Stage
         private bool pendingClear;
         private string failMessage;
 
-        private bool IsInputBlocked => isFinished || pendingTimer >= 0f;
+        private bool IsInputBlocked => isFinished || pendingTimer >= 0f || view.IsTransitioning;
 
         private void Start()
         {
             LoadStage(0);
+            view.PlayTransition(null, state);
         }
 
         private void Update()
@@ -54,7 +55,13 @@ namespace ProjectShift.Stage
 
             if (pendingClear)
             {
+                BoardState cleared = state;
                 LoadStage(stageIndex + 1);
+                if (!isFinished)
+                {
+                    view.PlayTransition(cleared, state);
+                }
+
                 return;
             }
 

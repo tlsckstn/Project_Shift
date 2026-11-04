@@ -80,10 +80,16 @@ namespace ProjectShift.Board
         [SerializeField] private float clockOutSeconds = 0.4f;
         [Tooltip("Stage clear: how far (art pixels) the robots rise while clocking out.")]
         [SerializeField] private float clockOutRisePixels = 3f;
+        [Tooltip("Stage transition: seconds per one-cell shift. The old rows shift out right in 8 steps, then the new rows shift in.")]
+        [SerializeField] private float transitionStepSeconds = 0.035f;
+        [Tooltip("Stage transition: empty pause between the old rows leaving and the new rows arriving.")]
+        [SerializeField] private float transitionGapSeconds = 0.1f;
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
 
         private Transform cachedTransform;
+        // Parent of everything drawn on the board except the cells and row values: hidden as one while a stage transition runs.
+        private Transform decorRoot;
         private SpriteRenderer[] cells;
         private Transform[] cellTransforms;
         private SpriteRenderer[] firewallMarks;
@@ -152,9 +158,23 @@ namespace ProjectShift.Board
         private bool clearStarted;
         private readonly Vector3[] clearStarts = new Vector3[MaxRobots];
 
+        // Stage transition: Render has already drawn the new stage; the cells and row values are overridden step by step
+        // and restored from what Render chose when it ends.
+        private float transitionTime = -1f;
+        private int transitionStep = -1;
+        private int transitionOldRowCount;
+        private readonly byte[] transitionOldRows = new byte[MaxRows];
+        private readonly byte[] transitionNewRows = new byte[MaxRows];
+        private Sprite[] restCellSprites;
+
+        /// <summary>True while a stage transition plays; StageManager ignores input meanwhile.</summary>
+        public bool IsTransitioning => transitionTime >= 0f;
+
         private void Awake()
         {
             cachedTransform = transform;
+            decorRoot = new GameObject("Decor").transform;
+            decorRoot.SetParent(cachedTransform, false);
             int cellCount = MaxRows * BoardState.Columns;
             cells = new SpriteRenderer[cellCount];
             cellTransforms = new Transform[cellCount];
@@ -176,14 +196,14 @@ namespace ProjectShift.Board
 
             for (int r = 0; r < MaxRows; r++)
             {
-                rowHighlights[r] = CreateSprite("RowHighlight", rowHighlightSprite, 0);
+                rowHighlights[r] = CreateSprite("RowHighlight", rowHighlightSprite, 0, decorRoot);
                 highlightTransforms[r] = rowHighlights[r].transform;
 
                 // Hollow frame just outside the selection brackets, so a locked row still shows when selected.
-                lockFrames[r] = CreateSprite("LockFrame", lockFrameSprite, -1);
+                lockFrames[r] = CreateSprite("LockFrame", lockFrameSprite, -1, decorRoot);
                 lockFrameTransforms[r] = lockFrames[r].transform;
                 lockLabels[r] = new GameObject("LockLabel").AddComponent<TextMeshPro>();
-                lockLabels[r].rectTransform.SetParent(cachedTransform, false);
+                lockLabels[r].rectTransform.SetParent(decorRoot, false);
                 lockLabels[r].rectTransform.sizeDelta = new Vector2(2f * cellSize, cellSize);
                 lockLabels[r].fontSize = labelFontSize * 0.6f;
                 lockLabels[r].alignment = TextAlignmentOptions.MidlineRight;
@@ -193,13 +213,13 @@ namespace ProjectShift.Board
                 for (int c = 0; c < BoardState.Columns; c++)
                 {
                     int i = r * BoardState.Columns + c;
-                    cells[i] = CreateSprite("Cell", gapSprite, 2);
+                    cells[i] = CreateSprite("Cell", gapSprite, 2, cachedTransform);
                     cellTransforms[i] = cells[i].transform;
                     // Ring that fills the gap around a firewall cell.
-                    firewallMarks[i] = CreateSprite("Firewall", firewallSprite, 1);
+                    firewallMarks[i] = CreateSprite("Firewall", firewallSprite, 1, decorRoot);
                     firewallTransforms[i] = firewallMarks[i].transform;
                     // Diamond on top of the cell, so its shape differs from the boxy robot and exit.
-                    bugMarks[i] = CreateSprite("Bug", bugSprite, 3);
+                    bugMarks[i] = CreateSprite("Bug", bugSprite, 3, decorRoot);
                     bugTransforms[i] = bugMarks[i].transform;
                 }
 
@@ -215,7 +235,7 @@ namespace ProjectShift.Board
                 shownValues[r] = -1;
 
                 goalLabels[r] = new GameObject("RowGoal").AddComponent<TextMeshPro>();
-                goalLabels[r].rectTransform.SetParent(cachedTransform, false);
+                goalLabels[r].rectTransform.SetParent(decorRoot, false);
                 goalLabels[r].fontSize = labelFontSize * 0.6f;
                 goalLabels[r].alignment = TextAlignmentOptions.MidlineLeft;
                 goalLabels[r].rectTransform.sizeDelta = new Vector2(3f * cellSize, cellSize);
@@ -227,25 +247,25 @@ namespace ProjectShift.Board
             exitTransforms = new Transform[MaxRobots];
             for (int i = 0; i < MaxRobots; i++)
             {
-                exitMarks[i] = CreateSprite("Exit", exitLockedSprites[i], 3);
+                exitMarks[i] = CreateSprite("Exit", exitLockedSprites[i], 3, decorRoot);
                 exitTransforms[i] = exitMarks[i].transform;
             }
 
             // Outline one sorting order below the robots, so it shows behind the selected one. Its sprite follows the selection.
-            selectedFrame = CreateSprite("SelectedRobot", robotOutlineSprites[0], 4);
+            selectedFrame = CreateSprite("SelectedRobot", robotOutlineSprites[0], 4, decorRoot);
             selectedFrameTransform = selectedFrame.transform;
             robots = new SpriteRenderer[MaxRobots];
             robotTransforms = new Transform[MaxRobots];
             for (int i = 0; i < MaxRobots; i++)
             {
-                robots[i] = CreateSprite("Robot", robotIdleSprites[i], 5);
+                robots[i] = CreateSprite("Robot", robotIdleSprites[i], 5, decorRoot);
                 robotTransforms[i] = robots[i].transform;
             }
 
-            lostCell = CreateSprite("LostCell", gapSprite, 2);
+            lostCell = CreateSprite("LostCell", gapSprite, 2, decorRoot);
             lostCellTransform = lostCell.transform;
             lostCell.enabled = false;
-            walkGhost = CreateSprite("WalkGhost", robotIdleSprites[0], 4);
+            walkGhost = CreateSprite("WalkGhost", robotIdleSprites[0], 4, decorRoot);
             walkGhost.enabled = false;
 
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
@@ -348,7 +368,7 @@ namespace ProjectShift.Board
                 highlightTransforms[r].localPosition = rowCenter;
                 lockFrameTransforms[r].localPosition = rowCenter;
                 lockLabels[r].rectTransform.localPosition = rowCenter + Vector3.left * (BoardState.Columns * 0.5f * cellSize + 1.4f * cellSize);
-                labelTransforms[r].localPosition = rowCenter + Vector3.right * (BoardState.Columns * 0.5f * cellSize + 0.5f);
+                labelTransforms[r].localPosition = LabelPosition(r, state.RowCount);
 
                 // Only rebuild the label text when the value changed.
                 int value = rowValues[r];
@@ -569,8 +589,44 @@ namespace ProjectShift.Board
             clearStarted = false;
         }
 
+        /// <summary>
+        /// Plays the stage transition: the rows of <paramref name="from"/> shift right one cell at a time until empty, then the rows
+        /// of <paramref name="to"/> shift in from the left the same way; robots, exits and marks appear once the rows are in.
+        /// Pass null for <paramref name="from"/> to play only the arrival (first stage). Call right after the Render that shows <paramref name="to"/>.
+        /// </summary>
+        public void PlayTransition(BoardState from, BoardState to)
+        {
+            transitionOldRowCount = from == null ? 0 : from.RowCount;
+            for (int r = 0; r < MaxRows; r++)
+            {
+                transitionOldRows[r] = r < transitionOldRowCount ? from.GetRow(r) : (byte)0;
+                transitionNewRows[r] = r < to.RowCount ? to.GetRow(r) : (byte)0;
+            }
+
+            if (restCellSprites == null)
+            {
+                restCellSprites = new Sprite[cells.Length];
+            }
+
+            for (int i = 0; i < cells.Length; i++)
+            {
+                restCellSprites[i] = cells[i].sprite;
+            }
+
+            decorRoot.gameObject.SetActive(false);
+            transitionTime = 0f;
+            transitionStep = -1;
+            UpdateTransition();
+        }
+
         private void Update()
         {
+            if (transitionTime >= 0f)
+            {
+                transitionTime += Time.deltaTime;
+                UpdateTransition();
+            }
+
             // These effects start once the shift slide that caused them has finished.
             if (slideRow < 0)
             {
@@ -671,6 +727,108 @@ namespace ProjectShift.Board
             SetAlpha(cells[row * BoardState.Columns + slideEnterCol], 1f);
             lostCell.enabled = false;
             slideRow = -1;
+        }
+
+        // Steps: 1..8 shift the old rows out (skipped without old rows), one empty step for the gap, then 8 steps shift the new rows in.
+        private void UpdateTransition()
+        {
+            int outSteps = transitionOldRowCount > 0 ? BoardState.Columns : 0;
+            int gapSteps = outSteps > 0 ? 1 : 0;
+            float outSeconds = outSteps * transitionStepSeconds;
+            float gapSeconds = gapSteps * transitionGapSeconds;
+            int step;
+            if (transitionTime < outSeconds)
+            {
+                step = Mathf.FloorToInt(transitionTime / transitionStepSeconds) + 1;
+            }
+            else if (transitionTime < outSeconds + gapSeconds)
+            {
+                step = outSteps + 1;
+            }
+            else
+            {
+                step = outSteps + gapSteps + 1 + Mathf.FloorToInt((transitionTime - outSeconds - gapSeconds) / transitionStepSeconds);
+            }
+
+            if (step == transitionStep)
+            {
+                return;
+            }
+
+            transitionStep = step;
+            int inStep = step - outSteps - gapSteps;
+            if (step <= outSteps)
+            {
+                // Old rows pushed right: bits leave past cell 7, zeros come in at cell 0.
+                ShowTransitionRows(transitionOldRows, transitionOldRowCount, step, 0);
+            }
+            else if (inStep <= 0)
+            {
+                ShowTransitionRows(transitionOldRows, 0, 0, 0);
+            }
+            else if (inStep <= BoardState.Columns)
+            {
+                // New rows arrive from the left: at in-step k the row is still 8 - k cells short of its place.
+                ShowTransitionRows(transitionNewRows, shownRowCount, 0, BoardState.Columns - inStep);
+            }
+            else
+            {
+                EndTransition();
+            }
+        }
+
+        private void ShowTransitionRows(byte[] rows, int rowCount, int shiftRight, int shiftLeft)
+        {
+            for (int r = 0; r < MaxRows; r++)
+            {
+                bool used = r < rowCount;
+                valueLabels[r].enabled = used;
+                byte value = used ? (byte)((rows[r] >> shiftRight) << shiftLeft) : (byte)0;
+                for (int c = 0; c < BoardState.Columns; c++)
+                {
+                    int i = r * BoardState.Columns + c;
+                    cells[i].enabled = used;
+                    if (used)
+                    {
+                        // Cell 0 is the top bit, as in BoardState.
+                        bool on = (value & (1 << (BoardState.Columns - 1 - c))) != 0;
+                        cells[i].sprite = on ? platformSprite : gapSprite;
+                        cellTransforms[i].localPosition = CellPosition(r, c, rowCount);
+                    }
+                }
+
+                if (used)
+                {
+                    labelTransforms[r].localPosition = LabelPosition(r, rowCount);
+                    valueLabels[r].SetText("{0}", value);
+                }
+            }
+        }
+
+        // Puts back exactly what the Render of the new stage drew.
+        private void EndTransition()
+        {
+            transitionTime = -1f;
+            for (int r = 0; r < MaxRows; r++)
+            {
+                bool used = r < shownRowCount;
+                valueLabels[r].enabled = used;
+                for (int c = 0; c < BoardState.Columns; c++)
+                {
+                    int i = r * BoardState.Columns + c;
+                    cells[i].enabled = used;
+                    cells[i].sprite = restCellSprites[i];
+                    cellTransforms[i].localPosition = CellPosition(r, c, shownRowCount);
+                }
+
+                if (used)
+                {
+                    labelTransforms[r].localPosition = LabelPosition(r, shownRowCount);
+                    valueLabels[r].SetText("{0}", shownValues[r]);
+                }
+            }
+
+            decorRoot.gameObject.SetActive(true);
         }
 
         private void UpdateExitFlashes()
@@ -831,6 +989,12 @@ namespace ProjectShift.Board
             spriteRenderer.color = color;
         }
 
+        // Row value label: right of the row, fixed while the cells shift.
+        private Vector3 LabelPosition(int row, int rowCount)
+        {
+            return new Vector3((BoardState.Columns * 0.5f * cellSize) + 0.5f, CellPosition(row, 0, rowCount).y, 0f);
+        }
+
         private Vector3 CellPosition(int row, int col, int rowCount)
         {
             float x = (col - (BoardState.Columns - 1) * 0.5f) * cellSize;
@@ -852,10 +1016,10 @@ namespace ProjectShift.Board
             return false;
         }
 
-        private SpriteRenderer CreateSprite(string objectName, Sprite sprite, int sortingOrder)
+        private SpriteRenderer CreateSprite(string objectName, Sprite sprite, int sortingOrder, Transform parent)
         {
             var spriteObject = new GameObject(objectName);
-            spriteObject.transform.SetParent(cachedTransform, false);
+            spriteObject.transform.SetParent(parent, false);
             var spriteRenderer = spriteObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = sprite;
             spriteRenderer.sortingOrder = sortingOrder;
