@@ -165,6 +165,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5cedf9dc1ea50e8449b62d97550b958e, type: 3}
   - {fileID: 21300000, guid: 2bb21da8e1b1efa4da1ecc0fddaf5811, type: 3}
   - {fileID: 21300000, guid: 4abe9ecdd03052e44a7933e10dbc36e4, type: 3}
+  robotFallSprites:
+  - {fileID: 21300000, guid: 572f563561d8e7f46ab32f7f855ec516, type: 3}
+  - {fileID: 21300000, guid: 250c4029a9b871046ae750cc05769214, type: 3}
+  - {fileID: 21300000, guid: b61966b33b6a84142be8c21eee279ca0, type: 3}
   robotOutlineSprites:
   - {fileID: 21300000, guid: 1c15ca6a8b2512445aee6b8d7a3f0d3e, type: 3}
   - {fileID: 21300000, guid: ad2b424419b23a2458b8cad24a1c4391, type: 3}
@@ -187,6 +191,13 @@ MonoBehaviour:
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
+  shiftSlideSeconds: 0.1
+  walkGhostSeconds: 0.15
+  walkGhostAlpha: 0.45
+  fallPixels: 54
+  fallSeconds: 0.45
+  bugFadeSeconds: 0.3
+  reappearSeconds: 0.15
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &306120834
@@ -256,6 +267,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6a927eae28ad32d4f909b1f65b179e11, type: 2}
   - {fileID: 11400000, guid: e9b2656e0db5f8041adb36d502ec5407, type: 2}
   view: {fileID: 306120833}
+  failRestartSeconds: 0.6
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -524,6 +536,7 @@ MonoBehaviour:
   stages:
   - {fileID: 11400000, guid: f035708670fee6848acae82a0535695e, type: 2}
   view: {fileID: 1804223272}
+  failRestartSeconds: 0.6
 --- !u!114 &1804223272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,6 +564,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5cedf9dc1ea50e8449b62d97550b958e, type: 3}
   - {fileID: 21300000, guid: 2bb21da8e1b1efa4da1ecc0fddaf5811, type: 3}
   - {fileID: 21300000, guid: 4abe9ecdd03052e44a7933e10dbc36e4, type: 3}
+  robotFallSprites:
+  - {fileID: 21300000, guid: 572f563561d8e7f46ab32f7f855ec516, type: 3}
+  - {fileID: 21300000, guid: 250c4029a9b871046ae750cc05769214, type: 3}
+  - {fileID: 21300000, guid: b61966b33b6a84142be8c21eee279ca0, type: 3}
   robotOutlineSprites:
   - {fileID: 21300000, guid: 1c15ca6a8b2512445aee6b8d7a3f0d3e, type: 3}
   - {fileID: 21300000, guid: ad2b424419b23a2458b8cad24a1c4391, type: 3}
@@ -573,6 +590,13 @@ MonoBehaviour:
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
+  shiftSlideSeconds: 0.1
+  walkGhostSeconds: 0.15
+  walkGhostAlpha: 0.45
+  fallPixels: 54
+  fallSeconds: 0.45
+  bugFadeSeconds: 0.3
+  reappearSeconds: 0.15
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &1804223273

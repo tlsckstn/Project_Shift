@@ -11,6 +11,8 @@ namespace ProjectShift.Stage
     {
         [SerializeField] private StageData[] stages;
         [SerializeField] private BoardView view;
+        [Tooltip("Seconds the failed board stays on screen before the stage restarts. Must cover BoardView's shift slide plus its fall drop or bug fade.")]
+        [SerializeField] private float failRestartSeconds = 0.6f;
 
         private int stageIndex;
         private BoardState state;
@@ -22,16 +24,38 @@ namespace ProjectShift.Stage
         private int[] rowValues;
         private int[] lockTargets;
         private bool isFinished;
+        // Counts down while a failed move is shown; -1 when no restart is pending. Input is ignored meanwhile.
+        private float failTimer = -1f;
+        private string failMessage;
+
+        private bool IsInputBlocked => isFinished || failTimer >= 0f;
 
         private void Start()
         {
             LoadStage(0);
         }
 
+        private void Update()
+        {
+            if (failTimer < 0f)
+            {
+                return;
+            }
+
+            failTimer -= Time.deltaTime;
+            if (failTimer < 0f)
+            {
+                state = history.Restart();
+                Render();
+                view.PlayReappear();
+                view.ShowMessage(failMessage);
+            }
+        }
+
         /// <summary>Walks the robot one cell (-1 left, 1 right).</summary>
         public void Walk(int direction)
         {
-            if (isFinished)
+            if (IsInputBlocked)
             {
                 return;
             }
@@ -46,7 +70,7 @@ namespace ProjectShift.Stage
         /// <summary>Moves the robot down one row.</summary>
         public void Descend()
         {
-            if (isFinished)
+            if (IsInputBlocked)
             {
                 return;
             }
@@ -61,7 +85,7 @@ namespace ProjectShift.Stage
         /// <summary>Shifts the selected row (-1 for &lt;&lt;, 1 for &gt;&gt;).</summary>
         public void Shift(int direction)
         {
-            if (isFinished)
+            if (IsInputBlocked)
             {
                 return;
             }
@@ -78,7 +102,7 @@ namespace ProjectShift.Stage
         /// <summary>Moves the row selection up (-1) or down (1), clamped to the board.</summary>
         public void SelectRow(int delta)
         {
-            if (isFinished)
+            if (IsInputBlocked)
             {
                 return;
             }
@@ -90,7 +114,7 @@ namespace ProjectShift.Stage
         /// <summary>Selects the next robot. Does nothing with one robot; costs no shift and is not an undo step.</summary>
         public void SwitchRobot()
         {
-            if (isFinished || state.RobotCount < 2)
+            if (IsInputBlocked || state.RobotCount < 2)
             {
                 return;
             }
@@ -102,7 +126,7 @@ namespace ProjectShift.Stage
         /// <summary>Reverts the last walk, descend or shift.</summary>
         public void Undo()
         {
-            if (isFinished)
+            if (IsInputBlocked)
             {
                 return;
             }
@@ -114,7 +138,7 @@ namespace ProjectShift.Stage
         /// <summary>Restores the current stage's start state.</summary>
         public void Restart()
         {
-            if (isFinished)
+            if (IsInputBlocked)
             {
                 return;
             }
@@ -123,19 +147,19 @@ namespace ProjectShift.Stage
             Render();
         }
 
-        // Returns true when play goes on in the same stage, so the caller may animate the move;
-        // false after a fail restart or a stage clear, which snap to a new board.
+        // Returns true when the move's result stays on screen, so the caller may animate it: a normal move, or a failed one
+        // that is shown (fall frame) until Update restarts the stage. False after a stage clear, which snaps to a new board.
         private bool AfterAction(BoardState before)
         {
             history.Save(before);
 
             if (state.IsFailed)
             {
-                string message = state.IsRobotFallen ? "FELL! Restarted" : "BUG! Restarted";
-                state = history.Restart();
+                failMessage = state.IsRobotFallen ? "FELL! Restarted" : "BUG! Restarted";
+                failTimer = failRestartSeconds;
                 Render();
-                view.ShowMessage(message);
-                return false;
+                view.PlayFail(state);
+                return true;
             }
 
             if (stages[stageIndex].IsCleared(state))

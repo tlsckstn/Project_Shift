@@ -35,6 +35,8 @@ namespace ProjectShift.Board
         [SerializeField] private Sprite[] robotIdleSprites;
         [Tooltip("Per crew: the robot standing on its own exit.")]
         [SerializeField] private Sprite[] robotExitSprites;
+        [Tooltip("Per crew: the robot that fell off its row or entered a bug cell, shown until the stage restarts.")]
+        [SerializeField] private Sprite[] robotFallSprites;
         [Tooltip("Per crew: white silhouette outline behind the controlled robot.")]
         [SerializeField] private Sprite[] robotOutlineSprites;
         [Tooltip("Per crew: exit while any number lock is unmet.")]
@@ -60,6 +62,14 @@ namespace ProjectShift.Board
         [SerializeField] private float walkGhostSeconds = 0.15f;
         [Tooltip("Starting opacity of that walk afterimage.")]
         [SerializeField] private float walkGhostAlpha = 0.45f;
+        [Tooltip("How far (art pixels) a robot that fell off its row drops, accelerating, before it is gone.")]
+        [SerializeField] private float fallPixels = 54f;
+        [Tooltip("Seconds that drop takes; it fades over the second half. Keep slide + this under StageManager's fail delay.")]
+        [SerializeField] private float fallSeconds = 0.45f;
+        [Tooltip("Seconds a robot that entered a bug cell takes to fade out. Keep slide + this under StageManager's fail delay.")]
+        [SerializeField] private float bugFadeSeconds = 0.3f;
+        [Tooltip("Seconds a failed robot takes to fade back in at its start cell after the restart.")]
+        [SerializeField] private float reappearSeconds = 0.15f;
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
 
@@ -113,6 +123,16 @@ namespace ProjectShift.Board
         // Walk afterimage: a fading copy of the robot on the cell it left.
         private SpriteRenderer walkGhost;
         private float ghostTime = -1f;
+
+        // Fail effect, per robot: fell off the row (drops) or entered a bug cell (fades). Kept through the restart for the reappear.
+        private const int FailNone = 0;
+        private const int FailFell = 1;
+        private const int FailBug = 2;
+        private readonly int[] failModes = new int[MaxRobots];
+        private readonly Vector3[] failStarts = new Vector3[MaxRobots];
+        private float failTime = -1f;
+        private bool failStarted;
+        private float reappearTime = -1f;
 
         private void Awake()
         {
@@ -262,6 +282,8 @@ namespace ProjectShift.Board
             // Every Render snaps to the new state: an action during a slide or afterimage finishes it at once.
             StopSlide();
             StopGhost();
+            StopFail();
+            StopReappear();
             shownRowCount = state.RowCount;
             bool anyLockUnmet = false;
             for (int r = 0; r < MaxRows; r++)
@@ -348,7 +370,9 @@ namespace ProjectShift.Board
                 int robotCol = state.GetRobotCol(i);
                 robotTransforms[i].localPosition = CellPosition(robotRow, robotCol, state.RowCount) + standOffset;
                 bool onOwnExit = i < exits.Length && exits[i].x == robotRow && exits[i].y == robotCol;
-                robots[i].sprite = onOwnExit ? robotExitSprites[i] : robotIdleSprites[i];
+                // A fallen robot's column is past the row end; it is drawn there, in the air.
+                bool failed = robotCol < 0 || robotCol >= BoardState.Columns || state.IsBugCell(robotRow, robotCol);
+                robots[i].sprite = failed ? robotFallSprites[i] : onOwnExit ? robotExitSprites[i] : robotIdleSprites[i];
                 // The controlled robot draws on top when robots overlap.
                 robots[i].sortingOrder = multiRobot && i == state.SelectedRobot ? 6 : 5;
             }
@@ -458,15 +482,77 @@ namespace ProjectShift.Board
                 return;
             }
 
-            walkGhost.sprite = robots[robot].sprite;
+            walkGhost.sprite = robotIdleSprites[robot];
             walkGhost.transform.localPosition = CellPosition(fromRow, fromCol, shownRowCount) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
             walkGhost.enabled = true;
             ghostTime = 0f;
             SetAlpha(walkGhost, walkGhostAlpha);
         }
 
+        /// <summary>
+        /// Starts the fail effect on a failed board: a robot past its row end drops and fades, a robot on a bug cell fades out.
+        /// Call right after the Render that shows the failed state; it waits for a running shift slide to finish first.
+        /// </summary>
+        public void PlayFail(BoardState state)
+        {
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                failModes[i] = FailNone;
+                if (i >= state.RobotCount)
+                {
+                    continue;
+                }
+
+                int row = state.GetRobotRow(i);
+                int col = state.GetRobotCol(i);
+                if (col < 0 || col >= BoardState.Columns)
+                {
+                    failModes[i] = FailFell;
+                }
+                else if (state.IsBugCell(row, col))
+                {
+                    failModes[i] = FailBug;
+                }
+            }
+
+            failTime = 0f;
+            failStarted = false;
+            selectedFrame.enabled = false;
+        }
+
+        /// <summary>Fades the robots that failed back in at their start cells. Call right after the Render that shows the restarted stage.</summary>
+        public void PlayReappear()
+        {
+            if (reappearSeconds <= 0f)
+            {
+                return;
+            }
+
+            reappearTime = 0f;
+            SetFailedRobotsAlpha(0f);
+        }
+
         private void Update()
         {
+            // The fail effect starts once the shift slide that caused it has finished.
+            if (failTime >= 0f && slideRow < 0)
+            {
+                UpdateFail();
+            }
+
+            if (reappearTime >= 0f)
+            {
+                reappearTime += Time.deltaTime;
+                if (reappearTime >= reappearSeconds)
+                {
+                    StopReappear();
+                }
+                else
+                {
+                    SetFailedRobotsAlpha(reappearTime / reappearSeconds);
+                }
+            }
+
             if (slideRow >= 0)
             {
                 slideTime += Time.deltaTime;
@@ -539,6 +625,74 @@ namespace ProjectShift.Board
             SetAlpha(cells[row * BoardState.Columns + slideEnterCol], 1f);
             lostCell.enabled = false;
             slideRow = -1;
+        }
+
+        private void UpdateFail()
+        {
+            if (!failStarted)
+            {
+                failStarted = true;
+                for (int i = 0; i < MaxRobots; i++)
+                {
+                    failStarts[i] = robotTransforms[i].localPosition;
+                }
+            }
+
+            failTime += Time.deltaTime;
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                if (failModes[i] == FailFell)
+                {
+                    // Accelerates like gravity (distance grows with time squared), snapped to whole art pixels; fades over the second half.
+                    float p = fallSeconds > 0f ? Mathf.Min(1f, failTime / fallSeconds) : 1f;
+                    float dropPixels = Mathf.Round(fallPixels * p * p);
+                    robotTransforms[i].localPosition = failStarts[i] + Vector3.down * (dropPixels / PixelsPerUnit);
+                    SetAlpha(robots[i], p < 0.5f ? 1f : 2f * (1f - p));
+                }
+                else if (failModes[i] == FailBug)
+                {
+                    float p = bugFadeSeconds > 0f ? Mathf.Min(1f, failTime / bugFadeSeconds) : 1f;
+                    SetAlpha(robots[i], 1f - p);
+                }
+            }
+        }
+
+        // Keeps failModes: the restart's Render runs this, then PlayReappear still needs to know which robots failed.
+        private void StopFail()
+        {
+            if (failTime < 0f)
+            {
+                return;
+            }
+
+            failTime = -1f;
+            SetFailedRobotsAlpha(1f);
+        }
+
+        private void StopReappear()
+        {
+            if (reappearTime < 0f)
+            {
+                return;
+            }
+
+            reappearTime = -1f;
+            SetFailedRobotsAlpha(1f);
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                failModes[i] = FailNone;
+            }
+        }
+
+        private void SetFailedRobotsAlpha(float alpha)
+        {
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                if (failModes[i] != FailNone)
+                {
+                    SetAlpha(robots[i], alpha);
+                }
+            }
         }
 
         private void StopGhost()
