@@ -206,6 +206,8 @@ MonoBehaviour:
   clearHoldSeconds: 0.2
   clockOutSeconds: 0.4
   clockOutRisePixels: 3
+  transitionStepSeconds: 0.035
+  transitionGapSeconds: 0.1
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &306120834
@@ -615,6 +617,8 @@ MonoBehaviour:
   clearHoldSeconds: 0.2
   clockOutSeconds: 0.4
   clockOutRisePixels: 3
+  transitionStepSeconds: 0.035
+  transitionGapSeconds: 0.1
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &1804223273
