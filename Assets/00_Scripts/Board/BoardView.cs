@@ -768,6 +768,13 @@ namespace ProjectShift.Board
         // Steps: 1..8 shift the old rows out (skipped without old rows), one empty step for the gap, then 8 steps shift the new rows in.
         private void UpdateTransition()
         {
+            // A zero step time would divide by zero below and never end the transition, locking input.
+            if (transitionStepSeconds <= 0f)
+            {
+                EndTransition();
+                return;
+            }
+
             int outSteps = transitionOldRowCount > 0 ? BoardState.Columns : 0;
             int gapSteps = outSteps > 0 ? 1 : 0;
             float outSeconds = outSteps * transitionStepSeconds;
@@ -952,7 +959,11 @@ namespace ProjectShift.Board
         {
             circuitClear.enabled = amount > 0f;
             SetAlpha(circuitClear, amount);
-            backgroundCamera.backgroundColor = Color.Lerp(playingBackground, clearBackground, amount);
+            // No camera tagged MainCamera: keep the board working, only the background colour stays put.
+            if (backgroundCamera != null)
+            {
+                backgroundCamera.backgroundColor = Color.Lerp(playingBackground, clearBackground, amount);
+            }
         }
 
         private void UpdateFail()
