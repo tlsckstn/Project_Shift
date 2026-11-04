@@ -105,7 +105,7 @@ namespace ProjectShift.Board
         [Tooltip("The same circuit one step brighter, shown with the clear background while the robots clock out.")]
         [SerializeField] private Sprite circuitClearSprite;
         [SerializeField] private Color playingBackground = new Color32(0x14, 0x1A, 0x26, 0xFF);
-        [SerializeField] private Color clearBackground = new Color32(0x19, 0x22, 0x33, 0xFF);
+        [SerializeField] private Color clearBackground = new Color32(0x17, 0x1F, 0x2F, 0xFF);
 
         private Transform cachedTransform;
         // Parent of everything drawn on the board except the cells and row values: hidden as one while a stage transition runs.
@@ -123,7 +123,7 @@ namespace ProjectShift.Board
         private TextMeshPro[] lockLabels;
         private TextMeshPro[] valueLabels;
         private int[] shownValues;
-        // Number-lock goal under each row value ("GOAL 176"), only shown on rows that have a lock.
+        // Number-lock goal under each row value ("GOAL 176", "GOAL 176 OK" once met), only shown on rows that have a lock.
         private TextMeshPro[] goalLabels;
         private int[] shownGoals;
         private bool[] shownGoalMet;
@@ -138,8 +138,8 @@ namespace ProjectShift.Board
         private Transform[] exitTransforms;
         private TextMeshPro shiftsLabel;
         private TextMeshPro hintLabel;
-        // Fixed background: never moves, only swaps to its brighter look on a stage clear ("dawn").
-        private SpriteRenderer circuit;
+        // Fixed background: never moves. The brighter clear circuit sits on top of the night one and fades in on a stage clear ("dawn").
+        private SpriteRenderer circuitClear;
         private Camera backgroundCamera;
         private int shownShifts = -1;
         private int shownPar = -1;
@@ -284,9 +284,10 @@ namespace ProjectShift.Board
             }
 
             // Below everything; centred on the board root, which sits at the camera centre.
-            circuit = CreateSprite("Circuit", circuitPlayingSprite, -10, cachedTransform);
+            CreateSprite("Circuit", circuitPlayingSprite, -10, cachedTransform);
+            circuitClear = CreateSprite("CircuitClear", circuitClearSprite, -9, cachedTransform);
             backgroundCamera = Camera.main;
-            SetClearLook(false);
+            SetClearAmount(0f);
 
             lostCell = CreateSprite("LostCell", gapSprite, 2, decorRoot);
             lostCellTransform = lostCell.transform;
@@ -419,7 +420,8 @@ namespace ProjectShift.Board
                         shownGoals[r] = goal;
                         shownGoalMet[r] = met;
                         goalLabels[r].color = met ? onColor : lockedRowColor;
-                        goalLabels[r].SetText("GOAL {0}", goal);
+                        // OK backs up the gray-to-green change for colour-blind players (Silkscreen has no check glyph).
+                        goalLabels[r].SetText(met ? "GOAL {0} OK" : "GOAL {0}", goal);
                     }
 
                     PlacePixelText(goalLabels[r], LabelPosition(r, state.RowCount) + Vector3.down * (0.7f * cellSize));
@@ -889,7 +891,6 @@ namespace ProjectShift.Board
             if (!clearStarted)
             {
                 clearStarted = true;
-                SetClearLook(true);
                 for (int i = 0; i < MaxRobots; i++)
                 {
                     clearStarts[i] = robotTransforms[i].localPosition;
@@ -904,6 +905,8 @@ namespace ProjectShift.Board
 
             float p = clockOutSeconds > 0f ? Mathf.Min(1f, (clearTime - clearHoldSeconds) / clockOutSeconds) : 1f;
             float risePixels = Mathf.Round(clockOutRisePixels * p);
+            // The screen brightens as the robots fade.
+            SetClearAmount(p);
             selectedFrame.enabled = false;
             for (int i = 0; i < MaxRobots; i++)
             {
@@ -937,17 +940,19 @@ namespace ProjectShift.Board
             }
 
             clearTime = -1f;
-            SetClearLook(false);
+            SetClearAmount(0f);
             for (int i = 0; i < MaxRobots; i++)
             {
                 SetAlpha(robots[i], 1f);
             }
         }
 
-        private void SetClearLook(bool clear)
+        // 0 = night look, 1 = clear ("dawn") look; in between the brighter circuit fades in over the night one.
+        private void SetClearAmount(float amount)
         {
-            circuit.sprite = clear ? circuitClearSprite : circuitPlayingSprite;
-            backgroundCamera.backgroundColor = clear ? clearBackground : playingBackground;
+            circuitClear.enabled = amount > 0f;
+            SetAlpha(circuitClear, amount);
+            backgroundCamera.backgroundColor = Color.Lerp(playingBackground, clearBackground, amount);
         }
 
         private void UpdateFail()

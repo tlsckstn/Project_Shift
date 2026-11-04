@@ -212,7 +212,7 @@ MonoBehaviour:
   circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
-  clearBackground: {r: 0.09803922, g: 0.13333334, b: 0.2, a: 1}
+  clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
 --- !u!4 &306120834
 Transform:
   m_ObjectHideFlags: 0
@@ -626,7 +626,7 @@ MonoBehaviour:
   circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
-  clearBackground: {r: 0.09803922, g: 0.13333334, b: 0.2, a: 1}
+  clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
 --- !u!4 &1804223273
 Transform:
   m_ObjectHideFlags: 0
