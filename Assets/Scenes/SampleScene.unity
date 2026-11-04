@@ -187,11 +187,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 46c3b443575749f4493759cb49f28231, type: 3}
   cellSize: 1
   rowSpacing: 2
-  labelFontSize: 6
-  keysFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  pixelFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
   keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
   keysPanelY: -4.3
-  hintFontSize: 4
   hintY: -3.4
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
@@ -211,6 +209,10 @@ MonoBehaviour:
   transitionGapSeconds: 0.1
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
+  circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
+  playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
+  clearBackground: {r: 0.09803922, g: 0.13333334, b: 0.2, a: 1}
 --- !u!4 &306120834
 Transform:
   m_ObjectHideFlags: 0
@@ -599,11 +601,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 46c3b443575749f4493759cb49f28231, type: 3}
   cellSize: 1
   rowSpacing: 2
-  labelFontSize: 6
-  keysFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  pixelFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
   keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
   keysPanelY: -4.3
-  hintFontSize: 4
   hintY: -3.4
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
@@ -623,6 +623,10 @@ MonoBehaviour:
   transitionGapSeconds: 0.1
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
+  circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
+  playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
+  clearBackground: {r: 0.09803922, g: 0.13333334, b: 0.2, a: 1}
 --- !u!4 &1804223273
 Transform:
   m_ObjectHideFlags: 0

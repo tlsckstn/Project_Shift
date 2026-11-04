@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ProjectShift.Board
 {
@@ -20,10 +21,14 @@ namespace ProjectShift.Board
         // Silkscreen is an 8 px em font; TMP draws fontSize 10 at 1 unit per em (measured), so this size makes one
         // font pixel one art pixel. Only integer multiples keep the point-filtered glyphs sharp.
         private const float PixelFontSize = 10f * 8f / PixelsPerUnit;
+        // Large tier (changing values: row values, the shifts line and messages); the small tier is PixelFontSize.
+        private const float LargePixelFontSize = 2f * PixelFontSize;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
         private static readonly string KeysText =
             Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
             Key("A") + Key("D") + " SHIFT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART";
+        // Out of shifts: replaces the HOURS line.
+        private static readonly string DawnText = "DAWN  " + Key("Z") + " UNDO  " + Key("R") + " RESTART";
         // Shown instead of KeysText on stages with more than one robot.
         private static readonly string KeysTextMultiRobot =
             Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
@@ -54,14 +59,13 @@ namespace ProjectShift.Board
         [SerializeField] private Sprite[] exitFlashSprites;
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private float rowSpacing = 2f;
-        [SerializeField] private float labelFontSize = 6f;
-        [Tooltip("Silkscreen bitmap font asset for the key panel (Assets/01_Art/Fonts).")]
-        [SerializeField] private TMP_FontAsset keysFont;
-        [Tooltip("Key cap sprites used inline in the key panel text; sprite names match Key(...) calls.")]
+        [Tooltip("Silkscreen bitmap font asset for every label on the board (Assets/01_Art/Fonts).")]
+        [FormerlySerializedAs("keysFont")]
+        [SerializeField] private TMP_FontAsset pixelFont;
+        [Tooltip("Key cap sprites used inline in the key panel and the Dawn message; sprite names match Key(...) calls.")]
         [SerializeField] private TMP_SpriteAsset keyCapSprites;
         [Tooltip("Local y of the key panel; keep it inside the camera's bottom edge (orthographic size 5).")]
         [SerializeField] private float keysPanelY = -4.3f;
-        [SerializeField] private float hintFontSize = 4f;
         [Tooltip("Local y of the stage hint; between the bottom board row (3 rows reach about -2.5) and the key panel.")]
         [SerializeField] private float hintY = -3.4f;
         [SerializeField] private Color hintColor = new Color(0.9f, 0.8f, 0.2f);
@@ -96,6 +100,12 @@ namespace ProjectShift.Board
         [SerializeField] private float transitionGapSeconds = 0.1f;
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
+        [Tooltip("Full-screen 640x360 circuit layer behind the board while playing.")]
+        [SerializeField] private Sprite circuitPlayingSprite;
+        [Tooltip("The same circuit one step brighter, shown with the clear background while the robots clock out.")]
+        [SerializeField] private Sprite circuitClearSprite;
+        [SerializeField] private Color playingBackground = new Color32(0x14, 0x1A, 0x26, 0xFF);
+        [SerializeField] private Color clearBackground = new Color32(0x19, 0x22, 0x33, 0xFF);
 
         private Transform cachedTransform;
         // Parent of everything drawn on the board except the cells and row values: hidden as one while a stage transition runs.
@@ -112,7 +122,6 @@ namespace ProjectShift.Board
         private Transform[] lockFrameTransforms;
         private TextMeshPro[] lockLabels;
         private TextMeshPro[] valueLabels;
-        private Transform[] labelTransforms;
         private int[] shownValues;
         // Number-lock goal under each row value ("GOAL 176"), only shown on rows that have a lock.
         private TextMeshPro[] goalLabels;
@@ -129,6 +138,9 @@ namespace ProjectShift.Board
         private Transform[] exitTransforms;
         private TextMeshPro shiftsLabel;
         private TextMeshPro hintLabel;
+        // Fixed background: never moves, only swaps to its brighter look on a stage clear ("dawn").
+        private SpriteRenderer circuit;
+        private Camera backgroundCamera;
         private int shownShifts = -1;
         private int shownPar = -1;
         private int shownRowCount;
@@ -198,7 +210,6 @@ namespace ProjectShift.Board
             lockFrameTransforms = new Transform[MaxRows];
             lockLabels = new TextMeshPro[MaxRows];
             valueLabels = new TextMeshPro[MaxRows];
-            labelTransforms = new Transform[MaxRows];
             shownValues = new int[MaxRows];
             goalLabels = new TextMeshPro[MaxRows];
             shownGoals = new int[MaxRows];
@@ -215,7 +226,8 @@ namespace ProjectShift.Board
                 lockLabels[r] = new GameObject("LockLabel").AddComponent<TextMeshPro>();
                 lockLabels[r].rectTransform.SetParent(decorRoot, false);
                 lockLabels[r].rectTransform.sizeDelta = new Vector2(2f * cellSize, cellSize);
-                lockLabels[r].fontSize = labelFontSize * 0.6f;
+                lockLabels[r].font = pixelFont;
+                lockLabels[r].fontSize = PixelFontSize;
                 lockLabels[r].alignment = TextAlignmentOptions.MidlineRight;
                 lockLabels[r].color = lockedRowColor;
                 lockLabels[r].SetText("LOCK");
@@ -233,12 +245,10 @@ namespace ProjectShift.Board
                     bugTransforms[i] = bugMarks[i].transform;
                 }
 
-                // Adding TextMeshPro replaces the Transform with a RectTransform, so cache it afterwards.
-                var labelObject = new GameObject("RowValue");
-                valueLabels[r] = labelObject.AddComponent<TextMeshPro>();
-                labelTransforms[r] = valueLabels[r].rectTransform;
-                labelTransforms[r].SetParent(cachedTransform, false);
-                valueLabels[r].fontSize = labelFontSize;
+                valueLabels[r] = new GameObject("RowValue").AddComponent<TextMeshPro>();
+                valueLabels[r].rectTransform.SetParent(cachedTransform, false);
+                valueLabels[r].font = pixelFont;
+                valueLabels[r].fontSize = LargePixelFontSize;
                 valueLabels[r].alignment = TextAlignmentOptions.MidlineLeft;
                 valueLabels[r].rectTransform.sizeDelta = new Vector2(3f * cellSize, cellSize);
                 valueLabels[r].rectTransform.pivot = new Vector2(0f, 0.5f);
@@ -246,7 +256,8 @@ namespace ProjectShift.Board
 
                 goalLabels[r] = new GameObject("RowGoal").AddComponent<TextMeshPro>();
                 goalLabels[r].rectTransform.SetParent(decorRoot, false);
-                goalLabels[r].fontSize = labelFontSize * 0.6f;
+                goalLabels[r].font = pixelFont;
+                goalLabels[r].fontSize = PixelFontSize;
                 goalLabels[r].alignment = TextAlignmentOptions.MidlineLeft;
                 goalLabels[r].rectTransform.sizeDelta = new Vector2(3f * cellSize, cellSize);
                 goalLabels[r].rectTransform.pivot = new Vector2(0f, 0.5f);
@@ -272,6 +283,11 @@ namespace ProjectShift.Board
                 robotTransforms[i] = robots[i].transform;
             }
 
+            // Below everything; centred on the board root, which sits at the camera centre.
+            circuit = CreateSprite("Circuit", circuitPlayingSprite, -10, cachedTransform);
+            backgroundCamera = Camera.main;
+            SetClearLook(false);
+
             lostCell = CreateSprite("LostCell", gapSprite, 2, decorRoot);
             lostCellTransform = lostCell.transform;
             lostCell.enabled = false;
@@ -280,16 +296,17 @@ namespace ProjectShift.Board
 
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
             shiftsLabel.rectTransform.SetParent(cachedTransform, false);
-            shiftsLabel.fontSize = labelFontSize;
+            shiftsLabel.font = pixelFont;
+            shiftsLabel.spriteAsset = keyCapSprites;
+            shiftsLabel.fontSize = LargePixelFontSize;
             shiftsLabel.alignment = TextAlignmentOptions.Center;
             shiftsLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
 
             // Only rebuilt when the stage switches between one robot and several (see Render).
             keysLabel = new GameObject("KeyPanel").AddComponent<TextMeshPro>();
             keysLabel.rectTransform.SetParent(cachedTransform, false);
-            keysLabel.rectTransform.localPosition = new Vector3(0f, keysPanelY, 0f);
             keysLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
-            keysLabel.font = keysFont;
+            keysLabel.font = pixelFont;
             keysLabel.spriteAsset = keyCapSprites;
             keysLabel.fontSize = PixelFontSize;
             keysLabel.alignment = TextAlignmentOptions.Center;
@@ -298,9 +315,9 @@ namespace ProjectShift.Board
 
             hintLabel = new GameObject("StageHint").AddComponent<TextMeshPro>();
             hintLabel.rectTransform.SetParent(cachedTransform, false);
-            hintLabel.rectTransform.localPosition = new Vector3(0f, hintY, 0f);
             hintLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
-            hintLabel.fontSize = hintFontSize;
+            hintLabel.font = pixelFont;
+            hintLabel.fontSize = PixelFontSize;
             hintLabel.alignment = TextAlignmentOptions.Center;
             hintLabel.color = hintColor;
             hintLabel.enabled = false;
@@ -314,6 +331,7 @@ namespace ProjectShift.Board
             if (hasHint)
             {
                 hintLabel.SetText(hint);
+                PlacePixelText(hintLabel, new Vector3(0f, hintY, 0f));
             }
         }
 
@@ -379,8 +397,7 @@ namespace ProjectShift.Board
                 Vector3 rowCenter = new Vector3(0f, CellPosition(r, 0, state.RowCount).y, 0f);
                 highlightTransforms[r].localPosition = rowCenter;
                 lockFrameTransforms[r].localPosition = rowCenter;
-                lockLabels[r].rectTransform.localPosition = rowCenter + Vector3.left * (BoardState.Columns * 0.5f * cellSize + 1.4f * cellSize);
-                labelTransforms[r].localPosition = LabelPosition(r, state.RowCount);
+                PlacePixelText(lockLabels[r], rowCenter + Vector3.left * (BoardState.Columns * 0.5f * cellSize + 1.4f * cellSize));
 
                 // Only rebuild the label text when the value changed.
                 int value = rowValues[r];
@@ -390,12 +407,13 @@ namespace ProjectShift.Board
                     valueLabels[r].SetText("{0}", value);
                 }
 
+                PlacePixelText(valueLabels[r], LabelPosition(r, state.RowCount));
+
                 int goal = lockTargets[r];
                 if (goal >= 0)
                 {
                     bool met = value == goal;
                     anyLockUnmet |= !met;
-                    goalLabels[r].rectTransform.localPosition = labelTransforms[r].localPosition + Vector3.down * (0.7f * cellSize);
                     if (shownGoals[r] != goal || shownGoalMet[r] != met)
                     {
                         shownGoals[r] = goal;
@@ -403,6 +421,8 @@ namespace ProjectShift.Board
                         goalLabels[r].color = met ? onColor : lockedRowColor;
                         goalLabels[r].SetText("GOAL {0}", goal);
                     }
+
+                    PlacePixelText(goalLabels[r], LabelPosition(r, state.RowCount) + Vector3.down * (0.7f * cellSize));
                 }
             }
 
@@ -456,7 +476,6 @@ namespace ProjectShift.Board
             }
 
             // Sits above the top row; only rebuilt when the count or par changes.
-            shiftsLabel.rectTransform.localPosition = new Vector3(0f, CellPosition(0, 0, state.RowCount).y + rowSpacing, 0f);
             if (shownShifts != state.ShiftsLeft || shownPar != parLeft)
             {
                 shownShifts = state.ShiftsLeft;
@@ -478,9 +497,11 @@ namespace ProjectShift.Board
                     // Out of shifts the night is over: this label is the "Dawn" message. It comes from the state alone, so a clear,
                     // a fall, an undo or a restart on the same action needs no special case.
                     shiftsLabel.color = noShiftsColor;
-                    shiftsLabel.SetText("DAWN  Z undo / R restart");
+                    shiftsLabel.SetText(DawnText);
                 }
             }
+
+            PlacePixelText(shiftsLabel, ShiftsLabelPosition());
         }
 
         /// <summary>Replaces the shifts label with a message until the next Render (e.g. a fall or the end screen).</summary>
@@ -489,6 +510,7 @@ namespace ProjectShift.Board
             shownShifts = -1; // forces the next Render to bring the shifts count back
             shiftsLabel.color = shiftsColor;
             shiftsLabel.SetText(text);
+            PlacePixelText(shiftsLabel, ShiftsLabelPosition());
         }
 
         /// <summary>
@@ -811,8 +833,8 @@ namespace ProjectShift.Board
 
                 if (used)
                 {
-                    labelTransforms[r].localPosition = LabelPosition(r, rowCount);
                     valueLabels[r].SetText("{0}", value);
+                    PlacePixelText(valueLabels[r], LabelPosition(r, rowCount));
                 }
             }
         }
@@ -835,8 +857,8 @@ namespace ProjectShift.Board
 
                 if (used)
                 {
-                    labelTransforms[r].localPosition = LabelPosition(r, shownRowCount);
                     valueLabels[r].SetText("{0}", shownValues[r]);
+                    PlacePixelText(valueLabels[r], LabelPosition(r, shownRowCount));
                 }
             }
 
@@ -867,6 +889,7 @@ namespace ProjectShift.Board
             if (!clearStarted)
             {
                 clearStarted = true;
+                SetClearLook(true);
                 for (int i = 0; i < MaxRobots; i++)
                 {
                     clearStarts[i] = robotTransforms[i].localPosition;
@@ -914,10 +937,17 @@ namespace ProjectShift.Board
             }
 
             clearTime = -1f;
+            SetClearLook(false);
             for (int i = 0; i < MaxRobots; i++)
             {
                 SetAlpha(robots[i], 1f);
             }
+        }
+
+        private void SetClearLook(bool clear)
+        {
+            circuit.sprite = clear ? circuitClearSprite : circuitPlayingSprite;
+            backgroundCamera.backgroundColor = clear ? clearBackground : playingBackground;
         }
 
         private void UpdateFail()
@@ -1013,18 +1043,35 @@ namespace ProjectShift.Board
             return "<sprite name=\"" + spriteName + "\" tint=1>";
         }
 
-        // Centred text can start on a half pixel; shift the label so the first glyph's origin and the baseline
-        // sit on the art pixel grid, or the point-filtered pixel font smears. Every advance is whole pixels.
         private void SetKeysText(string text)
         {
             keysLabel.SetText(text);
-            keysLabel.rectTransform.localPosition = new Vector3(0f, keysPanelY, 0f);
-            keysLabel.ForceMeshUpdate();
-            TMP_CharacterInfo first = keysLabel.textInfo.characterInfo[0];
-            Vector3 world = keysLabel.transform.TransformPoint(new Vector3(first.origin, first.baseLine, 0f));
+            PlacePixelText(keysLabel, new Vector3(0f, keysPanelY, 0f));
+        }
+
+        // Above the top row, whatever the row count.
+        private Vector3 ShiftsLabelPosition()
+        {
+            return new Vector3(0f, CellPosition(0, 0, shownRowCount).y + rowSpacing, 0f);
+        }
+
+        // Moves a label to localPosition, then nudges it so the first glyph's origin and the baseline sit on the art
+        // pixel grid: centred or right-aligned text can start on a half pixel, and the point-filtered pixel font smears.
+        // Every advance is whole pixels, so the rest of the line follows. Call after every SetText or move.
+        private static void PlacePixelText(TextMeshPro label, Vector3 localPosition)
+        {
+            label.rectTransform.localPosition = localPosition;
+            label.ForceMeshUpdate();
+            if (label.textInfo.characterCount == 0)
+            {
+                return;
+            }
+
+            TMP_CharacterInfo first = label.textInfo.characterInfo[0];
+            Vector3 world = label.transform.TransformPoint(new Vector3(first.origin, first.baseLine, 0f));
             float dx = Mathf.Round(world.x * PixelsPerUnit) / PixelsPerUnit - world.x;
             float dy = Mathf.Round(world.y * PixelsPerUnit) / PixelsPerUnit - world.y;
-            keysLabel.transform.position += new Vector3(dx, dy, 0f);
+            label.transform.position += new Vector3(dx, dy, 0f);
         }
 
         private Vector3 CellPosition(int row, int col, int rowCount)
