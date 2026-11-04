@@ -13,6 +13,8 @@ namespace ProjectShift.Stage
         [SerializeField] private BoardView view;
         [Tooltip("Seconds the failed board stays on screen before the stage restarts. Must cover BoardView's shift slide plus its fall drop or bug fade.")]
         [SerializeField] private float failRestartSeconds = 0.6f;
+        [Tooltip("Seconds the cleared board stays on screen before the next stage loads. Must cover BoardView's shift slide plus its clear hold and clock-out.")]
+        [SerializeField] private float clearSeconds = 0.8f;
 
         private int stageIndex;
         private BoardState state;
@@ -24,11 +26,13 @@ namespace ProjectShift.Stage
         private int[] rowValues;
         private int[] lockTargets;
         private bool isFinished;
-        // Counts down while a failed move is shown; -1 when no restart is pending. Input is ignored meanwhile.
-        private float failTimer = -1f;
+        // Counts down while a failed or cleared board is shown; -1 when nothing is pending. Input is ignored meanwhile.
+        private float pendingTimer = -1f;
+        // What runs when pendingTimer runs out: load the next stage (clear) or restart this one (fail).
+        private bool pendingClear;
         private string failMessage;
 
-        private bool IsInputBlocked => isFinished || failTimer >= 0f;
+        private bool IsInputBlocked => isFinished || pendingTimer >= 0f;
 
         private void Start()
         {
@@ -37,19 +41,27 @@ namespace ProjectShift.Stage
 
         private void Update()
         {
-            if (failTimer < 0f)
+            if (pendingTimer < 0f)
             {
                 return;
             }
 
-            failTimer -= Time.deltaTime;
-            if (failTimer < 0f)
+            pendingTimer -= Time.deltaTime;
+            if (pendingTimer >= 0f)
             {
-                state = history.Restart();
-                Render();
-                view.PlayReappear();
-                view.ShowMessage(failMessage);
+                return;
             }
+
+            if (pendingClear)
+            {
+                LoadStage(stageIndex + 1);
+                return;
+            }
+
+            state = history.Restart();
+            Render();
+            view.PlayReappear();
+            view.ShowMessage(failMessage);
         }
 
         /// <summary>Walks the robot one cell (-1 left, 1 right).</summary>
@@ -61,8 +73,9 @@ namespace ProjectShift.Stage
             }
 
             BoardState before = state.Clone();
-            if (BoardLogic.TryWalk(state, direction) && AfterAction(before))
+            if (BoardLogic.TryWalk(state, direction))
             {
+                AfterAction(before);
                 view.PlayWalk(state.SelectedRobot, before.RobotRow, before.RobotCol);
             }
         }
@@ -76,8 +89,9 @@ namespace ProjectShift.Stage
             }
 
             BoardState before = state.Clone();
-            if (BoardLogic.TryDescend(state) && AfterAction(before))
+            if (BoardLogic.TryDescend(state))
             {
+                AfterAction(before);
                 view.PlayWalk(state.SelectedRobot, before.RobotRow, before.RobotCol);
             }
         }
@@ -91,8 +105,9 @@ namespace ProjectShift.Stage
             }
 
             BoardState before = state.Clone();
-            if (BoardLogic.TryShift(state, selectedRow, direction) && AfterAction(before))
+            if (BoardLogic.TryShift(state, selectedRow, direction))
             {
+                AfterAction(before);
                 // Shifting left pushes out cell 0, shifting right cell 7.
                 bool lostBit = before.GetCell(selectedRow, direction < 0 ? 0 : BoardState.Columns - 1);
                 view.PlayShift(selectedRow, direction, lostBit, state);
@@ -147,29 +162,45 @@ namespace ProjectShift.Stage
             Render();
         }
 
-        // Returns true when the move's result stays on screen, so the caller may animate it: a normal move, or a failed one
-        // that is shown (fall frame) until Update restarts the stage. False after a stage clear, which snaps to a new board.
-        private bool AfterAction(BoardState before)
+        // Shows the move's result. A failed move is held (fall effect) until Update restarts the stage; a clearing move is held
+        // (clock-out effect) until Update loads the next stage. The caller then animates the move itself.
+        private void AfterAction(BoardState before)
         {
             history.Save(before);
 
             if (state.IsFailed)
             {
                 failMessage = state.IsRobotFallen ? "FELL! Restarted" : "BUG! Restarted";
-                failTimer = failRestartSeconds;
+                pendingTimer = failRestartSeconds;
+                pendingClear = false;
                 Render();
                 view.PlayFail(state);
-                return true;
-            }
-
-            if (stages[stageIndex].IsCleared(state))
-            {
-                LoadStage(stageIndex + 1);
-                return false;
+                return;
             }
 
             Render();
-            return true;
+            FlashArrivals(before);
+
+            if (stages[stageIndex].IsCleared(state))
+            {
+                pendingTimer = clearSeconds;
+                pendingClear = true;
+                view.PlayClear();
+            }
+        }
+
+        // Flashes the exit of every robot that this move brought onto its own exit (it was elsewhere before the move).
+        private void FlashArrivals(BoardState before)
+        {
+            for (int i = 0; i < exits.Length && i < state.RobotCount; i++)
+            {
+                bool wasOn = before.GetRobotRow(i) == exits[i].x && before.GetRobotCol(i) == exits[i].y;
+                bool isOn = state.GetRobotRow(i) == exits[i].x && state.GetRobotCol(i) == exits[i].y;
+                if (isOn && !wasOn)
+                {
+                    view.PlayExitFlash(i);
+                }
+            }
         }
 
         private void LoadStage(int index)

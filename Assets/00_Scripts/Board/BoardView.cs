@@ -43,6 +43,8 @@ namespace ProjectShift.Board
         [SerializeField] private Sprite[] exitLockedSprites;
         [Tooltip("Per crew: exit once every number lock is met.")]
         [SerializeField] private Sprite[] exitOpenSprites;
+        [Tooltip("Per crew: bright exit, shown briefly when its robot arrives and during the stage-clear clock-out.")]
+        [SerializeField] private Sprite[] exitFlashSprites;
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private float rowSpacing = 2f;
         [SerializeField] private float labelFontSize = 6f;
@@ -70,6 +72,14 @@ namespace ProjectShift.Board
         [SerializeField] private float bugFadeSeconds = 0.3f;
         [Tooltip("Seconds a failed robot takes to fade back in at its start cell after the restart.")]
         [SerializeField] private float reappearSeconds = 0.15f;
+        [Tooltip("Seconds an exit flashes bright when its robot arrives.")]
+        [SerializeField] private float exitFlashSeconds = 0.12f;
+        [Tooltip("Stage clear: seconds every robot holds its arrival face before clocking out.")]
+        [SerializeField] private float clearHoldSeconds = 0.2f;
+        [Tooltip("Stage clear: seconds the robots take to rise into their bright exits and fade. Keep slide + hold + this under StageManager's clear delay.")]
+        [SerializeField] private float clockOutSeconds = 0.4f;
+        [Tooltip("Stage clear: how far (art pixels) the robots rise while clocking out.")]
+        [SerializeField] private float clockOutRisePixels = 3f;
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
 
@@ -133,6 +143,14 @@ namespace ProjectShift.Board
         private float failTime = -1f;
         private bool failStarted;
         private float reappearTime = -1f;
+
+        // Exit arrival flash, per exit: -1 when idle. The sprite to go back to is the one Render chose.
+        private readonly float[] exitFlashTimes = { -1f, -1f, -1f };
+        private readonly Sprite[] exitRestSprites = new Sprite[MaxRobots];
+        // Stage clear clock-out: hold, then the robots rise and fade while every exit shows bright.
+        private float clearTime = -1f;
+        private bool clearStarted;
+        private readonly Vector3[] clearStarts = new Vector3[MaxRobots];
 
         private void Awake()
         {
@@ -284,6 +302,8 @@ namespace ProjectShift.Board
             StopGhost();
             StopFail();
             StopReappear();
+            StopExitFlashes();
+            StopClear();
             shownRowCount = state.RowCount;
             bool anyLockUnmet = false;
             for (int r = 0; r < MaxRows; r++)
@@ -532,12 +552,38 @@ namespace ProjectShift.Board
             SetFailedRobotsAlpha(0f);
         }
 
+        /// <summary>Flashes exit <paramref name="exit"/> bright for a moment. Call right after the Render that shows its robot arriving.</summary>
+        public void PlayExitFlash(int exit)
+        {
+            exitRestSprites[exit] = exitMarks[exit].sprite;
+            exitFlashTimes[exit] = 0f;
+        }
+
+        /// <summary>
+        /// Stage clear: every robot holds its arrival face, then rises into its exit and fades while the exits show bright.
+        /// Call right after the Render that shows the clearing move; it waits for a running shift slide to finish first.
+        /// </summary>
+        public void PlayClear()
+        {
+            clearTime = 0f;
+            clearStarted = false;
+        }
+
         private void Update()
         {
-            // The fail effect starts once the shift slide that caused it has finished.
-            if (failTime >= 0f && slideRow < 0)
+            // These effects start once the shift slide that caused them has finished.
+            if (slideRow < 0)
             {
-                UpdateFail();
+                if (failTime >= 0f)
+                {
+                    UpdateFail();
+                }
+
+                UpdateExitFlashes();
+                if (clearTime >= 0f)
+                {
+                    UpdateClear();
+                }
             }
 
             if (reappearTime >= 0f)
@@ -625,6 +671,83 @@ namespace ProjectShift.Board
             SetAlpha(cells[row * BoardState.Columns + slideEnterCol], 1f);
             lostCell.enabled = false;
             slideRow = -1;
+        }
+
+        private void UpdateExitFlashes()
+        {
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                if (exitFlashTimes[i] < 0f)
+                {
+                    continue;
+                }
+
+                exitFlashTimes[i] += Time.deltaTime;
+                bool flashing = exitFlashTimes[i] < exitFlashSeconds;
+                exitMarks[i].sprite = flashing ? exitFlashSprites[i] : exitRestSprites[i];
+                if (!flashing)
+                {
+                    exitFlashTimes[i] = -1f;
+                }
+            }
+        }
+
+        private void UpdateClear()
+        {
+            if (!clearStarted)
+            {
+                clearStarted = true;
+                for (int i = 0; i < MaxRobots; i++)
+                {
+                    clearStarts[i] = robotTransforms[i].localPosition;
+                }
+            }
+
+            clearTime += Time.deltaTime;
+            if (clearTime < clearHoldSeconds)
+            {
+                return;
+            }
+
+            float p = clockOutSeconds > 0f ? Mathf.Min(1f, (clearTime - clearHoldSeconds) / clockOutSeconds) : 1f;
+            float risePixels = Mathf.Round(clockOutRisePixels * p);
+            selectedFrame.enabled = false;
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                if (exitMarks[i].enabled)
+                {
+                    exitMarks[i].sprite = exitFlashSprites[i];
+                    exitFlashTimes[i] = -1f;
+                }
+
+                if (robots[i].enabled)
+                {
+                    robotTransforms[i].localPosition = clearStarts[i] + Vector3.up * (risePixels / PixelsPerUnit);
+                    SetAlpha(robots[i], 1f - p);
+                }
+            }
+        }
+
+        private void StopExitFlashes()
+        {
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                exitFlashTimes[i] = -1f;
+            }
+        }
+
+        private void StopClear()
+        {
+            if (clearTime < 0f)
+            {
+                return;
+            }
+
+            clearTime = -1f;
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                SetAlpha(robots[i], 1f);
+            }
         }
 
         private void UpdateFail()

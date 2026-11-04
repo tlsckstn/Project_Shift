@@ -181,6 +181,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c42170d920f4d9645978f0f0d0dd076e, type: 3}
   - {fileID: 21300000, guid: 71414d2c18f1ade4089e9fb2c0b6d978, type: 3}
   - {fileID: 21300000, guid: 1e3380bf6042eb84b817ef15d6ccf4d2, type: 3}
+  exitFlashSprites:
+  - {fileID: 21300000, guid: 80da065a3589396479c90d7de41dfd18, type: 3}
+  - {fileID: 21300000, guid: 474e312b63763174b8b53da4e53f3e5c, type: 3}
+  - {fileID: 21300000, guid: 46c3b443575749f4493759cb49f28231, type: 3}
   cellSize: 1
   rowSpacing: 2
   labelFontSize: 6
@@ -198,6 +202,10 @@ MonoBehaviour:
   fallSeconds: 0.45
   bugFadeSeconds: 0.3
   reappearSeconds: 0.15
+  exitFlashSeconds: 0.12
+  clearHoldSeconds: 0.2
+  clockOutSeconds: 0.4
+  clockOutRisePixels: 3
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &306120834
@@ -268,6 +276,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e9b2656e0db5f8041adb36d502ec5407, type: 2}
   view: {fileID: 306120833}
   failRestartSeconds: 0.6
+  clearSeconds: 0.8
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -537,6 +546,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f035708670fee6848acae82a0535695e, type: 2}
   view: {fileID: 1804223272}
   failRestartSeconds: 0.6
+  clearSeconds: 0.8
 --- !u!114 &1804223272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -580,6 +590,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c42170d920f4d9645978f0f0d0dd076e, type: 3}
   - {fileID: 21300000, guid: 71414d2c18f1ade4089e9fb2c0b6d978, type: 3}
   - {fileID: 21300000, guid: 1e3380bf6042eb84b817ef15d6ccf4d2, type: 3}
+  exitFlashSprites:
+  - {fileID: 21300000, guid: 80da065a3589396479c90d7de41dfd18, type: 3}
+  - {fileID: 21300000, guid: 474e312b63763174b8b53da4e53f3e5c, type: 3}
+  - {fileID: 21300000, guid: 46c3b443575749f4493759cb49f28231, type: 3}
   cellSize: 1
   rowSpacing: 2
   labelFontSize: 6
@@ -597,6 +611,10 @@ MonoBehaviour:
   fallSeconds: 0.45
   bugFadeSeconds: 0.3
   reappearSeconds: 0.15
+  exitFlashSeconds: 0.12
+  clearHoldSeconds: 0.2
+  clockOutSeconds: 0.4
+  clockOutRisePixels: 3
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
 --- !u!4 &1804223273
