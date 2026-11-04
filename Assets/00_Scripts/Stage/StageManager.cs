@@ -37,9 +37,9 @@ namespace ProjectShift.Stage
             }
 
             BoardState before = state.Clone();
-            if (BoardLogic.TryWalk(state, direction))
+            if (BoardLogic.TryWalk(state, direction) && AfterAction(before))
             {
-                AfterAction(before);
+                view.PlayWalk(state.SelectedRobot, before.RobotRow, before.RobotCol);
             }
         }
 
@@ -52,9 +52,9 @@ namespace ProjectShift.Stage
             }
 
             BoardState before = state.Clone();
-            if (BoardLogic.TryDescend(state))
+            if (BoardLogic.TryDescend(state) && AfterAction(before))
             {
-                AfterAction(before);
+                view.PlayWalk(state.SelectedRobot, before.RobotRow, before.RobotCol);
             }
         }
 
@@ -67,9 +67,11 @@ namespace ProjectShift.Stage
             }
 
             BoardState before = state.Clone();
-            if (BoardLogic.TryShift(state, selectedRow, direction))
+            if (BoardLogic.TryShift(state, selectedRow, direction) && AfterAction(before))
             {
-                AfterAction(before);
+                // Shifting left pushes out cell 0, shifting right cell 7.
+                bool lostBit = before.GetCell(selectedRow, direction < 0 ? 0 : BoardState.Columns - 1);
+                view.PlayShift(selectedRow, direction, lostBit, state);
             }
         }
 
@@ -121,7 +123,9 @@ namespace ProjectShift.Stage
             Render();
         }
 
-        private void AfterAction(BoardState before)
+        // Returns true when play goes on in the same stage, so the caller may animate the move;
+        // false after a fail restart or a stage clear, which snap to a new board.
+        private bool AfterAction(BoardState before)
         {
             history.Save(before);
 
@@ -131,16 +135,17 @@ namespace ProjectShift.Stage
                 state = history.Restart();
                 Render();
                 view.ShowMessage(message);
-                return;
+                return false;
             }
 
             if (stages[stageIndex].IsCleared(state))
             {
                 LoadStage(stageIndex + 1);
-                return;
+                return false;
             }
 
             Render();
+            return true;
         }
 
         private void LoadStage(int index)

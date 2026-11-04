@@ -54,6 +54,12 @@ namespace ProjectShift.Board
         [Tooltip("GOAL label color once the row value matches its lock.")]
         [SerializeField] private Color onColor = new Color(0.3f, 0.9f, 0.5f);
         [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
+        [Tooltip("Seconds a shifted row (its cells and the robots on it) takes to slide one cell.")]
+        [SerializeField] private float shiftSlideSeconds = 0.1f;
+        [Tooltip("Seconds the faint copy left on the cell a robot walked or descended from takes to fade out.")]
+        [SerializeField] private float walkGhostSeconds = 0.15f;
+        [Tooltip("Starting opacity of that walk afterimage.")]
+        [SerializeField] private float walkGhostAlpha = 0.45f;
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
 
@@ -89,6 +95,24 @@ namespace ProjectShift.Board
         private TextMeshPro hintLabel;
         private int shownShifts = -1;
         private int shownPar = -1;
+        private int shownRowCount;
+
+        // Shift slide: Render places everything at its final spot, then PlayShift offsets the row back one cell and Update eases it in.
+        private int slideRow = -1;
+        private int slideDirection;
+        private float slideTime;
+        private int slideEnterCol;
+        private int slideLostCol;
+        private readonly bool[] slideRobots = new bool[MaxRobots];
+        private readonly Vector3[] slideRobotEnds = new Vector3[MaxRobots];
+        private bool slideMovesSelectedFrame;
+        private Vector3 slideSelectedFrameEnd;
+        // The bit pushed past the row end: slides out and fades.
+        private SpriteRenderer lostCell;
+        private Transform lostCellTransform;
+        // Walk afterimage: a fading copy of the robot on the cell it left.
+        private SpriteRenderer walkGhost;
+        private float ghostTime = -1f;
 
         private void Awake()
         {
@@ -180,6 +204,12 @@ namespace ProjectShift.Board
                 robotTransforms[i] = robots[i].transform;
             }
 
+            lostCell = CreateSprite("LostCell", gapSprite, 2);
+            lostCellTransform = lostCell.transform;
+            lostCell.enabled = false;
+            walkGhost = CreateSprite("WalkGhost", robotIdleSprites[0], 4);
+            walkGhost.enabled = false;
+
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
             shiftsLabel.rectTransform.SetParent(cachedTransform, false);
             shiftsLabel.fontSize = labelFontSize;
@@ -229,6 +259,10 @@ namespace ProjectShift.Board
         /// </summary>
         public void Render(BoardState state, int selectedRow, Vector2Int[] exits, int parLeft, int[] rowValues, int[] lockTargets, bool robotsCoverBits)
         {
+            // Every Render snaps to the new state: an action during a slide or afterimage finishes it at once.
+            StopSlide();
+            StopGhost();
+            shownRowCount = state.RowCount;
             bool anyLockUnmet = false;
             for (int r = 0; r < MaxRows; r++)
             {
@@ -379,6 +413,145 @@ namespace ProjectShift.Board
             shownShifts = -1; // forces the next Render to bring the shifts count back
             shiftsLabel.color = shiftsColor;
             shiftsLabel.SetText(text);
+        }
+
+        /// <summary>
+        /// Slides row <paramref name="row"/> in from one cell back after a shift (<paramref name="direction"/> -1 left, 1 right).
+        /// Call right after the Render that shows the shifted state. <paramref name="lostBit"/> is the value of the cell pushed past the row end.
+        /// The cells and the robots standing on the row move; exits, firewalls and bug marks stay, they are fixed to the board.
+        /// </summary>
+        public void PlayShift(int row, int direction, bool lostBit, BoardState state)
+        {
+            if (shiftSlideSeconds <= 0f)
+            {
+                return;
+            }
+
+            slideRow = row;
+            slideDirection = direction;
+            slideTime = 0f;
+            // Shifting right pushes out cell 7 and a new 0 enters at cell 0; shifting left the other way round.
+            slideEnterCol = direction > 0 ? 0 : BoardState.Columns - 1;
+            slideLostCol = direction > 0 ? BoardState.Columns - 1 : 0;
+            slideMovesSelectedFrame = false;
+            slideSelectedFrameEnd = selectedFrameTransform.localPosition;
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                slideRobots[i] = i < state.RobotCount && state.GetRobotRow(i) == row;
+                slideRobotEnds[i] = robotTransforms[i].localPosition;
+                slideMovesSelectedFrame |= slideRobots[i] && selectedFrame.enabled && i == state.SelectedRobot;
+            }
+
+            lostCell.sprite = lostBit ? platformSprite : gapSprite;
+            lostCell.enabled = true;
+            ApplySlide(0f);
+        }
+
+        /// <summary>
+        /// Leaves a fading copy of robot <paramref name="robot"/> on the cell it just left (walk or descend).
+        /// Call right after the Render that shows the robot on its new cell.
+        /// </summary>
+        public void PlayWalk(int robot, int fromRow, int fromCol)
+        {
+            if (walkGhostSeconds <= 0f)
+            {
+                return;
+            }
+
+            walkGhost.sprite = robots[robot].sprite;
+            walkGhost.transform.localPosition = CellPosition(fromRow, fromCol, shownRowCount) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
+            walkGhost.enabled = true;
+            ghostTime = 0f;
+            SetAlpha(walkGhost, walkGhostAlpha);
+        }
+
+        private void Update()
+        {
+            if (slideRow >= 0)
+            {
+                slideTime += Time.deltaTime;
+                float t = slideTime / shiftSlideSeconds;
+                if (t >= 1f)
+                {
+                    StopSlide();
+                }
+                else
+                {
+                    ApplySlide(t);
+                }
+            }
+
+            if (ghostTime >= 0f)
+            {
+                ghostTime += Time.deltaTime;
+                float t = ghostTime / walkGhostSeconds;
+                if (t >= 1f)
+                {
+                    StopGhost();
+                }
+                else
+                {
+                    SetAlpha(walkGhost, walkGhostAlpha * (1f - t));
+                }
+            }
+        }
+
+        // t is 0..1 linear time; the motion eases out. Positions snap to whole art pixels so the pixel art stays crisp.
+        private void ApplySlide(float t)
+        {
+            float eased = 1f - (1f - t) * (1f - t);
+            float offsetPixels = Mathf.Round((1f - eased) * -slideDirection * PixelsPerUnit * cellSize);
+            Vector3 offset = Vector3.right * (offsetPixels / PixelsPerUnit);
+
+            for (int c = 0; c < BoardState.Columns; c++)
+            {
+                int i = slideRow * BoardState.Columns + c;
+                cellTransforms[i].localPosition = CellPosition(slideRow, c, shownRowCount) + offset;
+            }
+
+            SetAlpha(cells[slideRow * BoardState.Columns + slideEnterCol], eased);
+            lostCellTransform.localPosition = CellPosition(slideRow, slideLostCol, shownRowCount) + Vector3.right * (slideDirection * cellSize) + offset;
+            SetAlpha(lostCell, 1f - eased);
+
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                if (slideRobots[i])
+                {
+                    robotTransforms[i].localPosition = slideRobotEnds[i] + offset;
+                }
+            }
+
+            if (slideMovesSelectedFrame)
+            {
+                selectedFrameTransform.localPosition = slideSelectedFrameEnd + offset;
+            }
+        }
+
+        private void StopSlide()
+        {
+            if (slideRow < 0)
+            {
+                return;
+            }
+
+            int row = slideRow;
+            ApplySlide(1f);
+            SetAlpha(cells[row * BoardState.Columns + slideEnterCol], 1f);
+            lostCell.enabled = false;
+            slideRow = -1;
+        }
+
+        private void StopGhost()
+        {
+            ghostTime = -1f;
+            walkGhost.enabled = false;
+        }
+
+        private static void SetAlpha(SpriteRenderer spriteRenderer, float alpha)
+        {
+            Color color = spriteRenderer.color;
+            color.a = alpha;
+            spriteRenderer.color = color;
         }
 
         private Vector3 CellPosition(int row, int col, int rowCount)
