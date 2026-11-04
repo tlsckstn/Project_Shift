@@ -44,7 +44,6 @@ namespace ProjectShift.Board
         };
         [Tooltip("Outline drawn behind the robot you control; only shown when the stage has more than one robot.")]
         [SerializeField] private Color selectedRobotColor = Color.white;
-        [SerializeField] private Color exitColor = new Color(1f, 0.4f, 0.3f);
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
 
@@ -158,7 +157,7 @@ namespace ProjectShift.Board
             exitTransforms = new Transform[MaxRobots];
             for (int i = 0; i < MaxRobots; i++)
             {
-                exitMarks[i] = CreateSquare("Exit", exitColor, 3, Vector3.one * (cellSize * 0.8f));
+                exitMarks[i] = CreateSquare("Exit", robotColors[i], 3, Vector3.one * (cellSize * 0.8f));
                 exitTransforms[i] = exitMarks[i].transform;
             }
 
@@ -321,7 +320,7 @@ namespace ProjectShift.Board
                     continue;
                 }
 
-                Color exitTint = multiRobot ? robotColors[i] : exitColor;
+                Color exitTint = robotColors[i];
                 exitTint.a = anyLockUnmet ? LockedExitAlpha : 1f;
                 exitMarks[i].color = exitTint;
                 exitTransforms[i].localPosition = CellPosition(exits[i].x, exits[i].y, state.RowCount) + standOffset;
