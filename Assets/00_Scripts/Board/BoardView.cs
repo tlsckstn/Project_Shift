@@ -17,16 +17,13 @@ namespace ProjectShift.Board
         private const float RobotOffsetPixels = 25f;
         // Exit sprite centre above the cell centre: the 28 px door frame's bottom touches the cell top.
         private const float ExitOffsetPixels = 30f;
-        // Row tint and lock frame size in pixels: 8 cells plus a 10 px margin.
-        private const float RowFramePixelsX = 304f;
-        private const float RowFramePixelsY = 52f;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
         private const string KeysText = "←/→ walk    ↓ descend    W/S select row    A/D shift    Z undo    R restart";
         // Shown instead of KeysText on stages with more than one robot.
         private const string KeysTextMultiRobot = "←/→ walk    ↓ descend    W/S select row    A/D shift    Q switch robot    Z undo    R restart";
 
-        [Tooltip("Plain white square, used for the selected-row tint.")]
-        [SerializeField] private Sprite cellSprite;
+        [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
+        [SerializeField] private Sprite rowHighlightSprite;
         [SerializeField] private Sprite platformSprite;
         [SerializeField] private Sprite gapSprite;
         [Tooltip("A 1 cell under a robot on stages where robots cover bits.")]
@@ -56,7 +53,6 @@ namespace ProjectShift.Board
         [SerializeField] private Color hintColor = new Color(0.9f, 0.8f, 0.2f);
         [Tooltip("GOAL label color once the row value matches its lock.")]
         [SerializeField] private Color onColor = new Color(0.3f, 0.9f, 0.5f);
-        [SerializeField] private Color selectedRowColor = new Color(0.9f, 0.8f, 0.2f, 0.35f);
         [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
@@ -116,16 +112,12 @@ namespace ProjectShift.Board
             shownGoals = new int[MaxRows];
             shownGoalMet = new bool[MaxRows];
 
-            // cellSprite is a 1-unit square, so scale it to the row frame size.
-            Vector3 highlightScale = new Vector3(RowFramePixelsX / PixelsPerUnit, RowFramePixelsY / PixelsPerUnit, 1f);
             for (int r = 0; r < MaxRows; r++)
             {
-                rowHighlights[r] = CreateSprite("RowHighlight", cellSprite, 0);
-                rowHighlights[r].color = selectedRowColor;
+                rowHighlights[r] = CreateSprite("RowHighlight", rowHighlightSprite, 0);
                 highlightTransforms[r] = rowHighlights[r].transform;
-                highlightTransforms[r].localScale = highlightScale;
 
-                // Hollow frame drawn under the selection tint, so a locked row still shows when selected.
+                // Hollow frame just outside the selection brackets, so a locked row still shows when selected.
                 lockFrames[r] = CreateSprite("LockFrame", lockFrameSprite, -1);
                 lockFrameTransforms[r] = lockFrames[r].transform;
                 lockLabels[r] = new GameObject("LockLabel").AddComponent<TextMeshPro>();

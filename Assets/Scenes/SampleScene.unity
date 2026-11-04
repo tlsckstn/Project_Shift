@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02c487c1606ce3c4483ecda093074e71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Board.BoardView
-  cellSprite: {fileID: 7482667652216324306, guid: 8b477fd145c550e4cae6ec9ed85987a3, type: 3}
+  rowHighlightSprite: {fileID: 21300000, guid: c5cfbb04151d10c4abd1be18007c57da, type: 3}
   platformSprite: {fileID: 21300000, guid: c9afe56de51c31f48ba2325d04aacf58, type: 3}
   gapSprite: {fileID: 21300000, guid: 0e564560b699e924ca2f43891986ad9e, type: 3}
   coveredSprite: {fileID: 21300000, guid: b4799246da636864097f2928dd0f8100, type: 3}
@@ -186,7 +186,6 @@ MonoBehaviour:
   hintY: -3.4
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
-  selectedRowColor: {r: 0.9, g: 0.8, b: 0.2, a: 0.35}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
@@ -537,7 +536,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02c487c1606ce3c4483ecda093074e71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Board.BoardView
-  cellSprite: {fileID: 7482667652216324306, guid: 8b477fd145c550e4cae6ec9ed85987a3, type: 3}
+  rowHighlightSprite: {fileID: 21300000, guid: c5cfbb04151d10c4abd1be18007c57da, type: 3}
   platformSprite: {fileID: 21300000, guid: c9afe56de51c31f48ba2325d04aacf58, type: 3}
   gapSprite: {fileID: 21300000, guid: 0e564560b699e924ca2f43891986ad9e, type: 3}
   coveredSprite: {fileID: 21300000, guid: b4799246da636864097f2928dd0f8100, type: 3}
@@ -573,7 +572,6 @@ MonoBehaviour:
   hintY: -3.4
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
-  selectedRowColor: {r: 0.9, g: 0.8, b: 0.2, a: 0.35}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
