@@ -188,7 +188,8 @@ MonoBehaviour:
   cellSize: 1
   rowSpacing: 2
   labelFontSize: 6
-  keysFontSize: 3.5
+  keysFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
   keysPanelY: -4.3
   hintFontSize: 4
   hintY: -3.4
@@ -599,7 +600,8 @@ MonoBehaviour:
   cellSize: 1
   rowSpacing: 2
   labelFontSize: 6
-  keysFontSize: 3.5
+  keysFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
   keysPanelY: -4.3
   hintFontSize: 4
   hintY: -3.4

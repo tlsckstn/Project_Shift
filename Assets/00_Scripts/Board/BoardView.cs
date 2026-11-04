@@ -17,10 +17,17 @@ namespace ProjectShift.Board
         private const float RobotOffsetPixels = 25f;
         // Exit sprite centre above the cell centre: the 28 px door frame's bottom touches the cell top.
         private const float ExitOffsetPixels = 30f;
+        // Silkscreen is an 8 px em font; TMP draws fontSize 10 at 1 unit per em (measured), so this size makes one
+        // font pixel one art pixel. Only integer multiples keep the point-filtered glyphs sharp.
+        private const float PixelFontSize = 10f * 8f / PixelsPerUnit;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
-        private const string KeysText = "←/→ walk    ↓ descend    W/S select row    A/D shift    Z undo    R restart";
+        private static readonly string KeysText =
+            Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
+            Key("A") + Key("D") + " SHIFT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART";
         // Shown instead of KeysText on stages with more than one robot.
-        private const string KeysTextMultiRobot = "←/→ walk    ↓ descend    W/S select row    A/D shift    Q switch robot    Z undo    R restart";
+        private static readonly string KeysTextMultiRobot =
+            Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
+            Key("A") + Key("D") + " SHIFT   " + Key("Q") + " SWITCH ROBOT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART";
 
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
         [SerializeField] private Sprite rowHighlightSprite;
@@ -48,7 +55,10 @@ namespace ProjectShift.Board
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private float rowSpacing = 2f;
         [SerializeField] private float labelFontSize = 6f;
-        [SerializeField] private float keysFontSize = 3.5f;
+        [Tooltip("Silkscreen bitmap font asset for the key panel (Assets/01_Art/Fonts).")]
+        [SerializeField] private TMP_FontAsset keysFont;
+        [Tooltip("Key cap sprites used inline in the key panel text; sprite names match Key(...) calls.")]
+        [SerializeField] private TMP_SpriteAsset keyCapSprites;
         [Tooltip("Local y of the key panel; keep it inside the camera's bottom edge (orthographic size 5).")]
         [SerializeField] private float keysPanelY = -4.3f;
         [SerializeField] private float hintFontSize = 4f;
@@ -279,10 +289,12 @@ namespace ProjectShift.Board
             keysLabel.rectTransform.SetParent(cachedTransform, false);
             keysLabel.rectTransform.localPosition = new Vector3(0f, keysPanelY, 0f);
             keysLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
-            keysLabel.fontSize = keysFontSize;
+            keysLabel.font = keysFont;
+            keysLabel.spriteAsset = keyCapSprites;
+            keysLabel.fontSize = PixelFontSize;
             keysLabel.alignment = TextAlignmentOptions.Center;
             keysLabel.color = shiftsColor;
-            keysLabel.SetText(KeysText);
+            SetKeysText(KeysText);
 
             hintLabel = new GameObject("StageHint").AddComponent<TextMeshPro>();
             hintLabel.rectTransform.SetParent(cachedTransform, false);
@@ -427,7 +439,7 @@ namespace ProjectShift.Board
             if (multiRobot != shownMultiRobot)
             {
                 shownMultiRobot = multiRobot;
-                keysLabel.SetText(multiRobot ? KeysTextMultiRobot : KeysText);
+                SetKeysText(multiRobot ? KeysTextMultiRobot : KeysText);
             }
 
             for (int i = 0; i < MaxRobots; i++)
@@ -993,6 +1005,26 @@ namespace ProjectShift.Board
         private Vector3 LabelPosition(int row, int rowCount)
         {
             return new Vector3((BoardState.Columns * 0.5f * cellSize) + 0.5f, CellPosition(row, 0, rowCount).y, 0f);
+        }
+
+        private static string Key(string spriteName)
+        {
+            // tint=1: the white cap takes the label colour.
+            return "<sprite name=\"" + spriteName + "\" tint=1>";
+        }
+
+        // Centred text can start on a half pixel; shift the label so the first glyph's origin and the baseline
+        // sit on the art pixel grid, or the point-filtered pixel font smears. Every advance is whole pixels.
+        private void SetKeysText(string text)
+        {
+            keysLabel.SetText(text);
+            keysLabel.rectTransform.localPosition = new Vector3(0f, keysPanelY, 0f);
+            keysLabel.ForceMeshUpdate();
+            TMP_CharacterInfo first = keysLabel.textInfo.characterInfo[0];
+            Vector3 world = keysLabel.transform.TransformPoint(new Vector3(first.origin, first.baseLine, 0f));
+            float dx = Mathf.Round(world.x * PixelsPerUnit) / PixelsPerUnit - world.x;
+            float dy = Mathf.Round(world.y * PixelsPerUnit) / PixelsPerUnit - world.y;
+            keysLabel.transform.position += new Vector3(dx, dy, 0f);
         }
 
         private Vector3 CellPosition(int row, int col, int rowCount)
