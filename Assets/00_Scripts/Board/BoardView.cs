@@ -29,6 +29,8 @@ namespace ProjectShift.Board
             Key("A") + Key("D") + " SHIFT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART";
         // Out of shifts: replaces the HOURS line.
         private static readonly string DawnText = "DAWN  " + Key("Z") + " UNDO  " + Key("R") + " RESTART";
+        // Replaces the key panel on a cleared board.
+        private static readonly string ClearChoiceText = Key("R") + " RETRY   " + Key("Enter") + " NEXT";
         // Shown instead of KeysText on stages with more than one robot.
         private static readonly string KeysTextMultiRobot =
             Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
@@ -133,6 +135,8 @@ namespace ProjectShift.Board
         private Transform selectedFrameTransform;
         private TextMeshPro keysLabel;
         private bool shownMultiRobot;
+        // Set while the key panel shows the clear choice; the next Render brings the key guide back.
+        private bool isKeysTextReplaced;
         // One exit per robot, same order as the robots.
         private SpriteRenderer[] exitMarks;
         private Transform[] exitTransforms;
@@ -458,9 +462,10 @@ namespace ProjectShift.Board
                 selectedFrameTransform.localPosition = robotTransforms[state.SelectedRobot].localPosition;
             }
 
-            if (multiRobot != shownMultiRobot)
+            if (multiRobot != shownMultiRobot || isKeysTextReplaced)
             {
                 shownMultiRobot = multiRobot;
+                isKeysTextReplaced = false;
                 SetKeysText(multiRobot ? KeysTextMultiRobot : KeysText);
             }
 
@@ -513,6 +518,17 @@ namespace ProjectShift.Board
             shiftsLabel.color = shiftsColor;
             shiftsLabel.SetText(text);
             PlacePixelText(shiftsLabel, ShiftsLabelPosition());
+        }
+
+        /// <summary>
+        /// Shows the cleared stage's result (shifts used, and par when the stage has one) and the retry / next keys until the
+        /// next Render. The clear look stays because nothing renders meanwhile.
+        /// </summary>
+        public void ShowClearChoice(int shiftsUsed, int par)
+        {
+            ShowMessage(par > 0 ? $"SHIFTS {shiftsUsed}  PAR {par}" : $"SHIFTS {shiftsUsed}");
+            SetKeysText(ClearChoiceText);
+            isKeysTextReplaced = true;
         }
 
         /// <summary>

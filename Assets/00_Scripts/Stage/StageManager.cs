@@ -5,7 +5,7 @@ namespace ProjectShift.Stage
 {
     /// <summary>
     /// Runs the stage sequence: owns the live board state and its undo history, applies player actions,
-    /// restarts on a fall and loads the next stage when every robot stands on its exit.
+    /// restarts on a fall and, when every robot stands on its exit, lets the player retry the stage or go to the next one.
     /// </summary>
     public class StageManager : MonoBehaviour
     {
@@ -13,8 +13,12 @@ namespace ProjectShift.Stage
         [SerializeField] private BoardView view;
         [Tooltip("Seconds the failed board stays on screen before the stage restarts. Must cover BoardView's shift slide plus its fall drop or bug fade.")]
         [SerializeField] private float failRestartSeconds = 0.6f;
-        [Tooltip("Seconds the cleared board stays on screen before the next stage loads. Must cover BoardView's shift slide plus its clear hold and clock-out.")]
+        [Tooltip("Seconds the clear plays before the retry / next choice appears. Must cover BoardView's shift slide plus its clear hold and clock-out.")]
         [SerializeField] private float clearSeconds = 0.8f;
+        [Tooltip("Seconds each undo step is shown while Restart rewinds the stage to its start.")]
+        [SerializeField] private float rewindStepSeconds = 0.05f;
+        [Tooltip("Longest a rewind may take; long histories step faster to fit.")]
+        [SerializeField] private float rewindMaxSeconds = 0.6f;
 
         private int stageIndex;
         private BoardState state;
@@ -28,11 +32,16 @@ namespace ProjectShift.Stage
         private bool isFinished;
         // Counts down while a failed or cleared board is shown; -1 when nothing is pending. Input is ignored meanwhile.
         private float pendingTimer = -1f;
-        // What runs when pendingTimer runs out: load the next stage (clear) or restart this one (fail).
+        // What runs when pendingTimer runs out: offer retry / next (clear) or restart this one (fail).
         private bool pendingClear;
         private string failMessage;
+        // True once a clear has played out: the cleared board waits for Restart (retry) or Next.
+        private bool isAwaitingChoice;
+        // Counts down to the next undo step while Restart rewinds; -1 when not rewinding. Input is ignored meanwhile.
+        private float rewindTimer = -1f;
+        private float rewindStep;
 
-        private bool IsInputBlocked => isFinished || pendingTimer >= 0f || view.IsTransitioning;
+        private bool IsInputBlocked => isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
         private void Start()
         {
@@ -42,6 +51,17 @@ namespace ProjectShift.Stage
 
         private void Update()
         {
+            if (rewindTimer >= 0f)
+            {
+                rewindTimer -= Time.deltaTime;
+                if (rewindTimer < 0f)
+                {
+                    StepRewind();
+                }
+
+                return;
+            }
+
             if (pendingTimer < 0f)
             {
                 return;
@@ -55,13 +75,9 @@ namespace ProjectShift.Stage
 
             if (pendingClear)
             {
-                BoardState cleared = state;
-                LoadStage(stageIndex + 1);
-                if (!isFinished)
-                {
-                    view.PlayTransition(cleared, state);
-                }
-
+                StageData stage = stages[stageIndex];
+                isAwaitingChoice = true;
+                view.ShowClearChoice(stage.ShiftLimit - state.ShiftsLeft, stage.Par);
                 return;
             }
 
@@ -157,20 +173,67 @@ namespace ProjectShift.Stage
             Render();
         }
 
-        /// <summary>Restores the current stage's start state.</summary>
+        /// <summary>Loads the next stage. Only works on a cleared board waiting for the player's choice.</summary>
+        public void Next()
+        {
+            if (!isAwaitingChoice)
+            {
+                return;
+            }
+
+            isAwaitingChoice = false;
+            BoardState cleared = state;
+            LoadStage(stageIndex + 1);
+            if (!isFinished)
+            {
+                view.PlayTransition(cleared, state);
+            }
+        }
+
+        /// <summary>
+        /// Rewinds the current stage to its start state, showing every undo step briefly. On a cleared board this is the retry choice.
+        /// </summary>
         public void Restart()
         {
+            isAwaitingChoice = false;
             if (IsInputBlocked)
             {
                 return;
             }
 
-            state = history.Restart();
+            if (history.Count == 0)
+            {
+                state = history.Restart();
+                Render();
+                return;
+            }
+
+            rewindStep = Mathf.Min(rewindStepSeconds, rewindMaxSeconds / history.Count);
+            rewindTimer = 0f;
+            StepRewind();
+        }
+
+        // Undoes every step whose time has come (several per frame when steps are shorter than a frame), then shows the result.
+        private void StepRewind()
+        {
+            while (rewindTimer <= 0f)
+            {
+                state = history.Undo(state);
+                if (history.Count == 0)
+                {
+                    rewindTimer = -1f;
+                    Render();
+                    return;
+                }
+
+                rewindTimer += rewindStep;
+            }
+
             Render();
         }
 
         // Shows the move's result. A failed move is held (fall effect) until Update restarts the stage; a clearing move is held
-        // (clock-out effect) until Update loads the next stage. The caller then animates the move itself.
+        // (clock-out effect) until Update offers retry / next. The caller then animates the move itself.
         private void AfterAction(BoardState before)
         {
             history.Save(before);
