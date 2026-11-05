@@ -1,3 +1,4 @@
+using ProjectShift.Audio;
 using ProjectShift.Board;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace ProjectShift.Stage
     {
         [SerializeField] private StageData[] stages;
         [SerializeField] private BoardView view;
+        [SerializeField] private SoundPlayer sound;
         [Tooltip("Seconds the failed board stays on screen before the stage restarts. Must cover BoardView's shift slide plus its fall drop or bug fade.")]
         [SerializeField] private float failRestartSeconds = 0.6f;
         [Tooltip("Seconds the clear plays before the retry / next choice appears. Must cover BoardView's shift slide plus its clear hold and clock-out.")]
@@ -98,6 +100,7 @@ namespace ProjectShift.Stage
             BoardState before = state.Clone();
             if (BoardLogic.TryWalk(state, direction))
             {
+                sound.PlayWalk();
                 AfterAction(before);
                 view.PlayWalk(state.SelectedRobot, before.RobotRow, before.RobotCol);
             }
@@ -114,6 +117,7 @@ namespace ProjectShift.Stage
             BoardState before = state.Clone();
             if (BoardLogic.TryDescend(state))
             {
+                sound.PlayWalk();
                 AfterAction(before);
                 view.PlayWalk(state.SelectedRobot, before.RobotRow, before.RobotCol);
             }
@@ -130,6 +134,7 @@ namespace ProjectShift.Stage
             BoardState before = state.Clone();
             if (BoardLogic.TryShift(state, selectedRow, direction))
             {
+                sound.PlayShift();
                 AfterAction(before);
                 // Shifting left pushes out cell 0, shifting right cell 7.
                 bool lostBit = before.GetCell(selectedRow, direction < 0 ? 0 : BoardState.Columns - 1);
@@ -210,6 +215,7 @@ namespace ProjectShift.Stage
 
             rewindStep = Mathf.Min(rewindStepSeconds, rewindMaxSeconds / history.Count);
             rewindTimer = 0f;
+            sound.PlayRewind();
             StepRewind();
         }
 
@@ -245,23 +251,31 @@ namespace ProjectShift.Stage
                 pendingClear = false;
                 Render();
                 view.PlayFail(state);
+                sound.PlayFail();
                 return;
             }
 
             Render();
-            FlashArrivals(before);
+            bool arrived = FlashArrivals(before);
 
             if (stages[stageIndex].IsCleared(state))
             {
                 pendingTimer = clearSeconds;
                 pendingClear = true;
                 view.PlayClear();
+                sound.PlayClear();
+            }
+            else if (arrived)
+            {
+                sound.PlayExit();
             }
         }
 
         // Flashes the exit of every robot that this move brought onto its own exit (it was elsewhere before the move).
-        private void FlashArrivals(BoardState before)
+        // Returns whether any robot arrived.
+        private bool FlashArrivals(BoardState before)
         {
+            bool arrived = false;
             for (int i = 0; i < exits.Length && i < state.RobotCount; i++)
             {
                 bool wasOn = before.GetRobotRow(i) == exits[i].x && before.GetRobotCol(i) == exits[i].y;
@@ -269,8 +283,11 @@ namespace ProjectShift.Stage
                 if (isOn && !wasOn)
                 {
                     view.PlayExitFlash(i);
+                    arrived = true;
                 }
             }
+
+            return arrived;
         }
 
         private void LoadStage(int index)

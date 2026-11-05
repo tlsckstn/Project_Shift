@@ -26,15 +26,15 @@ namespace ProjectShift.Board
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
         private static readonly string KeysText =
             Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
-            Key("A") + Key("D") + " SHIFT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART";
+            Key("A") + Key("D") + " SHIFT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART   " + Key("M") + " MUTE";
         // Out of shifts: replaces the HOURS line.
         private static readonly string DawnText = "DAWN  " + Key("Z") + " UNDO  " + Key("R") + " RESTART";
         // Replaces the key panel on a cleared board.
         private static readonly string ClearChoiceText = Key("R") + " RETRY   " + Key("Enter") + " NEXT";
-        // Shown instead of KeysText on stages with more than one robot.
+        // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
-            Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
-            Key("A") + Key("D") + " SHIFT   " + Key("Q") + " SWITCH ROBOT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART";
+            Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " ROW   " +
+            Key("A") + Key("D") + " SHIFT   " + Key("Q") + " ROBOT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART   " + Key("M") + " MUTE";
 
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
         [SerializeField] private Sprite rowHighlightSprite;

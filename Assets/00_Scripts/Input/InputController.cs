@@ -1,3 +1,4 @@
+using ProjectShift.Audio;
 using ProjectShift.Stage;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -5,12 +6,13 @@ using UnityEngine.InputSystem;
 namespace ProjectShift.Input
 {
     /// <summary>
-    /// Maps the project-wide "Puzzle" action map to stage actions: walk, descend, select a row, shift it, switch robot, undo, restart, next stage.
+    /// Maps the project-wide "Puzzle" action map to stage actions: walk, descend, select a row, shift it, switch robot, undo, restart, next stage, plus mute.
     /// Bindings live in Assets/InputSystem_Actions.inputactions.
     /// </summary>
     public class InputController : MonoBehaviour
     {
         [SerializeField] private StageManager stageManager;
+        [SerializeField] private SoundPlayer sound;
 
         private InputActionMap puzzleMap;
         private InputAction walkLeft;
@@ -24,6 +26,7 @@ namespace ProjectShift.Input
         private InputAction undo;
         private InputAction restart;
         private InputAction next;
+        private InputAction mute;
 
         private void Awake()
         {
@@ -39,6 +42,7 @@ namespace ProjectShift.Input
             undo = puzzleMap.FindAction("Undo", true);
             restart = puzzleMap.FindAction("Restart", true);
             next = puzzleMap.FindAction("Next", true);
+            mute = puzzleMap.FindAction("Mute", true);
         }
 
         private void OnEnable()
@@ -64,6 +68,7 @@ namespace ProjectShift.Input
             if (undo.WasPressedThisFrame()) stageManager.Undo();
             if (restart.WasPressedThisFrame()) stageManager.Restart();
             if (next.WasPressedThisFrame()) stageManager.Next();
+            if (mute.WasPressedThisFrame()) sound.ToggleMute();
         }
     }
 }
