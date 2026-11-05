@@ -177,7 +177,7 @@ namespace ProjectShift.Stage
 
             if (state.IsFailed)
             {
-                failMessage = state.IsRobotFallen ? "FELL! Restarted" : "BUG! Restarted";
+                failMessage = state.IsRobotFallen ? "FELL" : "BUG";
                 pendingTimer = failRestartSeconds;
                 pendingClear = false;
                 Render();
