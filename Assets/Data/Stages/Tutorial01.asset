@@ -16,6 +16,14 @@ MonoBehaviour:
   - 11110000
   start: {x: 0, y: 0}
   exit: {x: 0, y: 7}
+  extraStarts: []
+  extraExits: []
   shiftLimit: 6
   par: 4
   hint: Walk on lit cells. Push a row and you ride with it.
+  chapterTitle: NIGHT 1
+  lockedRows: 
+  firewalls: []
+  bugCells: []
+  numberLocks: []
+  robotsCoverBits: 0

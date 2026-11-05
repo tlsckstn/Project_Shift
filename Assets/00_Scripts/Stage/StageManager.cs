@@ -52,6 +52,9 @@ namespace ProjectShift.Stage
         // Per stage: fewest shifts it was cleared with (-1 never), and the stars that best earns (0-3). Saved in StageProgress.
         private int[] bestShifts;
         private int[] stars;
+        // Stage select pages, built once from the stages' chapter titles: first stage and title of each page.
+        private readonly System.Collections.Generic.List<int> pageStarts = new System.Collections.Generic.List<int>();
+        private readonly System.Collections.Generic.List<string> pageTitles = new System.Collections.Generic.List<string>();
 
         private bool IsInputBlocked => isOnTitle || isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
@@ -73,9 +76,11 @@ namespace ProjectShift.Stage
             stars = new int[stages.Length];
             for (int i = 0; i < stages.Length; i++)
             {
-                bestShifts[i] = StageProgress.LoadBest(i);
+                bestShifts[i] = StageProgress.LoadBest(stages[i].name);
                 stars[i] = stages[i].StarsFor(bestShifts[i]);
             }
+
+            BuildPages();
 
             ShowTitle();
         }
@@ -100,11 +105,20 @@ namespace ProjectShift.Stage
             view.ShowTitle();
         }
 
-        /// <summary>Moves the stage select cursor by <paramref name="delta"/> stages (±1 across, ±6 a row). Locked stages cannot be picked.</summary>
+        /// <summary>
+        /// Moves the stage select cursor by <paramref name="delta"/> stages: ±1 across (on into the next or previous page), ±5 a row
+        /// (inside the page). Locked stages cannot be picked.
+        /// </summary>
         public void MoveSelection(int delta)
         {
             int target = selectedStage + delta;
             if (!isSelecting || target < 0 || target >= unlocked)
+            {
+                return;
+            }
+
+            // Left / right run on across pages; up / down stay inside the page.
+            if (Mathf.Abs(delta) > 1 && PageOf(target) != PageOf(selectedStage))
             {
                 return;
             }
@@ -147,6 +161,38 @@ namespace ProjectShift.Stage
             ShowSelect(isFinished ? stages.Length - 1 : stageIndex);
         }
 
+        // A new page starts at every chapter title and, inside a long chapter, every BoardView.SelectPageSize stages
+        // (that page keeps the chapter's title). The first stage always starts a page.
+        private void BuildPages()
+        {
+            string title = string.Empty;
+            for (int i = 0; i < stages.Length; i++)
+            {
+                bool newChapter = !string.IsNullOrEmpty(stages[i].ChapterTitle);
+                if (newChapter)
+                {
+                    title = stages[i].ChapterTitle;
+                }
+
+                if (i == 0 || newChapter || i - pageStarts[pageStarts.Count - 1] >= BoardView.SelectPageSize)
+                {
+                    pageStarts.Add(i);
+                    pageTitles.Add(title);
+                }
+            }
+        }
+
+        private int PageOf(int stage)
+        {
+            int page = 0;
+            while (page + 1 < pageStarts.Count && pageStarts[page + 1] <= stage)
+            {
+                page++;
+            }
+
+            return page;
+        }
+
         private void ShowSelect(int stage)
         {
             isOnTitle = false;
@@ -154,7 +200,10 @@ namespace ProjectShift.Stage
             isFinished = false;
             isAwaitingChoice = false;
             selectedStage = stage;
-            view.ShowStageSelect(stages.Length, unlocked, stage, stars);
+            int page = PageOf(stage);
+            int start = pageStarts[page];
+            int end = page + 1 < pageStarts.Count ? pageStarts[page + 1] : stages.Length;
+            view.ShowStageSelect(start, end - start, pageTitles[page], page + 1, pageStarts.Count, unlocked, stage, stars);
         }
 
         private void Update()
@@ -392,7 +441,7 @@ namespace ProjectShift.Stage
                 {
                     bestShifts[stageIndex] = used;
                     stars[stageIndex] = stages[stageIndex].StarsFor(used);
-                    StageProgress.SaveBest(stageIndex, used);
+                    StageProgress.SaveBest(stages[stageIndex].name, used);
                 }
 
                 pendingTimer = clearSeconds;

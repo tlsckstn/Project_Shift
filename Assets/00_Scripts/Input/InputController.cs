@@ -30,7 +30,7 @@ namespace ProjectShift.Input
         private InputAction up;
         private InputAction back;
         // Stage select rows are this many stages apart; must match BoardView's grid.
-        private const int SelectColumns = 6;
+        private const int SelectColumns = 5;
 
         private void Awake()
         {

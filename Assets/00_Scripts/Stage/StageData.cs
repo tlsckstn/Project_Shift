@@ -27,6 +27,8 @@ namespace ProjectShift.Stage
         [SerializeField] private int par;
         [Tooltip("Optional one-line hint in English. Explains rules only, never keys. Empty hides it.")]
         [SerializeField] private string hint;
+        [Tooltip("Set on the first stage of a chapter: its stage select page title (e.g. NIGHT 2). Empty continues the chapter before.")]
+        [SerializeField] private string chapterTitle;
         [Tooltip("Row indices (0 = top) that cannot be shifted.")]
         [SerializeField] private int[] lockedRows;
         [Tooltip("Firewall cells fixed to the board, x = row, y = column. Never place one on the exit.")]
@@ -123,6 +125,9 @@ namespace ProjectShift.Stage
 
         /// <summary>One-line rule hint shown during the stage; empty or null means no hint.</summary>
         public string Hint => hint;
+
+        /// <summary>Stage select chapter title when this stage starts a chapter; empty or null when it continues the one before.</summary>
+        public string ChapterTitle => chapterTitle;
 
         /// <summary>Builds a fresh board state from the row strings, robot starts, shift limit, locked rows, firewalls and bug cells.</summary>
         public BoardState CreateState()

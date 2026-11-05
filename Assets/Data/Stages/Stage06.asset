@@ -17,9 +17,14 @@ MonoBehaviour:
   - 00100000
   start: {x: 0, y: 5}
   exit: {x: 1, y: 3}
+  extraStarts: []
+  extraExits: []
   shiftLimit: 5
   par: 3
   hint: A locked row cannot be pushed.
+  chapterTitle: NIGHT 2
   lockedRows: 00000000
   firewalls: []
   bugCells: []
+  numberLocks: []
+  robotsCoverBits: 0

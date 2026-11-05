@@ -6,19 +6,20 @@ namespace ProjectShift.Stage
     public static class StageProgress
     {
         private const string UnlockedKey = "UnlockedStages";
-        // ponytail: keyed by stage index, so reordering the stage list moves records; key by stage asset name if stages get reordered.
-        private const string BestKeyPrefix = "BestShifts";
+        // Keyed by the stage asset name, so inserting or reordering stages keeps every record on its own stage.
+        // Renaming a stage asset drops its record.
+        private const string BestKeyPrefix = "Best_";
 
-        /// <summary>Fewest shifts the stage (0-based) was ever cleared with; -1 when it was never cleared.</summary>
-        public static int LoadBest(int stage)
+        /// <summary>Fewest shifts the stage was ever cleared with; -1 when it was never cleared.</summary>
+        public static int LoadBest(string stageName)
         {
-            return PlayerPrefs.GetInt(BestKeyPrefix + stage, -1);
+            return PlayerPrefs.GetInt(BestKeyPrefix + stageName, -1);
         }
 
         /// <summary>Stores the stage's best clear. Saves at once, like SaveUnlocked.</summary>
-        public static void SaveBest(int stage, int shifts)
+        public static void SaveBest(string stageName, int shifts)
         {
-            PlayerPrefs.SetInt(BestKeyPrefix + stage, shifts);
+            PlayerPrefs.SetInt(BestKeyPrefix + stageName, shifts);
             PlayerPrefs.Save();
         }
 

@@ -23,6 +23,9 @@ MonoBehaviour:
   shiftLimit: 4
   par: 2
   hint: Shifts are shared. Every robot must reach its own exit, and none may overlap.
+  chapterTitle: NIGHT 3
   lockedRows: 
   firewalls: []
   bugCells: []
+  numberLocks: []
+  robotsCoverBits: 0

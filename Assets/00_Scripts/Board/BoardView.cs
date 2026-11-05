@@ -43,10 +43,19 @@ namespace ProjectShift.Board
             Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("W") + Key("S") + " ROW  " +
             Key("A") + Key("D") + " SHIFT  " + Key("Q") + " ROBOT  " + Key("Z") + " UNDO  " + Key("R") + " RESET  " + Key("M") + " MUTE  " + Key("Esc") + " STAGES";
         // Stage select grid: open stages are platform cells, locked ones gap cells (shape backs up the colour), the cursor is a robot.
-        private const int SelectColumns = 6;
-        private const float SelectRowSpacing = 1.5f;
-        private const float SelectNumberRisePixels = 4f;
-        private const float SelectStarDropPixels = 8f;
+        // One page shows at most SelectColumns x SelectMaxRows stages; StageManager splits longer chapters at this size.
+        private const int SelectColumns = 5;
+        private const int SelectMaxRows = 3;
+        /// <summary>Most stages one stage select page holds.</summary>
+        public const int SelectPageSize = SelectColumns * SelectMaxRows;
+        // Art px. Rows hang from a fixed top row so the title never moves between pages. The row pitch leaves room for
+        // the stars under a cell and the cursor robot over the next row's cell.
+        private const float SelectColumnPixels = 54f;
+        private const float SelectRowPixels = 72f;
+        private const float SelectTopRowPixels = 72f;
+        private const float SelectStarDropPixels = 26f;
+        private const float SelectTitlePixels = 153f;
+        private const float SelectPagePixels = 132f;
         // 0-3 stars (art-src/gen/keycaps.py ICONS), indexed by star count.
         private static readonly string[] StarTexts = { "", Key("Star"), Key("Star") + Key("Star"), Key("Star") + Key("Star") + Key("Star") };
 
@@ -134,6 +143,8 @@ namespace ProjectShift.Board
         private SpriteRenderer[] selectCells;
         private TextMeshPro[] selectNumbers;
         private TextMeshPro[] selectStars;
+        private TextMeshPro selectTitle;
+        private TextMeshPro selectPage;
         private Transform selectCursor;
         private SpriteRenderer[] cells;
         private Transform[] cellTransforms;
@@ -575,11 +586,12 @@ namespace ProjectShift.Board
         }
 
         /// <summary>
-        /// Hides the stage and shows the stage select: stages 1..<paramref name="stageCount"/> in rows of six, the first
-        /// <paramref name="unlocked"/> open, the robot on <paramref name="selected"/> (0-based), each stage's earned
-        /// <paramref name="stars"/> (0-3) under its number. Call again to move the cursor.
+        /// Hides the stage and shows one stage select page: <paramref name="pageCount"/> stages from <paramref name="pageStart"/>
+        /// (0-based, numbered from 1 on screen) in rows of five under <paramref name="title"/> and "page/pageTotal" (1-based).
+        /// Stages below <paramref name="unlocked"/> are open, each shows its earned <paramref name="stars"/> (0-3, indexed by stage)
+        /// under the cell, and the robot stands on <paramref name="selected"/>. Call again to move the cursor or turn the page.
         /// </summary>
-        public void ShowStageSelect(int stageCount, int unlocked, int selected, int[] stars)
+        public void ShowStageSelect(int pageStart, int pageCount, string title, int page, int pageTotal, int unlocked, int selected, int[] stars)
         {
             StopSlide();
             StopGhost();
@@ -593,24 +605,40 @@ namespace ProjectShift.Board
             selectRoot.gameObject.SetActive(true);
             if (selectCells == null)
             {
-                BuildStageSelect(stageCount);
+                BuildStageSelect();
             }
 
-            for (int i = 0; i < stageCount; i++)
+            selectTitle.SetText(title);
+            PlacePixelText(selectTitle, Vector3.up * (SelectTitlePixels / PixelsPerUnit));
+            selectPage.SetText("{0}/{1}", page, pageTotal);
+            PlacePixelText(selectPage, Vector3.up * (SelectPagePixels / PixelsPerUnit));
+            for (int i = 0; i < SelectPageSize; i++)
             {
-                bool open = i < unlocked;
+                bool shown = i < pageCount;
+                int stage = pageStart + i;
+                selectCells[i].gameObject.SetActive(shown);
+                selectNumbers[i].gameObject.SetActive(shown);
+                selectStars[i].gameObject.SetActive(shown && stars[stage] > 0);
+                if (!shown)
+                {
+                    continue;
+                }
+
+                bool open = stage < unlocked;
+                Vector3 position = SelectCellPosition(i);
                 selectCells[i].sprite = open ? platformSprite : gapSprite;
                 selectNumbers[i].color = open ? playingBackground : lockedRowColor;
-                selectStars[i].gameObject.SetActive(stars[i] > 0);
-                if (stars[i] > 0)
+                // Every SetText needs a fresh snap: a different width can put a centred label on a half pixel.
+                selectNumbers[i].SetText("{0:00}", stage + 1);
+                PlacePixelText(selectNumbers[i], position);
+                if (stars[stage] > 0)
                 {
-                    // Centred text of a different width can land on a half pixel: snap again.
-                    selectStars[i].SetText(StarTexts[stars[i]]);
-                    PlacePixelText(selectStars[i], SelectCellPosition(i, stageCount) + Vector3.down * (SelectStarDropPixels / PixelsPerUnit));
+                    selectStars[i].SetText(StarTexts[stars[stage]]);
+                    PlacePixelText(selectStars[i], position + Vector3.down * (SelectStarDropPixels / PixelsPerUnit));
                 }
             }
 
-            selectCursor.localPosition = SelectCellPosition(selected, stageCount) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
+            selectCursor.localPosition = SelectCellPosition(selected - pageStart) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
             SetKeysText(SelectKeysText);
             isKeysTextReplaced = true;
         }
@@ -649,35 +677,30 @@ namespace ProjectShift.Board
             isKeysTextReplaced = true;
         }
 
-        private void BuildStageSelect(int stageCount)
+        // One page of cells, reused for every page: ShowStageSelect fills in the numbers, stars and lock state.
+        private void BuildStageSelect()
         {
-            selectCells = new SpriteRenderer[stageCount];
-            selectNumbers = new TextMeshPro[stageCount];
-            selectStars = new TextMeshPro[stageCount];
-            for (int i = 0; i < stageCount; i++)
+            selectCells = new SpriteRenderer[SelectPageSize];
+            selectNumbers = new TextMeshPro[SelectPageSize];
+            selectStars = new TextMeshPro[SelectPageSize];
+            for (int i = 0; i < SelectPageSize; i++)
             {
-                Vector3 position = SelectCellPosition(i, stageCount);
                 selectCells[i] = CreateSprite("StageCell", gapSprite, 2, selectRoot);
-                selectCells[i].transform.localPosition = position;
+                selectCells[i].transform.localPosition = SelectCellPosition(i);
                 selectNumbers[i] = CreatePixelLabel("StageNumber", selectRoot);
                 selectNumbers[i].sortingOrder = 3;
-                selectNumbers[i].SetText("{0:00}", i + 1);
-                // Number above the cell centre, star below it, so starred and plain cells keep the number in the same place.
-                PlacePixelText(selectNumbers[i], position + Vector3.up * (SelectNumberRisePixels / PixelsPerUnit));
+                // Under the cell, on the background, in the hint yellow.
                 selectStars[i] = CreatePixelLabel("StageStar", selectRoot);
-                selectStars[i].sortingOrder = 3;
                 selectStars[i].spriteAsset = keyCapSprites;
-                // Only open stages can hold a star, so it always sits on a platform cell.
-                selectStars[i].color = playingBackground;
+                selectStars[i].color = hintColor;
             }
 
             selectCursor = CreateSprite("StageCursor", robotIdleSprites[0], 5, selectRoot).transform;
-            TextMeshPro title = CreatePixelLabel("StageSelectTitle", selectRoot);
-            title.fontSize = LargePixelFontSize;
-            title.color = shiftsColor;
-            title.SetText("SELECT STAGE");
-            // Just clears the cursor robot on the top row; with 5 rows more would leave the screen.
-            PlacePixelText(title, (SelectCellPosition(0, stageCount).y + 1.25f) * Vector3.up);
+            selectTitle = CreatePixelLabel("ChapterTitle", selectRoot);
+            selectTitle.fontSize = LargePixelFontSize;
+            selectTitle.color = shiftsColor;
+            selectPage = CreatePixelLabel("ChapterPage", selectRoot);
+            selectPage.color = lockedRowColor;
         }
 
         private TextMeshPro CreatePixelLabel(string objectName, Transform parent)
@@ -691,13 +714,12 @@ namespace ProjectShift.Board
             return label;
         }
 
-        // Rows of SelectColumns, centred on the board root like the stage rows.
-        private Vector3 SelectCellPosition(int index, int stageCount)
+        // Cell index on the page: rows of SelectColumns centred across, hanging from the fixed top row.
+        private static Vector3 SelectCellPosition(int index)
         {
-            int rowCount = (stageCount + SelectColumns - 1) / SelectColumns;
-            float x = (index % SelectColumns - (SelectColumns - 1) * 0.5f) * cellSize;
-            float y = ((rowCount - 1) * 0.5f - index / SelectColumns) * SelectRowSpacing;
-            return new Vector3(x, y, 0f);
+            float x = (index % SelectColumns - (SelectColumns - 1) * 0.5f) * SelectColumnPixels;
+            float y = SelectTopRowPixels - index / SelectColumns * SelectRowPixels;
+            return new Vector3(x, y, 0f) / PixelsPerUnit;
         }
 
         /// <summary>

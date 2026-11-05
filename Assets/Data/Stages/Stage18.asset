@@ -22,6 +22,7 @@ MonoBehaviour:
   shiftLimit: 6
   par: 4
   hint: Make a row read its goal number, then stand on the exit.
+  chapterTitle: NIGHT 4
   lockedRows: 
   firewalls: []
   bugCells: []
