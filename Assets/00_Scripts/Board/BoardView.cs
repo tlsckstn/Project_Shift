@@ -32,9 +32,12 @@ namespace ProjectShift.Board
         private static readonly string DawnText = "DAWN  " + Key("Z") + " UNDO  " + Key("R") + " RESTART";
         // Replaces the key panel on a cleared board.
         private static readonly string ClearChoiceText = Key("R") + " RETRY   " + Key("Enter") + " NEXT   " + Key("Esc") + " STAGES";
-        private static readonly string AllClearKeysText = Key("Enter") + " STAGES";
+        private static readonly string AllClearKeysText = Key("Enter") + " TITLE";
         private static readonly string SelectKeysText =
-            Key("Left") + Key("Right") + Key("Up") + Key("Down") + " SELECT   " + Key("Enter") + " PLAY   " + Key("M") + " MUTE";
+            Key("Left") + Key("Right") + Key("Up") + Key("Down") + " SELECT   " + Key("Enter") + " PLAY   " + Key("M") + " MUTE   " + Key("Esc") + " TITLE";
+        // Working title; the final name is picked in Story 006 (release cleanup).
+        private const string GameTitle = "NIGHT SHIFT <<";
+        private static readonly string TitleKeysText = Key("Enter") + " START";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
             Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("W") + Key("S") + " ROW  " +
@@ -122,6 +125,8 @@ namespace ProjectShift.Board
         // Parent of everything drawn on the board except the cells and row values: hidden as one while a stage transition runs.
         private Transform decorRoot;
         private Transform selectRoot;
+        // Title screen: the game title, built on first show. Shares the circuit and key panel like the stage select.
+        private Transform titleRoot;
         private SpriteRenderer[] selectCells;
         private TextMeshPro[] selectNumbers;
         private Transform selectCursor;
@@ -220,6 +225,9 @@ namespace ProjectShift.Board
             selectRoot = new GameObject("StageSelect").transform;
             selectRoot.SetParent(cachedTransform, false);
             selectRoot.gameObject.SetActive(false);
+            titleRoot = new GameObject("Title").transform;
+            titleRoot.SetParent(cachedTransform, false);
+            titleRoot.gameObject.SetActive(false);
             decorRoot = new GameObject("Decor").transform;
             decorRoot.SetParent(playRoot, false);
             int cellCount = MaxRows * BoardState.Columns;
@@ -573,6 +581,7 @@ namespace ProjectShift.Board
             StopExitFlashes();
             StopClear();
             playRoot.gameObject.SetActive(false);
+            titleRoot.gameObject.SetActive(false);
             // Active before building: TMP only lays out (and PlacePixelText only snaps) active text.
             selectRoot.gameObject.SetActive(true);
             if (selectCells == null)
@@ -597,6 +606,33 @@ namespace ProjectShift.Board
         {
             selectRoot.gameObject.SetActive(false);
             playRoot.gameObject.SetActive(true);
+        }
+
+        /// <summary>Hides the stage and the stage select and shows the title screen with the Enter START key guide.</summary>
+        public void ShowTitle()
+        {
+            StopSlide();
+            StopGhost();
+            StopFail();
+            StopReappear();
+            StopExitFlashes();
+            StopClear();
+            playRoot.gameObject.SetActive(false);
+            selectRoot.gameObject.SetActive(false);
+            // Active before building: TMP only lays out active text.
+            titleRoot.gameObject.SetActive(true);
+            if (titleRoot.childCount == 0)
+            {
+                TextMeshPro title = CreatePixelLabel("GameTitle", titleRoot);
+                title.fontSize = LargePixelFontSize;
+                title.color = shiftsColor;
+                title.SetText(GameTitle);
+                // Board centre: inside the circuit keep-out of the 3-row board.
+                PlacePixelText(title, Vector3.zero);
+            }
+
+            SetKeysText(TitleKeysText);
+            isKeysTextReplaced = true;
         }
 
         private void BuildStageSelect(int stageCount)

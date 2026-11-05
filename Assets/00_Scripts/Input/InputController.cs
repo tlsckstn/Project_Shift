@@ -65,9 +65,16 @@ namespace ProjectShift.Input
         {
             if (mute.WasPressedThisFrame()) sound.ToggleMute();
 
-            // Stage select: arrows (W / S too) move the cursor, Enter plays.
+            if (stageManager.IsOnTitle)
+            {
+                if (next.WasPressedThisFrame()) stageManager.StartFromTitle();
+                return;
+            }
+
+            // Stage select: arrows (W / S too) move the cursor, Enter plays, Esc / Backspace back to the title.
             if (stageManager.IsSelecting)
             {
+                if (back.WasPressedThisFrame()) stageManager.Back();
                 if (walkLeft.WasPressedThisFrame()) stageManager.MoveSelection(-1);
                 if (walkRight.WasPressedThisFrame()) stageManager.MoveSelection(1);
                 if (up.WasPressedThisFrame() || rowUp.WasPressedThisFrame()) stageManager.MoveSelection(-SelectColumns);

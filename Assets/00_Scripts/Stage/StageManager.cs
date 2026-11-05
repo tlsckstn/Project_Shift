@@ -45,13 +45,18 @@ namespace ProjectShift.Stage
         // True while the stage select shows instead of a stage; selectedStage is the stage under its cursor.
         private bool isSelecting;
         private int selectedStage;
+        // True while the title screen shows (at launch, after ALL CLEAR, and on Back from the stage select).
+        private bool isOnTitle;
         // Stages 0..unlocked-1 are open; saved in StageProgress.
         private int unlocked;
 
-        private bool IsInputBlocked => isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
+        private bool IsInputBlocked => isOnTitle || isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
         /// <summary>True while the stage select shows; InputController then routes keys to MoveSelection / PlaySelected.</summary>
         public bool IsSelecting => isSelecting;
+
+        /// <summary>True while the title screen shows; InputController then only routes Enter to StartFromTitle.</summary>
+        public bool IsOnTitle => isOnTitle;
 
         private void Awake()
         {
@@ -61,7 +66,27 @@ namespace ProjectShift.Stage
         private void Start()
         {
             unlocked = StageProgress.LoadUnlocked(stages.Length);
+            ShowTitle();
+        }
+
+        /// <summary>Leaves the title for the stage select, cursor on the last open stage.</summary>
+        public void StartFromTitle()
+        {
+            if (!isOnTitle)
+            {
+                return;
+            }
+
             ShowSelect(unlocked - 1);
+        }
+
+        private void ShowTitle()
+        {
+            isOnTitle = true;
+            isSelecting = false;
+            isFinished = false;
+            isAwaitingChoice = false;
+            view.ShowTitle();
         }
 
         /// <summary>Moves the stage select cursor by <paramref name="delta"/> stages (±1 across, ±6 a row). Locked stages cannot be picked.</summary>
@@ -91,11 +116,20 @@ namespace ProjectShift.Stage
             view.PlayTransition(null, state);
         }
 
-        /// <summary>Leaves the stage for the stage select, cursor on this stage. Ignored while a fail, clear, rewind or transition plays.</summary>
+        /// <summary>
+        /// Leaves the stage for the stage select, cursor on this stage; on the stage select goes back to the title.
+        /// Ignored on the title and while a fail, clear, rewind or transition plays.
+        /// </summary>
         public void Back()
         {
-            if (isSelecting || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning)
+            if (isOnTitle || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning)
             {
+                return;
+            }
+
+            if (isSelecting)
+            {
+                ShowTitle();
                 return;
             }
 
@@ -104,6 +138,7 @@ namespace ProjectShift.Stage
 
         private void ShowSelect(int stage)
         {
+            isOnTitle = false;
             isSelecting = true;
             isFinished = false;
             isAwaitingChoice = false;
@@ -244,12 +279,12 @@ namespace ProjectShift.Stage
             sound.PlayUndo();
         }
 
-        /// <summary>Loads the next stage on a cleared board waiting for the player's choice; on the ALL CLEAR screen opens the stage select.</summary>
+        /// <summary>Loads the next stage on a cleared board waiting for the player's choice; on the ALL CLEAR screen goes to the title.</summary>
         public void Next()
         {
             if (isFinished)
             {
-                ShowSelect(stages.Length - 1);
+                ShowTitle();
                 return;
             }
 
