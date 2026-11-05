@@ -13,7 +13,7 @@ namespace ProjectShift.Board
         private const int MaxRows = 3;
         private const int MaxRobots = 3;
         // Sprites are 36 pixels per unit: one cell pitch (32 px cell + 4 px gap) is 1 unit.
-        private const float PixelsPerUnit = 36f;
+        internal const float PixelsPerUnit = 36f;
         // Robot sprite centre above the cell centre: its tracks (20 px sprite, bottom row empty) rest on the cell top.
         private const float RobotOffsetPixels = 25f;
         // Exit sprite centre above the cell centre: the 28 px door frame's bottom touches the cell top.
