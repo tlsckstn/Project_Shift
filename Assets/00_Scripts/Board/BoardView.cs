@@ -196,6 +196,9 @@ namespace ProjectShift.Board
         /// <summary>True while a stage transition plays; StageManager ignores input meanwhile.</summary>
         public bool IsTransitioning => transitionTime >= 0f;
 
+        /// <summary>Raised on every cell step of the stage transition: false while the old rows leave, true while the new rows arrive.</summary>
+        public event System.Action<bool> TransitionStepped;
+
         private void Awake()
         {
             cachedTransform = transform;
@@ -820,6 +823,7 @@ namespace ProjectShift.Board
             {
                 // Old rows pushed right: bits leave past cell 7, zeros come in at cell 0.
                 ShowTransitionRows(transitionOldRows, transitionOldRowCount, step, 0);
+                TransitionStepped?.Invoke(false);
             }
             else if (inStep <= 0)
             {
@@ -829,6 +833,7 @@ namespace ProjectShift.Board
             {
                 // New rows arrive from the left: at in-step k the row is still 8 - k cells short of its place.
                 ShowTransitionRows(transitionNewRows, shownRowCount, 0, BoardState.Columns - inStep);
+                TransitionStepped?.Invoke(true);
             }
             else
             {

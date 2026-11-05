@@ -45,6 +45,11 @@ namespace ProjectShift.Stage
 
         private bool IsInputBlocked => isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
+        private void Awake()
+        {
+            view.TransitionStepped += sound.PlayTransitionStep;
+        }
+
         private void Start()
         {
             LoadStage(0);

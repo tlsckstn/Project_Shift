@@ -17,6 +17,8 @@ namespace ProjectShift.Audio
         [SerializeField] private AudioClip clearClip;
         [SerializeField] private AudioClip rewindClip;
         [SerializeField] private AudioClip undoClip;
+        [SerializeField] private AudioClip transitionOutClip;
+        [SerializeField] private AudioClip transitionInClip;
 
         private bool isMuted;
 
@@ -24,7 +26,7 @@ namespace ProjectShift.Audio
         {
             // The clips import with Preload Audio Data off, so each one would only start loading on its first play and that
             // play would be silent (seen on WebGL: "Trying to get length of sound which is not loaded yet").
-            AudioClip[] clips = { walkClip, shiftClip, failClip, exitClip, clearClip, rewindClip, undoClip, musicSource.clip };
+            AudioClip[] clips = { walkClip, shiftClip, failClip, exitClip, clearClip, rewindClip, undoClip, transitionOutClip, transitionInClip, musicSource.clip };
             foreach (AudioClip clip in clips)
             {
                 clip.LoadAudioData();
@@ -51,6 +53,9 @@ namespace ProjectShift.Audio
 
         /// <summary>One move was undone.</summary>
         public void PlayUndo() => effectsSource.PlayOneShot(undoClip);
+
+        /// <summary>One cell step of the stage transition (<paramref name="arriving"/>: the new stage's rows are coming in).</summary>
+        public void PlayTransitionStep(bool arriving) => effectsSource.PlayOneShot(arriving ? transitionInClip : transitionOutClip);
 
         /// <summary>Switches all game audio off or back on.</summary>
         public void ToggleMute()

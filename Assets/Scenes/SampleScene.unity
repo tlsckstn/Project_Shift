@@ -897,6 +897,8 @@ MonoBehaviour:
   clearClip: {fileID: 8300000, guid: e06937c9065763640b00f8f74c924162, type: 3}
   rewindClip: {fileID: 8300000, guid: c0495ae0de8607a42853a1a719210b80, type: 3}
   undoClip: {fileID: 8300000, guid: bda5a7e440c400b42a53acb16a749fc3, type: 3}
+  transitionOutClip: {fileID: 8300000, guid: fc831ac9740a9904ebf48e5647978a06, type: 3}
+  transitionInClip: {fileID: 8300000, guid: ed0182954018df04883df4aafde43ffd, type: 3}
 --- !u!4 &1811674128
 Transform:
   m_ObjectHideFlags: 0
