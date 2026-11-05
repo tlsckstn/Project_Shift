@@ -49,6 +49,9 @@ namespace ProjectShift.Stage
         private bool isOnTitle;
         // Stages 0..unlocked-1 are open; saved in StageProgress.
         private int unlocked;
+        // Per stage: fewest shifts it was cleared with (-1 never), and the stars that best earns (0-3). Saved in StageProgress.
+        private int[] bestShifts;
+        private int[] stars;
 
         private bool IsInputBlocked => isOnTitle || isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
@@ -66,6 +69,14 @@ namespace ProjectShift.Stage
         private void Start()
         {
             unlocked = StageProgress.LoadUnlocked(stages.Length);
+            bestShifts = new int[stages.Length];
+            stars = new int[stages.Length];
+            for (int i = 0; i < stages.Length; i++)
+            {
+                bestShifts[i] = StageProgress.LoadBest(i);
+                stars[i] = stages[i].StarsFor(bestShifts[i]);
+            }
+
             ShowTitle();
         }
 
@@ -143,7 +154,7 @@ namespace ProjectShift.Stage
             isFinished = false;
             isAwaitingChoice = false;
             selectedStage = stage;
-            view.ShowStageSelect(stages.Length, unlocked, stage);
+            view.ShowStageSelect(stages.Length, unlocked, stage, stars);
         }
 
         private void Update()
@@ -173,8 +184,9 @@ namespace ProjectShift.Stage
             if (pendingClear)
             {
                 StageData stage = stages[stageIndex];
+                int used = stage.ShiftLimit - state.ShiftsLeft;
                 isAwaitingChoice = true;
-                view.ShowClearChoice(stage.ShiftLimit - state.ShiftsLeft, stage.Par);
+                view.ShowClearChoice(used, stage.Par, stage.StarsFor(used));
                 return;
             }
 
@@ -372,6 +384,15 @@ namespace ProjectShift.Stage
                 {
                     unlocked = stageIndex + 2;
                     StageProgress.SaveUnlocked(unlocked);
+                }
+
+                // A worse clear keeps the best and its stars.
+                int used = stages[stageIndex].ShiftLimit - state.ShiftsLeft;
+                if (bestShifts[stageIndex] < 0 || used < bestShifts[stageIndex])
+                {
+                    bestShifts[stageIndex] = used;
+                    stars[stageIndex] = stages[stageIndex].StarsFor(used);
+                    StageProgress.SaveBest(stageIndex, used);
                 }
 
                 pendingTimer = clearSeconds;

@@ -104,6 +104,20 @@ namespace ProjectShift.Stage
         /// <summary>Fewest shifts that clear the stage; 0 means not set and is not shown.</summary>
         public int Par => par;
 
+        /// <summary>
+        /// Stars for a clear with <paramref name="shiftsUsed"/> shifts: 3 within par, 2 at par + 1, 1 for any other clear.
+        /// 0 when the stage has no par or <paramref name="shiftsUsed"/> is -1 (never cleared).
+        /// </summary>
+        public int StarsFor(int shiftsUsed)
+        {
+            if (par <= 0 || shiftsUsed < 0)
+            {
+                return 0;
+            }
+
+            return shiftsUsed <= par ? 3 : shiftsUsed == par + 1 ? 2 : 1;
+        }
+
         /// <summary>Shifts the stage starts with.</summary>
         public int ShiftLimit => shiftLimit;
 

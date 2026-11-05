@@ -45,6 +45,10 @@ namespace ProjectShift.Board
         // Stage select grid: open stages are platform cells, locked ones gap cells (shape backs up the colour), the cursor is a robot.
         private const int SelectColumns = 6;
         private const float SelectRowSpacing = 1.5f;
+        private const float SelectNumberRisePixels = 4f;
+        private const float SelectStarDropPixels = 8f;
+        // 0-3 stars (art-src/gen/keycaps.py ICONS), indexed by star count.
+        private static readonly string[] StarTexts = { "", Key("Star"), Key("Star") + Key("Star"), Key("Star") + Key("Star") + Key("Star") };
 
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
         [SerializeField] private Sprite rowHighlightSprite;
@@ -129,6 +133,7 @@ namespace ProjectShift.Board
         private Transform titleRoot;
         private SpriteRenderer[] selectCells;
         private TextMeshPro[] selectNumbers;
+        private TextMeshPro[] selectStars;
         private Transform selectCursor;
         private SpriteRenderer[] cells;
         private Transform[] cellTransforms;
@@ -553,9 +558,10 @@ namespace ProjectShift.Board
         /// Shows the cleared stage's result (shifts used, and par when the stage has one) and the retry / next keys until the
         /// next Render. The clear look stays because nothing renders meanwhile.
         /// </summary>
-        public void ShowClearChoice(int shiftsUsed, int par)
+        public void ShowClearChoice(int shiftsUsed, int par, int stars)
         {
-            ShowMessage(par > 0 ? $"SHIFTS {shiftsUsed}  PAR {par}" : $"SHIFTS {shiftsUsed}");
+            string result = par > 0 ? $"SHIFTS {shiftsUsed}  PAR {par}" : $"SHIFTS {shiftsUsed}";
+            ShowMessage(stars > 0 ? result + "  " + StarTexts[stars] : result);
             SetKeysText(ClearChoiceText);
             isKeysTextReplaced = true;
         }
@@ -570,9 +576,10 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Hides the stage and shows the stage select: stages 1..<paramref name="stageCount"/> in rows of six, the first
-        /// <paramref name="unlocked"/> open, the robot on <paramref name="selected"/> (0-based). Call again to move the cursor.
+        /// <paramref name="unlocked"/> open, the robot on <paramref name="selected"/> (0-based), each stage's earned
+        /// <paramref name="stars"/> (0-3) under its number. Call again to move the cursor.
         /// </summary>
-        public void ShowStageSelect(int stageCount, int unlocked, int selected)
+        public void ShowStageSelect(int stageCount, int unlocked, int selected, int[] stars)
         {
             StopSlide();
             StopGhost();
@@ -594,6 +601,13 @@ namespace ProjectShift.Board
                 bool open = i < unlocked;
                 selectCells[i].sprite = open ? platformSprite : gapSprite;
                 selectNumbers[i].color = open ? playingBackground : lockedRowColor;
+                selectStars[i].gameObject.SetActive(stars[i] > 0);
+                if (stars[i] > 0)
+                {
+                    // Centred text of a different width can land on a half pixel: snap again.
+                    selectStars[i].SetText(StarTexts[stars[i]]);
+                    PlacePixelText(selectStars[i], SelectCellPosition(i, stageCount) + Vector3.down * (SelectStarDropPixels / PixelsPerUnit));
+                }
             }
 
             selectCursor.localPosition = SelectCellPosition(selected, stageCount) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
@@ -639,6 +653,7 @@ namespace ProjectShift.Board
         {
             selectCells = new SpriteRenderer[stageCount];
             selectNumbers = new TextMeshPro[stageCount];
+            selectStars = new TextMeshPro[stageCount];
             for (int i = 0; i < stageCount; i++)
             {
                 Vector3 position = SelectCellPosition(i, stageCount);
@@ -647,7 +662,13 @@ namespace ProjectShift.Board
                 selectNumbers[i] = CreatePixelLabel("StageNumber", selectRoot);
                 selectNumbers[i].sortingOrder = 3;
                 selectNumbers[i].SetText("{0:00}", i + 1);
-                PlacePixelText(selectNumbers[i], position);
+                // Number above the cell centre, star below it, so starred and plain cells keep the number in the same place.
+                PlacePixelText(selectNumbers[i], position + Vector3.up * (SelectNumberRisePixels / PixelsPerUnit));
+                selectStars[i] = CreatePixelLabel("StageStar", selectRoot);
+                selectStars[i].sortingOrder = 3;
+                selectStars[i].spriteAsset = keyCapSprites;
+                // Only open stages can hold a star, so it always sits on a platform cell.
+                selectStars[i].color = playingBackground;
             }
 
             selectCursor = CreateSprite("StageCursor", robotIdleSprites[0], 5, selectRoot).transform;
