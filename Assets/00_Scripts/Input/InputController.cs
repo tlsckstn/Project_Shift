@@ -27,6 +27,10 @@ namespace ProjectShift.Input
         private InputAction restart;
         private InputAction next;
         private InputAction mute;
+        private InputAction up;
+        private InputAction back;
+        // Stage select rows are this many stages apart; must match BoardView's grid.
+        private const int SelectColumns = 6;
 
         private void Awake()
         {
@@ -43,6 +47,8 @@ namespace ProjectShift.Input
             restart = puzzleMap.FindAction("Restart", true);
             next = puzzleMap.FindAction("Next", true);
             mute = puzzleMap.FindAction("Mute", true);
+            up = puzzleMap.FindAction("Up", true);
+            back = puzzleMap.FindAction("Back", true);
         }
 
         private void OnEnable()
@@ -57,6 +63,20 @@ namespace ProjectShift.Input
 
         private void Update()
         {
+            if (mute.WasPressedThisFrame()) sound.ToggleMute();
+
+            // Stage select: arrows (W / S too) move the cursor, Enter plays.
+            if (stageManager.IsSelecting)
+            {
+                if (walkLeft.WasPressedThisFrame()) stageManager.MoveSelection(-1);
+                if (walkRight.WasPressedThisFrame()) stageManager.MoveSelection(1);
+                if (up.WasPressedThisFrame() || rowUp.WasPressedThisFrame()) stageManager.MoveSelection(-SelectColumns);
+                if (descend.WasPressedThisFrame() || rowDown.WasPressedThisFrame()) stageManager.MoveSelection(SelectColumns);
+                if (next.WasPressedThisFrame()) stageManager.PlaySelected();
+                return;
+            }
+
+            if (back.WasPressedThisFrame()) stageManager.Back();
             if (walkLeft.WasPressedThisFrame()) stageManager.Walk(-1);
             if (walkRight.WasPressedThisFrame()) stageManager.Walk(1);
             if (descend.WasPressedThisFrame()) stageManager.Descend();
@@ -68,7 +88,6 @@ namespace ProjectShift.Input
             if (undo.WasPressedThisFrame()) stageManager.Undo();
             if (restart.WasPressedThisFrame()) stageManager.Restart();
             if (next.WasPressedThisFrame()) stageManager.Next();
-            if (mute.WasPressedThisFrame()) sound.ToggleMute();
         }
     }
 }

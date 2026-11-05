@@ -24,17 +24,24 @@ namespace ProjectShift.Board
         // Large tier (changing values: row values, the shifts line and messages); the small tier is PixelFontSize.
         private const float LargePixelFontSize = 2f * PixelFontSize;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
+        // Both key guides must stay inside the circuit keep-out (476 art px wide): 470 and 473 px measured.
         private static readonly string KeysText =
-            Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " SELECT ROW   " +
-            Key("A") + Key("D") + " SHIFT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART   " + Key("M") + " MUTE";
+            Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("W") + Key("S") + " SELECT ROW  " +
+            Key("A") + Key("D") + " SHIFT  " + Key("Z") + " UNDO  " + Key("R") + " RESTART  " + Key("M") + " MUTE  " + Key("Esc") + " STAGES";
         // Out of shifts: replaces the HOURS line.
         private static readonly string DawnText = "DAWN  " + Key("Z") + " UNDO  " + Key("R") + " RESTART";
         // Replaces the key panel on a cleared board.
-        private static readonly string ClearChoiceText = Key("R") + " RETRY   " + Key("Enter") + " NEXT";
+        private static readonly string ClearChoiceText = Key("R") + " RETRY   " + Key("Enter") + " NEXT   " + Key("Esc") + " STAGES";
+        private static readonly string AllClearKeysText = Key("Enter") + " STAGES";
+        private static readonly string SelectKeysText =
+            Key("Left") + Key("Right") + Key("Up") + Key("Down") + " SELECT   " + Key("Enter") + " PLAY   " + Key("M") + " MUTE";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
-            Key("Left") + Key("Right") + " WALK   " + Key("Down") + " DESCEND   " + Key("W") + Key("S") + " ROW   " +
-            Key("A") + Key("D") + " SHIFT   " + Key("Q") + " ROBOT   " + Key("Z") + " UNDO   " + Key("R") + " RESTART   " + Key("M") + " MUTE";
+            Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("W") + Key("S") + " ROW  " +
+            Key("A") + Key("D") + " SHIFT  " + Key("Q") + " ROBOT  " + Key("Z") + " UNDO  " + Key("R") + " RESET  " + Key("M") + " MUTE  " + Key("Esc") + " STAGES";
+        // Stage select grid: open stages are platform cells, locked ones gap cells (shape backs up the colour), the cursor is a robot.
+        private const int SelectColumns = 6;
+        private const float SelectRowSpacing = 1.5f;
 
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
         [SerializeField] private Sprite rowHighlightSprite;
@@ -110,8 +117,14 @@ namespace ProjectShift.Board
         [SerializeField] private Color clearBackground = new Color32(0x17, 0x1F, 0x2F, 0xFF);
 
         private Transform cachedTransform;
+        // Parent of the whole stage (cells, row values, HUD lines, decor): hidden as one while the stage select shows.
+        private Transform playRoot;
         // Parent of everything drawn on the board except the cells and row values: hidden as one while a stage transition runs.
         private Transform decorRoot;
+        private Transform selectRoot;
+        private SpriteRenderer[] selectCells;
+        private TextMeshPro[] selectNumbers;
+        private Transform selectCursor;
         private SpriteRenderer[] cells;
         private Transform[] cellTransforms;
         private SpriteRenderer[] firewallMarks;
@@ -202,8 +215,13 @@ namespace ProjectShift.Board
         private void Awake()
         {
             cachedTransform = transform;
+            playRoot = new GameObject("Play").transform;
+            playRoot.SetParent(cachedTransform, false);
+            selectRoot = new GameObject("StageSelect").transform;
+            selectRoot.SetParent(cachedTransform, false);
+            selectRoot.gameObject.SetActive(false);
             decorRoot = new GameObject("Decor").transform;
-            decorRoot.SetParent(cachedTransform, false);
+            decorRoot.SetParent(playRoot, false);
             int cellCount = MaxRows * BoardState.Columns;
             cells = new SpriteRenderer[cellCount];
             cellTransforms = new Transform[cellCount];
@@ -242,7 +260,7 @@ namespace ProjectShift.Board
                 for (int c = 0; c < BoardState.Columns; c++)
                 {
                     int i = r * BoardState.Columns + c;
-                    cells[i] = CreateSprite("Cell", gapSprite, 2, cachedTransform);
+                    cells[i] = CreateSprite("Cell", gapSprite, 2, playRoot);
                     cellTransforms[i] = cells[i].transform;
                     // Ring that fills the gap around a firewall cell.
                     firewallMarks[i] = CreateSprite("Firewall", firewallSprite, 1, decorRoot);
@@ -253,7 +271,7 @@ namespace ProjectShift.Board
                 }
 
                 valueLabels[r] = new GameObject("RowValue").AddComponent<TextMeshPro>();
-                valueLabels[r].rectTransform.SetParent(cachedTransform, false);
+                valueLabels[r].rectTransform.SetParent(playRoot, false);
                 valueLabels[r].font = pixelFont;
                 valueLabels[r].fontSize = LargePixelFontSize;
                 valueLabels[r].alignment = TextAlignmentOptions.MidlineLeft;
@@ -303,7 +321,7 @@ namespace ProjectShift.Board
             walkGhost.enabled = false;
 
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
-            shiftsLabel.rectTransform.SetParent(cachedTransform, false);
+            shiftsLabel.rectTransform.SetParent(playRoot, false);
             shiftsLabel.font = pixelFont;
             shiftsLabel.spriteAsset = keyCapSprites;
             shiftsLabel.fontSize = LargePixelFontSize;
@@ -322,7 +340,7 @@ namespace ProjectShift.Board
             SetKeysText(KeysText);
 
             hintLabel = new GameObject("StageHint").AddComponent<TextMeshPro>();
-            hintLabel.rectTransform.SetParent(cachedTransform, false);
+            hintLabel.rectTransform.SetParent(playRoot, false);
             hintLabel.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
             hintLabel.font = pixelFont;
             hintLabel.fontSize = PixelFontSize;
@@ -532,6 +550,97 @@ namespace ProjectShift.Board
             ShowMessage(par > 0 ? $"SHIFTS {shiftsUsed}  PAR {par}" : $"SHIFTS {shiftsUsed}");
             SetKeysText(ClearChoiceText);
             isKeysTextReplaced = true;
+        }
+
+        /// <summary>End screen after the last stage: the ALL CLEAR message, and Enter leads to the stage select.</summary>
+        public void ShowAllClear()
+        {
+            ShowMessage("ALL CLEAR");
+            SetKeysText(AllClearKeysText);
+            isKeysTextReplaced = true;
+        }
+
+        /// <summary>
+        /// Hides the stage and shows the stage select: stages 1..<paramref name="stageCount"/> in rows of six, the first
+        /// <paramref name="unlocked"/> open, the robot on <paramref name="selected"/> (0-based). Call again to move the cursor.
+        /// </summary>
+        public void ShowStageSelect(int stageCount, int unlocked, int selected)
+        {
+            StopSlide();
+            StopGhost();
+            StopFail();
+            StopReappear();
+            StopExitFlashes();
+            StopClear();
+            playRoot.gameObject.SetActive(false);
+            // Active before building: TMP only lays out (and PlacePixelText only snaps) active text.
+            selectRoot.gameObject.SetActive(true);
+            if (selectCells == null)
+            {
+                BuildStageSelect(stageCount);
+            }
+
+            for (int i = 0; i < stageCount; i++)
+            {
+                bool open = i < unlocked;
+                selectCells[i].sprite = open ? platformSprite : gapSprite;
+                selectNumbers[i].color = open ? playingBackground : lockedRowColor;
+            }
+
+            selectCursor.localPosition = SelectCellPosition(selected, stageCount) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
+            SetKeysText(SelectKeysText);
+            isKeysTextReplaced = true;
+        }
+
+        /// <summary>Hides the stage select and shows the stage again. Call before loading the stage to play.</summary>
+        public void HideStageSelect()
+        {
+            selectRoot.gameObject.SetActive(false);
+            playRoot.gameObject.SetActive(true);
+        }
+
+        private void BuildStageSelect(int stageCount)
+        {
+            selectCells = new SpriteRenderer[stageCount];
+            selectNumbers = new TextMeshPro[stageCount];
+            for (int i = 0; i < stageCount; i++)
+            {
+                Vector3 position = SelectCellPosition(i, stageCount);
+                selectCells[i] = CreateSprite("StageCell", gapSprite, 2, selectRoot);
+                selectCells[i].transform.localPosition = position;
+                selectNumbers[i] = CreatePixelLabel("StageNumber", selectRoot);
+                selectNumbers[i].sortingOrder = 3;
+                selectNumbers[i].SetText("{0:00}", i + 1);
+                PlacePixelText(selectNumbers[i], position);
+            }
+
+            selectCursor = CreateSprite("StageCursor", robotIdleSprites[0], 5, selectRoot).transform;
+            TextMeshPro title = CreatePixelLabel("StageSelectTitle", selectRoot);
+            title.fontSize = LargePixelFontSize;
+            title.color = shiftsColor;
+            title.SetText("SELECT STAGE");
+            // Just clears the cursor robot on the top row; with 5 rows more would leave the screen.
+            PlacePixelText(title, (SelectCellPosition(0, stageCount).y + 1.25f) * Vector3.up);
+        }
+
+        private TextMeshPro CreatePixelLabel(string objectName, Transform parent)
+        {
+            TextMeshPro label = new GameObject(objectName).AddComponent<TextMeshPro>();
+            label.rectTransform.SetParent(parent, false);
+            label.rectTransform.sizeDelta = new Vector2(BoardState.Columns * cellSize * 2f, cellSize);
+            label.font = pixelFont;
+            label.fontSize = PixelFontSize;
+            label.alignment = TextAlignmentOptions.Center;
+            return label;
+        }
+
+        // Rows of SelectColumns, centred on the board root like the stage rows.
+        private Vector3 SelectCellPosition(int index, int stageCount)
+        {
+            int rowCount = (stageCount + SelectColumns - 1) / SelectColumns;
+            float x = (index % SelectColumns - (SelectColumns - 1) * 0.5f) * cellSize;
+            float y = ((rowCount - 1) * 0.5f - index / SelectColumns) * SelectRowSpacing;
+            return new Vector3(x, y, 0f);
         }
 
         /// <summary>

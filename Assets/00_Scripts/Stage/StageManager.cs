@@ -42,8 +42,16 @@ namespace ProjectShift.Stage
         // Counts down to the next undo step while Restart rewinds; -1 when not rewinding. Input is ignored meanwhile.
         private float rewindTimer = -1f;
         private float rewindStep;
+        // True while the stage select shows instead of a stage; selectedStage is the stage under its cursor.
+        private bool isSelecting;
+        private int selectedStage;
+        // Stages 0..unlocked-1 are open; saved in StageProgress.
+        private int unlocked;
 
-        private bool IsInputBlocked => isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
+        private bool IsInputBlocked => isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
+
+        /// <summary>True while the stage select shows; InputController then routes keys to MoveSelection / PlaySelected.</summary>
+        public bool IsSelecting => isSelecting;
 
         private void Awake()
         {
@@ -52,8 +60,55 @@ namespace ProjectShift.Stage
 
         private void Start()
         {
-            LoadStage(0);
+            unlocked = StageProgress.LoadUnlocked(stages.Length);
+            ShowSelect(unlocked - 1);
+        }
+
+        /// <summary>Moves the stage select cursor by <paramref name="delta"/> stages (±1 across, ±6 a row). Locked stages cannot be picked.</summary>
+        public void MoveSelection(int delta)
+        {
+            int target = selectedStage + delta;
+            if (!isSelecting || target < 0 || target >= unlocked)
+            {
+                return;
+            }
+
+            sound.PlayWalk();
+            ShowSelect(target);
+        }
+
+        /// <summary>Starts the stage under the stage select cursor.</summary>
+        public void PlaySelected()
+        {
+            if (!isSelecting)
+            {
+                return;
+            }
+
+            isSelecting = false;
+            view.HideStageSelect();
+            LoadStage(selectedStage);
             view.PlayTransition(null, state);
+        }
+
+        /// <summary>Leaves the stage for the stage select, cursor on this stage. Ignored while a fail, clear, rewind or transition plays.</summary>
+        public void Back()
+        {
+            if (isSelecting || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning)
+            {
+                return;
+            }
+
+            ShowSelect(isFinished ? stages.Length - 1 : stageIndex);
+        }
+
+        private void ShowSelect(int stage)
+        {
+            isSelecting = true;
+            isFinished = false;
+            isAwaitingChoice = false;
+            selectedStage = stage;
+            view.ShowStageSelect(stages.Length, unlocked, stage);
         }
 
         private void Update()
@@ -189,9 +244,15 @@ namespace ProjectShift.Stage
             sound.PlayUndo();
         }
 
-        /// <summary>Loads the next stage. Only works on a cleared board waiting for the player's choice.</summary>
+        /// <summary>Loads the next stage on a cleared board waiting for the player's choice; on the ALL CLEAR screen opens the stage select.</summary>
         public void Next()
         {
+            if (isFinished)
+            {
+                ShowSelect(stages.Length - 1);
+                return;
+            }
+
             if (!isAwaitingChoice)
             {
                 return;
@@ -271,6 +332,13 @@ namespace ProjectShift.Stage
 
             if (stages[stageIndex].IsCleared(state))
             {
+                // Saved now, so quitting on the clear screen keeps the next stage open.
+                if (stageIndex + 1 < stages.Length && unlocked < stageIndex + 2)
+                {
+                    unlocked = stageIndex + 2;
+                    StageProgress.SaveUnlocked(unlocked);
+                }
+
                 pendingTimer = clearSeconds;
                 pendingClear = true;
                 view.PlayClear();
@@ -307,7 +375,7 @@ namespace ProjectShift.Stage
             {
                 isFinished = true;
                 Render(); // show the winning move before the end message
-                view.ShowMessage("ALL CLEAR");
+                view.ShowAllClear();
                 view.ShowHint(string.Empty);
                 return;
             }
