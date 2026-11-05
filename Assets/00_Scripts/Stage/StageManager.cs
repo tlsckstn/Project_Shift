@@ -174,8 +174,14 @@ namespace ProjectShift.Stage
                 return;
             }
 
+            if (history.Count == 0)
+            {
+                return;
+            }
+
             state = history.Undo(state);
             Render();
+            sound.PlayUndo();
         }
 
         /// <summary>Loads the next stage. Only works on a cleared board waiting for the player's choice.</summary>
