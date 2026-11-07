@@ -18,8 +18,7 @@ namespace ProjectShift.Input
         private InputAction walkLeft;
         private InputAction walkRight;
         private InputAction descend;
-        private InputAction rowUp;
-        private InputAction rowDown;
+        private InputAction nextRow;
         private InputAction shiftLeft;
         private InputAction shiftRight;
         private InputAction switchRobot;
@@ -32,14 +31,22 @@ namespace ProjectShift.Input
         // Stage select rows are this many stages apart; must match BoardView's grid.
         private const int SelectColumns = 5;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // Assets/Plugins/WebGL/BrowserKeys.jslib: keeps Tab (next row) from moving browser focus out of the game.
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void BlockBrowserTab();
+#endif
+
         private void Awake()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            BlockBrowserTab();
+#endif
             puzzleMap = InputSystem.actions.FindActionMap("Puzzle", true);
             walkLeft = puzzleMap.FindAction("WalkLeft", true);
             walkRight = puzzleMap.FindAction("WalkRight", true);
             descend = puzzleMap.FindAction("Descend", true);
-            rowUp = puzzleMap.FindAction("RowUp", true);
-            rowDown = puzzleMap.FindAction("RowDown", true);
+            nextRow = puzzleMap.FindAction("NextRow", true);
             shiftLeft = puzzleMap.FindAction("ShiftLeft", true);
             shiftRight = puzzleMap.FindAction("ShiftRight", true);
             switchRobot = puzzleMap.FindAction("SwitchRobot", true);
@@ -71,14 +78,14 @@ namespace ProjectShift.Input
                 return;
             }
 
-            // Stage select: arrows (W / S too) move the cursor, Enter plays, Esc / Backspace back to the title.
+            // Stage select: arrows move the cursor, Enter plays, Esc / Backspace back to the title.
             if (stageManager.IsSelecting)
             {
                 if (back.WasPressedThisFrame()) stageManager.Back();
                 if (walkLeft.WasPressedThisFrame()) stageManager.MoveSelection(-1);
                 if (walkRight.WasPressedThisFrame()) stageManager.MoveSelection(1);
-                if (up.WasPressedThisFrame() || rowUp.WasPressedThisFrame()) stageManager.MoveSelection(-SelectColumns);
-                if (descend.WasPressedThisFrame() || rowDown.WasPressedThisFrame()) stageManager.MoveSelection(SelectColumns);
+                if (up.WasPressedThisFrame()) stageManager.MoveSelection(-SelectColumns);
+                if (descend.WasPressedThisFrame()) stageManager.MoveSelection(SelectColumns);
                 if (next.WasPressedThisFrame()) stageManager.PlaySelected();
                 return;
             }
@@ -87,8 +94,7 @@ namespace ProjectShift.Input
             if (walkLeft.WasPressedThisFrame()) stageManager.Walk(-1);
             if (walkRight.WasPressedThisFrame()) stageManager.Walk(1);
             if (descend.WasPressedThisFrame()) stageManager.Descend();
-            if (rowUp.WasPressedThisFrame()) stageManager.SelectRow(-1);
-            if (rowDown.WasPressedThisFrame()) stageManager.SelectRow(1);
+            if (nextRow.WasPressedThisFrame()) stageManager.SelectNextRow();
             if (shiftLeft.WasPressedThisFrame()) stageManager.Shift(-1);
             if (shiftRight.WasPressedThisFrame()) stageManager.Shift(1);
             if (switchRobot.WasPressedThisFrame()) stageManager.SwitchRobot();

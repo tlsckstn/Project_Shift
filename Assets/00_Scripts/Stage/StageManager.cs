@@ -298,15 +298,15 @@ namespace ProjectShift.Stage
             }
         }
 
-        /// <summary>Moves the row selection up (-1) or down (1), clamped to the board.</summary>
-        public void SelectRow(int delta)
+        /// <summary>Moves the row selection one row down; from the bottom row it wraps to the top row.</summary>
+        public void SelectNextRow()
         {
             if (IsInputBlocked)
             {
                 return;
             }
 
-            selectedRow = Mathf.Clamp(selectedRow + delta, 0, state.RowCount - 1);
+            selectedRow = (selectedRow + 1) % state.RowCount;
             Render();
         }
 

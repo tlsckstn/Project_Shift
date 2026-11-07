@@ -507,16 +507,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "RowUp",
-                    "type": "Button",
-                    "id": "d55e874a-8bc8-41e8-84ef-2ad3e8ab889c",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "RowDown",
+                    "name": "NextRow",
                     "type": "Button",
                     "id": "db536b76-6472-405a-9425-58a986c60988",
                     "expectedControlType": "Button",
@@ -642,23 +633,12 @@
                 },
                 {
                     "name": "",
-                    "id": "4b3d1ef0-8912-482e-a7fd-a2334e4ac001",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "RowUp",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "d5d638c6-34f8-4dfe-9814-943f2d3ab8e3",
-                    "path": "<Keyboard>/s",
+                    "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "RowDown",
+                    "action": "NextRow",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

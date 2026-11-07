@@ -26,7 +26,7 @@ namespace ProjectShift.Board
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
         // Both key guides must stay inside the circuit keep-out (476 art px wide): 470 and 473 px measured.
         private static readonly string KeysText =
-            Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("W") + Key("S") + " SELECT ROW  " +
+            Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("Tab") + " SELECT ROW  " +
             Key("A") + Key("D") + " SHIFT  " + Key("Z") + " UNDO  " + Key("R") + " RESTART  " + Key("M") + " MUTE  " + Key("Esc") + " STAGES";
         // Out of shifts: replaces the HOURS line.
         private static readonly string DawnText = "DAWN  " + Key("Z") + " UNDO  " + Key("R") + " RESTART";
@@ -40,7 +40,7 @@ namespace ProjectShift.Board
         private static readonly string TitleKeysText = Key("Enter") + " START";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
-            Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("W") + Key("S") + " ROW  " +
+            Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("Tab") + " ROW  " +
             Key("A") + Key("D") + " SHIFT  " + Key("Q") + " ROBOT  " + Key("Z") + " UNDO  " + Key("R") + " RESET  " + Key("M") + " MUTE  " + Key("Esc") + " STAGES";
         // Stage select grid: open stages are platform cells, locked ones gap cells (shape backs up the colour), the cursor is a robot.
         // One page shows at most SelectColumns x SelectMaxRows stages; StageManager splits longer chapters at this size.
