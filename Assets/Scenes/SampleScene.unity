@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 306120833}
   - component: {fileID: 306120836}
   - component: {fileID: 306120835}
+  - component: {fileID: 306120837}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -213,6 +214,7 @@ MonoBehaviour:
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
+  stageSelect: {fileID: 306120837}
 --- !u!4 &306120834
 Transform:
   m_ObjectHideFlags: 0
@@ -289,6 +291,55 @@ MonoBehaviour:
   clearSeconds: 0.8
   rewindStepSeconds: 0.05
   rewindMaxSeconds: 0.6
+--- !u!114 &306120837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306120832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 369c1d25a15c647408588575e1b872b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Board.StageSelectView
+  pixelFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
+  robotIdleSprites:
+  - {fileID: 21300000, guid: 4dcfdcb7c6b90d0458cb460d220506c7, type: 3}
+  - {fileID: 21300000, guid: 375260808de6a124ab17eaf1f1e9bb37, type: 3}
+  - {fileID: 21300000, guid: 9e128f4cb6258724cb8b2e679103181e, type: 3}
+  zoneSprites:
+  - {fileID: 21300000, guid: d09f9adc71f83ef4d9896733fa518616, type: 3}
+  - {fileID: 21300000, guid: 28026420d4f9c2b4495dec4d0dd9b852, type: 3}
+  - {fileID: 21300000, guid: a84dad0c95afb1b4a9da55475d534b7c, type: 3}
+  - {fileID: 21300000, guid: 5171b4733411fcb48b32b3f8485520c6, type: 3}
+  chipSprites:
+  - {fileID: 21300000, guid: 460a7d92901420046b69f5707bebd544, type: 3}
+  - {fileID: 21300000, guid: 0bfd25607a8c3414fb047e3ffe846613, type: 3}
+  - {fileID: 21300000, guid: 8aa87e8d885c8bc41bc948e41d549cba, type: 3}
+  junctionSprites:
+  - {fileID: 21300000, guid: b3f7a694019b94a4fbb07b71778ab7fc, type: 3}
+  - {fileID: 21300000, guid: 56ce1b45877de7440b217fca79c0ed3d, type: 3}
+  - {fileID: 21300000, guid: eaa0ebc460270364899aa89295d14e95, type: 3}
+  blockSprites:
+  - {fileID: 21300000, guid: 5db81a0dcabddcb489fe4ce815c0a6e7, type: 3}
+  - {fileID: 21300000, guid: 50efe51ca5557fe42820248356ed9682, type: 3}
+  - {fileID: 21300000, guid: dca7ea07dd667e44792eae4e040f7e45, type: 3}
+  bitOn: {fileID: 21300000, guid: f18d0bb325d19dc41a264830c198900d, type: 3}
+  bitOff: {fileID: 21300000, guid: 641e4819df26e754f8b91e4b43c7c781, type: 3}
+  bitLocked: {fileID: 21300000, guid: 0f470a50e89df074ca183ed2968096ec, type: 3}
+  minimapSprites:
+  - {fileID: 21300000, guid: a9f104865d03fa643afe0a5bed4917b3, type: 3}
+  - {fileID: 21300000, guid: d1b025f3f209ef44c84e2e88df112a7c, type: 3}
+  - {fileID: 21300000, guid: bcac6f208a2765749ba6e42dbf986711, type: 3}
+  - {fileID: 21300000, guid: 24bb51dbec9ee0844a54208fab7e5b4e, type: 3}
+  pixelSprite: {fileID: 21300000, guid: e5a14745dde7e554f8dbdb1afe388780, type: 3}
+  titleColor: {r: 1, g: 1, b: 1, a: 1}
+  sublineColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
+  starColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
+  numberOnSlotColor: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
+  litTraceColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -535,6 +586,7 @@ GameObject:
   - component: {fileID: 1804223272}
   - component: {fileID: 1804223271}
   - component: {fileID: 1804223270}
+  - component: {fileID: 1804223274}
   m_Layer: 0
   m_Name: TestBoard
   m_TagString: Untagged
@@ -652,6 +704,7 @@ MonoBehaviour:
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
+  stageSelect: {fileID: 1804223274}
 --- !u!4 &1804223273
 Transform:
   m_ObjectHideFlags: 0
@@ -667,6 +720,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1804223274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1804223269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 369c1d25a15c647408588575e1b872b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Board.StageSelectView
+  pixelFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
+  robotIdleSprites:
+  - {fileID: 21300000, guid: 4dcfdcb7c6b90d0458cb460d220506c7, type: 3}
+  - {fileID: 21300000, guid: 375260808de6a124ab17eaf1f1e9bb37, type: 3}
+  - {fileID: 21300000, guid: 9e128f4cb6258724cb8b2e679103181e, type: 3}
+  zoneSprites:
+  - {fileID: 21300000, guid: d09f9adc71f83ef4d9896733fa518616, type: 3}
+  - {fileID: 21300000, guid: 28026420d4f9c2b4495dec4d0dd9b852, type: 3}
+  - {fileID: 21300000, guid: a84dad0c95afb1b4a9da55475d534b7c, type: 3}
+  - {fileID: 21300000, guid: 5171b4733411fcb48b32b3f8485520c6, type: 3}
+  chipSprites:
+  - {fileID: 21300000, guid: 460a7d92901420046b69f5707bebd544, type: 3}
+  - {fileID: 21300000, guid: 0bfd25607a8c3414fb047e3ffe846613, type: 3}
+  - {fileID: 21300000, guid: 8aa87e8d885c8bc41bc948e41d549cba, type: 3}
+  junctionSprites:
+  - {fileID: 21300000, guid: b3f7a694019b94a4fbb07b71778ab7fc, type: 3}
+  - {fileID: 21300000, guid: 56ce1b45877de7440b217fca79c0ed3d, type: 3}
+  - {fileID: 21300000, guid: eaa0ebc460270364899aa89295d14e95, type: 3}
+  blockSprites:
+  - {fileID: 21300000, guid: 5db81a0dcabddcb489fe4ce815c0a6e7, type: 3}
+  - {fileID: 21300000, guid: 50efe51ca5557fe42820248356ed9682, type: 3}
+  - {fileID: 21300000, guid: dca7ea07dd667e44792eae4e040f7e45, type: 3}
+  bitOn: {fileID: 21300000, guid: f18d0bb325d19dc41a264830c198900d, type: 3}
+  bitOff: {fileID: 21300000, guid: 641e4819df26e754f8b91e4b43c7c781, type: 3}
+  bitLocked: {fileID: 21300000, guid: 0f470a50e89df074ca183ed2968096ec, type: 3}
+  minimapSprites:
+  - {fileID: 21300000, guid: a9f104865d03fa643afe0a5bed4917b3, type: 3}
+  - {fileID: 21300000, guid: d1b025f3f209ef44c84e2e88df112a7c, type: 3}
+  - {fileID: 21300000, guid: bcac6f208a2765749ba6e42dbf986711, type: 3}
+  - {fileID: 21300000, guid: 24bb51dbec9ee0844a54208fab7e5b4e, type: 3}
+  pixelSprite: {fileID: 21300000, guid: e5a14745dde7e554f8dbdb1afe388780, type: 3}
+  titleColor: {r: 1, g: 1, b: 1, a: 1}
+  sublineColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
+  starColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
+  numberOnSlotColor: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
+  litTraceColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
 --- !u!1 &1811674124
 GameObject:
   m_ObjectHideFlags: 0
