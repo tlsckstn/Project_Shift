@@ -26,7 +26,7 @@ namespace ProjectShift.Board
 
         [Tooltip("Silkscreen bitmap font asset (Assets/01_Art/Fonts).")]
         [SerializeField] private TMP_FontAsset pixelFont;
-        [Tooltip("Key cap sprites; the stars are the Star cap.")]
+        [Tooltip("Key cap sprites; the 0-3 rating is the Led cap.")]
         [SerializeField] private TMP_SpriteAsset keyCapSprites;
         [Tooltip("Per crew in robot order (blue, pink, yellow). The first is the cursor; CPU CORES shows all three.")]
         [SerializeField] private Sprite[] robotIdleSprites;
@@ -184,8 +184,9 @@ namespace ProjectShift.Board
                 case Zone.Ram:
                     slots[i].sprite = chipSprites[(int)state];
                     PlaceNumber(i, centre.x, centre.y, TextAlignmentOptions.Center);
-                    SetText(slotLabels[i], label, centre.x, centre.y - 44f, TextAlignmentOptions.Center);
-                    SetText(starLabels[i], starText, centre.x, centre.y - 30f, TextAlignmentOptions.Center);
+                    // U label right under the chip, rating LEDs below it, just above the gold fingers.
+                    SetText(slotLabels[i], label, centre.x, centre.y - 30f, TextAlignmentOptions.Center);
+                    SetText(starLabels[i], starText, centre.x, centre.y - 44f, TextAlignmentOptions.Center);
                     break;
                 case Zone.Bus:
                     slots[i].sprite = junctionSprites[(int)state];
@@ -196,19 +197,21 @@ namespace ProjectShift.Board
                     break;
                 case Zone.Cores:
                     slots[i].sprite = blockSprites[(int)state];
-                    // The selected block holds the three crew robots, so its number moves to the bottom-left corner.
+                    // Number in the middle with the rating LEDs centred under it. The selected block holds the three crew
+                    // robots, so there the number moves to the bottom-left corner and the LEDs to the bottom-right.
                     if (selected)
                     {
                         PlaceNumber(i, centre.x - 31f, centre.y - 16f, TextAlignmentOptions.Left);
+                        SetText(starLabels[i], starText, centre.x + 31f, centre.y - 16f, TextAlignmentOptions.Right);
                     }
                     else
                     {
                         PlaceNumber(i, centre.x, centre.y, TextAlignmentOptions.Center);
+                        SetText(starLabels[i], starText, centre.x, centre.y - 13f, TextAlignmentOptions.Center);
                     }
 
                     slotLabels[i].color = numbers[i].color;
                     SetText(slotLabels[i], label, centre.x - 31f, centre.y + 16f, TextAlignmentOptions.Left);
-                    SetText(starLabels[i], starText, centre.x + 31f, centre.y - 16f, TextAlignmentOptions.Right);
                     break;
                 default:
                     int value = ChapterZones.RegisterValue(state, firstLockTargets[stage]);

@@ -15,8 +15,11 @@ namespace ProjectShift.Board
         /// <summary>Large tier (changing values: row values, the shifts line, messages and headings).</summary>
         public const float LargeFontSize = 2f * FontSize;
 
-        // 0-3 stars (art-src/gen/keycaps.py ICONS), indexed by star count.
-        private static readonly string[] StarTexts = { "", Key("Star"), Key("Star") + Key("Star"), Key("Star") + Key("Star") + Key("Star") };
+        // Board-LED rating (art-src/gen/keycaps.py ICONS "Led"), indexed by star count: lit LEDs in the select yellow, the
+        // rest unlit in lock dark, so a clear always shows three LEDs. Colours are fixed here, not taken from the label.
+        private const string LitLed = "<color=#E6CC33><sprite name=\"Led\" tint=1></color>";
+        private const string UnlitLed = "<color=#5C6678><sprite name=\"Led\" tint=1></color>";
+        private static readonly string[] StarTexts = { "", LitLed + UnlitLed + UnlitLed, LitLed + LitLed + UnlitLed, LitLed + LitLed + LitLed };
 
         /// <summary>
         /// Moves a label to localPosition, then nudges it so the first glyph's origin and the baseline sit on the art
@@ -45,7 +48,7 @@ namespace ProjectShift.Board
             return "<sprite name=\"" + spriteName + "\" tint=1>";
         }
 
-        /// <summary>Star key caps for 0-3 stars.</summary>
+        /// <summary>Rating for 0-3 stars as three board LEDs (lit, then unlit); empty for 0, which callers hide.</summary>
         public static string Stars(int count)
         {
             return StarTexts[count];
