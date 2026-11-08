@@ -486,6 +486,7 @@ namespace ProjectShift.Stage
                 lockTargets[numberLock.x] = numberLock.y;
             }
 
+            view.SetZone(ChapterZones.ZoneOf(pageChapters[StagePages.PageOf(pageStarts, index)]));
             view.ShowHint(stages[index].Hint);
             history = new BoardHistory(state);
             selectedRow = 0;

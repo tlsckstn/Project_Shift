@@ -212,6 +212,16 @@ MonoBehaviour:
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
+  zonePlayingSprites:
+  - {fileID: 21300000, guid: 2a687f142a1e23344ab760f717705b59, type: 3}
+  - {fileID: 21300000, guid: a298d9ded74af804c9c7de582fb34372, type: 3}
+  - {fileID: 21300000, guid: 7bf7a55259bfce34c946f797abd80e5f, type: 3}
+  - {fileID: 21300000, guid: 54644a2de59f998469943e94146561f2, type: 3}
+  zoneClearSprites:
+  - {fileID: 21300000, guid: 0a93f7f8e17e5ad42bd43afe6291c529, type: 3}
+  - {fileID: 21300000, guid: 87e488de89e035249963834eb7fa4314, type: 3}
+  - {fileID: 21300000, guid: 5ac1bf344b9892c428e7f434ad0177a0, type: 3}
+  - {fileID: 21300000, guid: 6b1272517103fc14dabb3ac95afca614, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
   stageSelect: {fileID: 306120837}
@@ -702,6 +712,16 @@ MonoBehaviour:
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
+  zonePlayingSprites:
+  - {fileID: 21300000, guid: 2a687f142a1e23344ab760f717705b59, type: 3}
+  - {fileID: 21300000, guid: a298d9ded74af804c9c7de582fb34372, type: 3}
+  - {fileID: 21300000, guid: 7bf7a55259bfce34c946f797abd80e5f, type: 3}
+  - {fileID: 21300000, guid: 54644a2de59f998469943e94146561f2, type: 3}
+  zoneClearSprites:
+  - {fileID: 21300000, guid: 0a93f7f8e17e5ad42bd43afe6291c529, type: 3}
+  - {fileID: 21300000, guid: 87e488de89e035249963834eb7fa4314, type: 3}
+  - {fileID: 21300000, guid: 5ac1bf344b9892c428e7f434ad0177a0, type: 3}
+  - {fileID: 21300000, guid: 6b1272517103fc14dabb3ac95afca614, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
   stageSelect: {fileID: 1804223274}

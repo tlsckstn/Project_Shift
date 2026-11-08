@@ -1,3 +1,4 @@
+using ProjectShift.Stage;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -108,6 +109,10 @@ namespace ProjectShift.Board
         [SerializeField] private Sprite circuitPlayingSprite;
         [Tooltip("The same circuit one step brighter, shown with the clear background while the robots clock out.")]
         [SerializeField] private Sprite circuitClearSprite;
+        [Tooltip("Chapter zone decor behind the board while playing, indexed by Zone (Ram, Bus, Cores, Alu).")]
+        [SerializeField] private Sprite[] zonePlayingSprites;
+        [Tooltip("The same zone decor one step brighter, faded in on a stage clear.")]
+        [SerializeField] private Sprite[] zoneClearSprites;
         [SerializeField] private Color playingBackground = new Color32(0x14, 0x1A, 0x26, 0xFF);
         [SerializeField] private Color clearBackground = new Color32(0x17, 0x1F, 0x2F, 0xFF);
         [Tooltip("Draws the stage select pages (computer-part zones).")]
@@ -152,6 +157,8 @@ namespace ProjectShift.Board
         private TextMeshPro hintLabel;
         // Fixed background: never moves. The brighter clear circuit sits on top of the night one and fades in on a stage clear ("dawn").
         private SpriteRenderer circuitClear;
+        private SpriteRenderer zonePlaying;
+        private SpriteRenderer zoneClear;
         private Camera backgroundCamera;
         private int shownShifts = -1;
         private int shownPar = -1;
@@ -306,6 +313,8 @@ namespace ProjectShift.Board
             // Below everything; centred on the board root, which sits at the camera centre.
             CreateSprite("Circuit", circuitPlayingSprite, -10, cachedTransform);
             circuitClear = CreateSprite("CircuitClear", circuitClearSprite, -9, cachedTransform);
+            zonePlaying = CreateSprite("ZonePlaying", null, -8, cachedTransform);
+            zoneClear = CreateSprite("ZoneClear", null, -7, cachedTransform);
             backgroundCamera = Camera.main;
             SetClearAmount(0f);
 
@@ -1050,11 +1059,20 @@ namespace ProjectShift.Board
             }
         }
 
+        /// <summary>Shows the given chapter zone's decor behind the board.</summary>
+        public void SetZone(Zone zone)
+        {
+            zonePlaying.sprite = zonePlayingSprites[(int)zone];
+            zoneClear.sprite = zoneClearSprites[(int)zone];
+        }
+
         // 0 = night look, 1 = clear ("dawn") look; in between the brighter circuit fades in over the night one.
         private void SetClearAmount(float amount)
         {
             circuitClear.enabled = amount > 0f;
             SetAlpha(circuitClear, amount);
+            zoneClear.enabled = amount > 0f;
+            SetAlpha(zoneClear, amount);
             // No camera tagged MainCamera: keep the board working, only the background colour stays put.
             if (backgroundCamera != null)
             {
