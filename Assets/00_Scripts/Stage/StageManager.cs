@@ -173,7 +173,7 @@ namespace ProjectShift.Stage
                 chapterTitles[i] = stages[i].ChapterTitle;
             }
 
-            StagePages.Build(chapterTitles, BoardView.SelectPageSize, pageStarts, pageTitles, pageChapters);
+            StagePages.Build(chapterTitles, StageSelectView.PageSize, pageStarts, pageTitles, pageChapters);
         }
 
         private int PageOf(int stage) => StagePages.PageOf(pageStarts, stage);
@@ -188,7 +188,7 @@ namespace ProjectShift.Stage
             int page = PageOf(stage);
             int start = pageStarts[page];
             int end = page + 1 < pageStarts.Count ? pageStarts[page + 1] : stages.Length;
-            view.ShowStageSelect(start, end - start, pageTitles[page], page + 1, pageStarts.Count, unlocked, stage, stars);
+            view.ShowStageSelect(start, end - start, pageTitles[page], page + 1, pageStarts.Count, pageChapters[page], unlocked, stage, stars, firstLockTargets);
         }
 
         private void Update()
