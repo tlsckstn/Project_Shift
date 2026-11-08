@@ -1,0 +1,1768 @@
+fileFormatVersion: 2
+guid: 54644a2de59f998469943e94146561f2
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2544645702869839327
+    second: Zone_Alu_Playing_0
+  - first:
+      213: -1132569710187477937
+    second: Zone_Alu_Playing_1
+  - first:
+      213: -5888062606218148356
+    second: Zone_Alu_Playing_2
+  - first:
+      213: -7231098490182307917
+    second: Zone_Alu_Playing_3
+  - first:
+      213: -7051088906705092966
+    second: Zone_Alu_Playing_4
+  - first:
+      213: 9073093921278350257
+    second: Zone_Alu_Playing_5
+  - first:
+      213: 4389354697196896211
+    second: Zone_Alu_Playing_6
+  - first:
+      213: 9088522475919807003
+    second: Zone_Alu_Playing_7
+  - first:
+      213: -2691866678004242278
+    second: Zone_Alu_Playing_8
+  - first:
+      213: 7171307518979383723
+    second: Zone_Alu_Playing_9
+  - first:
+      213: 2880716087176332166
+    second: Zone_Alu_Playing_10
+  - first:
+      213: 8051060381340252306
+    second: Zone_Alu_Playing_11
+  - first:
+      213: -238151440682482670
+    second: Zone_Alu_Playing_12
+  - first:
+      213: 8013029821723879932
+    second: Zone_Alu_Playing_13
+  - first:
+      213: 6695134362733049766
+    second: Zone_Alu_Playing_14
+  - first:
+      213: -8374620781751274344
+    second: Zone_Alu_Playing_15
+  - first:
+      213: 7619253344126151258
+    second: Zone_Alu_Playing_16
+  - first:
+      213: 6705113947887790754
+    second: Zone_Alu_Playing_17
+  - first:
+      213: 3200432937948373334
+    second: Zone_Alu_Playing_18
+  - first:
+      213: -2236456610713711438
+    second: Zone_Alu_Playing_19
+  - first:
+      213: -9015317375114339983
+    second: Zone_Alu_Playing_20
+  - first:
+      213: 7133207860869169077
+    second: Zone_Alu_Playing_21
+  - first:
+      213: 3185558106442712721
+    second: Zone_Alu_Playing_22
+  - first:
+      213: -7137304254758663730
+    second: Zone_Alu_Playing_23
+  - first:
+      213: -9152419488848677041
+    second: Zone_Alu_Playing_24
+  - first:
+      213: -8841378536497727938
+    second: Zone_Alu_Playing_25
+  - first:
+      213: 8180545729558146115
+    second: Zone_Alu_Playing_26
+  - first:
+      213: 4300637622646967700
+    second: Zone_Alu_Playing_27
+  - first:
+      213: 8454215319249987067
+    second: Zone_Alu_Playing_28
+  - first:
+      213: -6500996041887420302
+    second: Zone_Alu_Playing_29
+  - first:
+      213: -3251239286289412914
+    second: Zone_Alu_Playing_30
+  - first:
+      213: -7394124636593487915
+    second: Zone_Alu_Playing_31
+  - first:
+      213: -7681517161073249014
+    second: Zone_Alu_Playing_32
+  - first:
+      213: -836573232856424357
+    second: Zone_Alu_Playing_33
+  - first:
+      213: 4578215986165393215
+    second: Zone_Alu_Playing_34
+  - first:
+      213: 4437293210438956761
+    second: Zone_Alu_Playing_35
+  - first:
+      213: -6415505118711181397
+    second: Zone_Alu_Playing_36
+  - first:
+      213: 3895253977555484533
+    second: Zone_Alu_Playing_37
+  - first:
+      213: 5848825213991571593
+    second: Zone_Alu_Playing_38
+  - first:
+      213: 950225377659390479
+    second: Zone_Alu_Playing_39
+  - first:
+      213: -6175631369549403136
+    second: Zone_Alu_Playing_40
+  - first:
+      213: 3068500159781004193
+    second: Zone_Alu_Playing_41
+  - first:
+      213: -4738508537453126460
+    second: Zone_Alu_Playing_42
+  - first:
+      213: -1390957220448095733
+    second: Zone_Alu_Playing_43
+  - first:
+      213: 1465205945959209988
+    second: Zone_Alu_Playing_44
+  - first:
+      213: 1231563658974984730
+    second: Zone_Alu_Playing_45
+  - first:
+      213: -6468005178994051421
+    second: Zone_Alu_Playing_46
+  - first:
+      213: 5169060459930049933
+    second: Zone_Alu_Playing_47
+  - first:
+      213: 2762525875726255025
+    second: Zone_Alu_Playing_48
+  - first:
+      213: -5355771274231836257
+    second: Zone_Alu_Playing_49
+  - first:
+      213: 844985282802419548
+    second: Zone_Alu_Playing_50
+  - first:
+      213: -5035762230825149589
+    second: Zone_Alu_Playing_51
+  - first:
+      213: 2207139709281840732
+    second: Zone_Alu_Playing_52
+  - first:
+      213: -7699809858047343747
+    second: Zone_Alu_Playing_53
+  - first:
+      213: -7062925711139876955
+    second: Zone_Alu_Playing_54
+  - first:
+      213: 6272740923974771440
+    second: Zone_Alu_Playing_55
+  - first:
+      213: 215648473610668578
+    second: Zone_Alu_Playing_56
+  - first:
+      213: -1784468873159215669
+    second: Zone_Alu_Playing_57
+  - first:
+      213: -2873235222921034475
+    second: Zone_Alu_Playing_58
+  - first:
+      213: 265842551372744679
+    second: Zone_Alu_Playing_59
+  - first:
+      213: -8138529534907188612
+    second: Zone_Alu_Playing_60
+  - first:
+      213: -5407907410367481714
+    second: Zone_Alu_Playing_61
+  - first:
+      213: -7925959847768087514
+    second: Zone_Alu_Playing_62
+  - first:
+      213: 3621881423486728495
+    second: Zone_Alu_Playing_63
+  - first:
+      213: 1393415784734517998
+    second: Zone_Alu_Playing_64
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 36
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_0
+      rect:
+        serializedVersion: 2
+        x: 519
+        y: 294
+        width: 99
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdde7ced8c5605320800000000000000
+      internalID: 2544645702869839327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_1
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 147
+        width: 22
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4488e469dd4840f0800000000000000
+      internalID: -1132569710187477937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_2
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 226
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf54b158146694ea0800000000000000
+      internalID: -5888062606218148356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_3
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 226
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bfe1d43c3af5ab90800000000000000
+      internalID: -7231098490182307917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_4
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 226
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9e35246fff752e90800000000000000
+      internalID: -7051088906705092966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_5
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 226
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b35d8f99da1aed70800000000000000
+      internalID: 9073093921278350257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_6
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 226
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3dffc9f57de1aec30800000000000000
+      internalID: 4389354697196896211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_7
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 226
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b129a5ee90be02e70800000000000000
+      internalID: 9088522475919807003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_8
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 224
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a98a8dab48194aad0800000000000000
+      internalID: -2691866678004242278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_9
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 213
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba1aadb713a958360800000000000000
+      internalID: 7171307518979383723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_10
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 215
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68306e2c40c5af720800000000000000
+      internalID: 2880716087176332166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_11
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 215
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 298b10fa2cc1bbf60800000000000000
+      internalID: 8051060381340252306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_12
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 215
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2148f57c68ae1bcf0800000000000000
+      internalID: -238151440682482670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_13
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 215
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf9a6720b20043f60800000000000000
+      internalID: 8013029821723879932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_14
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 215
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a7f6360b35e9ec50800000000000000
+      internalID: 6695134362733049766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_15
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 215
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8947c1705ce57cb80800000000000000
+      internalID: -8374620781751274344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_16
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 215
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5aa8564c860db960800000000000000
+      internalID: 7619253344126151258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_17
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 204
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2aa6e524c995d0d50800000000000000
+      internalID: 6705113947887790754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_18
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 204
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6516fd9ecc83a6c20800000000000000
+      internalID: 3200432937948373334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_19
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 204
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bcc5d2df8286f0e0800000000000000
+      internalID: -2236456610713711438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_20
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 204
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17917eecc9823e280800000000000000
+      internalID: -9015317375114339983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_21
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 204
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bf712091ce3ef260800000000000000
+      internalID: 7133207860869169077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_22
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 204
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19642e15830653c20800000000000000
+      internalID: 3185558106442712721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_23
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 204
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec9c939689333fc90800000000000000
+      internalID: -7137304254758663730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_24
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 202
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f47ffcb67f21cf080800000000000000
+      internalID: -9152419488848677041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_25
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 191
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e363a4f801d1d4580800000000000000
+      internalID: -8841378536497727938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_26
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 193
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34ce627aff2278170800000000000000
+      internalID: 8180545729558146115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_27
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 193
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49d8d8dc12feeab30800000000000000
+      internalID: 4300637622646967700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_28
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 193
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf5af8e5a08635570800000000000000
+      internalID: 8454215319249987067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_29
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 193
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 270741d2b82d7c5a0800000000000000
+      internalID: -6500996041887420302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_30
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 193
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eccccec481741e2d0800000000000000
+      internalID: -3251239286289412914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_31
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 193
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5df71ea91dac26990800000000000000
+      internalID: -7394124636593487915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_32
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 193
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a05792627d4c56590800000000000000
+      internalID: -7681517161073249014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_33
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 182
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b502efab315e364f0800000000000000
+      internalID: -836573232856424357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_34
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 182
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f372768de27198f30800000000000000
+      internalID: 4578215986165393215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_35
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 182
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d677744aae649d30800000000000000
+      internalID: 4437293210438956761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_36
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 182
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: baf0588d51c87f6a0800000000000000
+      internalID: -6415505118711181397
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_37
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 182
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57f3f1acad8be0630800000000000000
+      internalID: 3895253977555484533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_38
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 182
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 980d0513b833b2150800000000000000
+      internalID: 5848825213991571593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_39
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 182
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0a03fb42f0ef2d00800000000000000
+      internalID: 950225377659390479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_40
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 180
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00caf324dffbb4aa0800000000000000
+      internalID: -6175631369549403136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_41
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 169
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a3e9f043a0859a20800000000000000
+      internalID: 3068500159781004193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_42
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 171
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cc53f3479f6d3eb0800000000000000
+      internalID: -4738508537453126460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_43
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 171
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b023d6117c352bce0800000000000000
+      internalID: -1390957220448095733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_44
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 171
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40c50bb7b05755410800000000000000
+      internalID: 1465205945959209988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_45
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 171
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1afb7b6f94671110800000000000000
+      internalID: 1231563658974984730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_46
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 171
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a63ca40f870d36a0800000000000000
+      internalID: -6468005178994051421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_47
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 171
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8dd5a8f9113cb740800000000000000
+      internalID: 5169060459930049933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_48
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 171
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b30d71c5a6765620800000000000000
+      internalID: 2762525875726255025
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_49
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 160
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f919b25f66a7ca5b0800000000000000
+      internalID: -5355771274231836257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_50
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 160
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c570fd543adf9bb00800000000000000
+      internalID: 844985282802419548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_51
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 160
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6b96528ee06d1ab0800000000000000
+      internalID: -5035762230825149589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_52
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 160
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5e27652fd551ae10800000000000000
+      internalID: 2207139709281840732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_53
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 160
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d73890dbab7c42590800000000000000
+      internalID: -7699809858047343747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_54
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 160
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5afc8889c727bfd90800000000000000
+      internalID: -7062925711139876955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_55
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 160
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f2629dc2a04d0750800000000000000
+      internalID: 6272740923974771440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_56
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 158
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22a4be9e4232ef200800000000000000
+      internalID: 215648473610668578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_57
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 147
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc57a9ea30b4c37e0800000000000000
+      internalID: -1784468873159215669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_58
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 149
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 515c6ada9c73028d0800000000000000
+      internalID: -2873235222921034475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_59
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 149
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e781c8546670b300800000000000000
+      internalID: 265842551372744679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_60
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 149
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7af4ddf1822e0f80800000000000000
+      internalID: -8138529534907188612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_61
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 149
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e88f7d2dcd043f4b0800000000000000
+      internalID: -5407907410367481714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_62
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 149
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62426c11385510290800000000000000
+      internalID: -7925959847768087514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_63
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 149
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f29338117f1834230800000000000000
+      internalID: 3621881423486728495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zone_Alu_Playing_64
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 149
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eeae5890648665310800000000000000
+      internalID: 1393415784734517998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
