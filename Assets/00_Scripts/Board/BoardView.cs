@@ -159,6 +159,9 @@ namespace ProjectShift.Board
         private SpriteRenderer circuitClear;
         private SpriteRenderer zonePlaying;
         private SpriteRenderer zoneClear;
+        // Set by SetZone, shown by the next transition (see ApplyPendingZone).
+        private Zone pendingZone;
+        private bool hasPendingZone;
         private Camera backgroundCamera;
         private int shownShifts = -1;
         private int shownPar = -1;
@@ -902,6 +905,12 @@ namespace ProjectShift.Board
             }
 
             transitionStep = step;
+            // The old rows are gone from here on; a long frame can skip the gap step, so this is not tied to it.
+            if (step > outSteps)
+            {
+                ApplyPendingZone();
+            }
+
             int inStep = step - outSteps - gapSteps;
             if (step <= outSteps)
             {
@@ -957,6 +966,7 @@ namespace ProjectShift.Board
         private void EndTransition()
         {
             transitionTime = -1f;
+            ApplyPendingZone();
             for (int r = 0; r < MaxRows; r++)
             {
                 bool used = r < shownRowCount;
@@ -1059,11 +1069,26 @@ namespace ProjectShift.Board
             }
         }
 
-        /// <summary>Shows the given chapter zone's decor behind the board.</summary>
+        /// <summary>
+        /// Picks the chapter zone decor behind the board. It shows from the next PlayTransition: at once when no old rows
+        /// leave, otherwise once they have left, so a chapter change swaps the decor on the empty board.
+        /// </summary>
         public void SetZone(Zone zone)
         {
-            zonePlaying.sprite = zonePlayingSprites[(int)zone];
-            zoneClear.sprite = zoneClearSprites[(int)zone];
+            pendingZone = zone;
+            hasPendingZone = true;
+        }
+
+        private void ApplyPendingZone()
+        {
+            if (!hasPendingZone)
+            {
+                return;
+            }
+
+            hasPendingZone = false;
+            zonePlaying.sprite = zonePlayingSprites[(int)pendingZone];
+            zoneClear.sprite = zoneClearSprites[(int)pendingZone];
         }
 
         // 0 = night look, 1 = clear ("dawn") look; in between the brighter circuit fades in over the night one.
