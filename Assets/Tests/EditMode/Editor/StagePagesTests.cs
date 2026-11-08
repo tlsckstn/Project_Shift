@@ -25,7 +25,7 @@ namespace ProjectShift.Tests
         [Test]
         public void Build_LongChapter_SplitsAtPageSizeKeepingChapter()
         {
-            var tenStages = new string[10];
+            string[] tenStages = new string[10];
             tenStages[0] = "NIGHT 1";
 
             StagePages.Build(tenStages, PageSize, starts, titles, chapters);
@@ -33,6 +33,26 @@ namespace ProjectShift.Tests
             CollectionAssert.AreEqual(new[] { 0, 8 }, starts);
             CollectionAssert.AreEqual(new[] { "NIGHT 1", "NIGHT 1" }, titles);
             CollectionAssert.AreEqual(new[] { 0, 0 }, chapters);
+        }
+
+        [Test]
+        public void Build_ChapterExactlyPageSize_NoEmptyPage()
+        {
+            string[] stages = new string[9];
+            stages[0] = "NIGHT 1";
+            stages[8] = "NIGHT 2";
+
+            StagePages.Build(stages, PageSize, starts, titles, chapters);
+
+            CollectionAssert.AreEqual(new[] { 0, 8 }, starts);
+            CollectionAssert.AreEqual(new[] { "NIGHT 1", "NIGHT 2" }, titles);
+            CollectionAssert.AreEqual(new[] { 0, 1 }, chapters);
+        }
+
+        [Test]
+        public void PageOf_ExactPageStart_ReturnsThatPage()
+        {
+            Assert.AreEqual(1, StagePages.PageOf(new List<int> { 0, 8 }, 8));
         }
 
         [Test]

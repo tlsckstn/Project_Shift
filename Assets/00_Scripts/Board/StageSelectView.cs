@@ -166,7 +166,7 @@ namespace ProjectShift.Board
                 SetText(slotLabels[i], ChapterZones.SlotLabel(zone, i), -170f, centre.y, TextAlignmentOptions.Center);
             }
 
-            int starCount = shown ? stars[stage] : 0;
+            int starCount = shown && stage < unlocked ? stars[stage] : 0;
             starLabels[i].gameObject.SetActive(starCount > 0);
             if (!shown)
             {
@@ -347,10 +347,10 @@ namespace ProjectShift.Board
 
         private SpriteRenderer CreateSprite(string objectName, int sortingOrder, Vector3 localPosition)
         {
-            var spriteObject = new GameObject(objectName);
+            GameObject spriteObject = new GameObject(objectName);
             spriteObject.transform.SetParent(root, false);
             spriteObject.transform.localPosition = localPosition;
-            var spriteRenderer = spriteObject.AddComponent<SpriteRenderer>();
+            SpriteRenderer spriteRenderer = spriteObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sortingOrder = sortingOrder;
             return spriteRenderer;
         }

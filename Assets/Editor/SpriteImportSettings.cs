@@ -19,7 +19,7 @@ namespace ProjectShift.Editor
                 return;
             }
 
-            var importer = (TextureImporter)assetImporter;
+            TextureImporter importer = (TextureImporter)assetImporter;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.spritePixelsPerUnit = 36;
@@ -27,7 +27,7 @@ namespace ProjectShift.Editor
             importer.mipmapEnabled = false;
             importer.textureCompression = TextureImporterCompression.Uncompressed;
 
-            var settings = new TextureImporterSettings();
+            TextureImporterSettings settings = new TextureImporterSettings();
             importer.ReadTextureSettings(settings);
             bool isPixel = assetPath == SpriteFolder + "Pixel.png";
             settings.spriteAlignment = (int)(isPixel ? SpriteAlignment.BottomLeft : SpriteAlignment.Center);
