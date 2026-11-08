@@ -258,7 +258,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7acd9c8200efb7a42b8607f377afc6bb, type: 2}
   - {fileID: 11400000, guid: 7198b31df2879eb4ab2ebcd480cef797, type: 2}
   - {fileID: 11400000, guid: dab618eb557f0034bbf02e9322731258, type: 2}
-  - {fileID: 11400000, guid: 717f162e1e492ab4394f9339625eb084, type: 2}
   - {fileID: 11400000, guid: 36e0845573b21a146bb2e384ea135ab5, type: 2}
   - {fileID: 11400000, guid: d0f23fece4c9bb84da252889f7000786, type: 2}
   - {fileID: 11400000, guid: 49c0752a7a1eee849bde56c47f5985ec, type: 2}
@@ -276,6 +275,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3e53987c701255249b73cf7946eb4c2d, type: 2}
   - {fileID: 11400000, guid: e55b84edd97ea2c408d6253310a32400, type: 2}
   - {fileID: 11400000, guid: 688a1aafb92c8d441a497a9bd9fc5cc6, type: 2}
+  - {fileID: 11400000, guid: 717f162e1e492ab4394f9339625eb084, type: 2}
   - {fileID: 11400000, guid: 9a72b081e7dc9e048a0a45b5bbdd5462, type: 2}
   - {fileID: 11400000, guid: 7aaad659428b81b4189cb4029bc07646, type: 2}
   - {fileID: 11400000, guid: 8880362ffbe852745b2b923bef9711f3, type: 2}
@@ -569,7 +569,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Stage.StageManager
   stages:
-  - {fileID: 11400000, guid: f035708670fee6848acae82a0535695e, type: 2}
+  - {fileID: 11400000, guid: 9a72b081e7dc9e048a0a45b5bbdd5462, type: 2}
+  - {fileID: 11400000, guid: 7aaad659428b81b4189cb4029bc07646, type: 2}
   view: {fileID: 1804223272}
   sound: {fileID: 1811674127}
   failRestartSeconds: 0.6

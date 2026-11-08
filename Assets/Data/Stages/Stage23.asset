@@ -22,7 +22,7 @@ MonoBehaviour:
   shiftLimit: 5
   par: 3
   hint: Each cell is worth double the one to its right.
-  chapterTitle: NIGHT 4
+  chapterTitle: 
   lockedRows: 
   firewalls: []
   bugCells: []

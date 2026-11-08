@@ -21,10 +21,11 @@ MonoBehaviour:
   extraExits: []
   shiftLimit: 3
   par: 1
-  hint: 'A row''s number adds up its lit cells: 128 64 32 16 8 4 2 1.'
-  chapterTitle: 
+  hint: 'A locked row must add up to its goal: 128 64 32 16 8 4 2 1.'
+  chapterTitle: NIGHT 4
   lockedRows: 
   firewalls: []
   bugCells: []
-  numberLocks: []
+  numberLocks:
+  - {x: 1, y: 30}
   robotsCoverBits: 0
