@@ -55,6 +55,9 @@ namespace ProjectShift.Stage
         // Stage select pages, built once from the stages' chapter titles: first stage and title of each page.
         private readonly System.Collections.Generic.List<int> pageStarts = new System.Collections.Generic.List<int>();
         private readonly System.Collections.Generic.List<string> pageTitles = new System.Collections.Generic.List<string>();
+        // Chapter number of each page, and per stage the stage its first lock opens (-1 without locks); read by the zone view.
+        private readonly System.Collections.Generic.List<int> pageChapters = new System.Collections.Generic.List<int>();
+        private int[] firstLockTargets;
 
         private bool IsInputBlocked => isOnTitle || isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
@@ -74,8 +77,10 @@ namespace ProjectShift.Stage
             unlocked = StageProgress.LoadUnlocked(stages.Length);
             bestShifts = new int[stages.Length];
             stars = new int[stages.Length];
+            firstLockTargets = new int[stages.Length];
             for (int i = 0; i < stages.Length; i++)
             {
+                firstLockTargets[i] = stages[i].FirstLockTarget;
                 bestShifts[i] = StageProgress.LoadBest(stages[i].name);
                 stars[i] = stages[i].StarsFor(bestShifts[i]);
             }
@@ -106,19 +111,18 @@ namespace ProjectShift.Stage
         }
 
         /// <summary>
-        /// Moves the stage select cursor by <paramref name="delta"/> stages: ±1 across (on into the next or previous page), ±5 a row
-        /// (inside the page). Locked stages cannot be picked.
+        /// Moves the stage select cursor one stage back (-1) or on (+1) in stage order; all four arrows use it and the cursor
+        /// runs on across pages. Locked stages cannot be picked.
         /// </summary>
         public void MoveSelection(int delta)
         {
-            int target = selectedStage + delta;
-            if (!isSelecting || target < 0 || target >= unlocked)
+            if (!isSelecting)
             {
                 return;
             }
 
-            // Left / right run on across pages; up / down stay inside the page.
-            if (Mathf.Abs(delta) > 1 && PageOf(target) != PageOf(selectedStage))
+            int target = StagePages.NextSelection(selectedStage, delta, unlocked);
+            if (target == selectedStage)
             {
                 return;
             }
@@ -161,37 +165,18 @@ namespace ProjectShift.Stage
             ShowSelect(isFinished ? stages.Length - 1 : stageIndex);
         }
 
-        // A new page starts at every chapter title and, inside a long chapter, every BoardView.SelectPageSize stages
-        // (that page keeps the chapter's title). The first stage always starts a page.
         private void BuildPages()
         {
-            string title = string.Empty;
+            string[] chapterTitles = new string[stages.Length];
             for (int i = 0; i < stages.Length; i++)
             {
-                bool newChapter = !string.IsNullOrEmpty(stages[i].ChapterTitle);
-                if (newChapter)
-                {
-                    title = stages[i].ChapterTitle;
-                }
-
-                if (i == 0 || newChapter || i - pageStarts[pageStarts.Count - 1] >= BoardView.SelectPageSize)
-                {
-                    pageStarts.Add(i);
-                    pageTitles.Add(title);
-                }
-            }
-        }
-
-        private int PageOf(int stage)
-        {
-            int page = 0;
-            while (page + 1 < pageStarts.Count && pageStarts[page + 1] <= stage)
-            {
-                page++;
+                chapterTitles[i] = stages[i].ChapterTitle;
             }
 
-            return page;
+            StagePages.Build(chapterTitles, BoardView.SelectPageSize, pageStarts, pageTitles, pageChapters);
         }
+
+        private int PageOf(int stage) => StagePages.PageOf(pageStarts, stage);
 
         private void ShowSelect(int stage)
         {

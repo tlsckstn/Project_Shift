@@ -43,11 +43,10 @@ namespace ProjectShift.Board
             Key("Left") + Key("Right") + " WALK  " + Key("Down") + " DESCEND  " + Key("Tab") + " ROW  " +
             Key("A") + Key("D") + " SHIFT  " + Key("Q") + " ROBOT  " + Key("Z") + " UNDO  " + Key("R") + " RESET  " + Key("M") + " MUTE  " + Key("Esc") + " STAGES";
         // Stage select grid: open stages are platform cells, locked ones gap cells (shape backs up the colour), the cursor is a robot.
-        // One page shows at most SelectColumns x SelectMaxRows stages; StageManager splits longer chapters at this size.
+        // The old grid draws rows of SelectColumns; replaced by the zone layout later.
         private const int SelectColumns = 5;
-        private const int SelectMaxRows = 3;
         /// <summary>Most stages one stage select page holds.</summary>
-        public const int SelectPageSize = SelectColumns * SelectMaxRows;
+        public const int SelectPageSize = 8;
         // Art px. Rows hang from a fixed top row so the title never moves between pages. The row pitch leaves room for
         // the stars under a cell and the cursor robot over the next row's cell.
         private const float SelectColumnPixels = 54f;

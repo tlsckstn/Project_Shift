@@ -28,8 +28,6 @@ namespace ProjectShift.Input
         private InputAction mute;
         private InputAction up;
         private InputAction back;
-        // Stage select rows are this many stages apart; must match BoardView's grid.
-        private const int SelectColumns = 5;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         // Assets/Plugins/WebGL/BrowserKeys.jslib: keeps Tab (next row) from moving browser focus out of the game.
@@ -84,8 +82,8 @@ namespace ProjectShift.Input
                 if (back.WasPressedThisFrame()) stageManager.Back();
                 if (walkLeft.WasPressedThisFrame()) stageManager.MoveSelection(-1);
                 if (walkRight.WasPressedThisFrame()) stageManager.MoveSelection(1);
-                if (up.WasPressedThisFrame()) stageManager.MoveSelection(-SelectColumns);
-                if (descend.WasPressedThisFrame()) stageManager.MoveSelection(SelectColumns);
+                if (up.WasPressedThisFrame()) stageManager.MoveSelection(-1);
+                if (descend.WasPressedThisFrame()) stageManager.MoveSelection(1);
                 if (next.WasPressedThisFrame()) stageManager.PlaySelected();
                 return;
             }
