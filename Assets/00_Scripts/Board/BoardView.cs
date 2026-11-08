@@ -313,8 +313,8 @@ namespace ProjectShift.Board
             // Below everything; centred on the board root, which sits at the camera centre.
             CreateSprite("Circuit", circuitPlayingSprite, -10, cachedTransform);
             circuitClear = CreateSprite("CircuitClear", circuitClearSprite, -9, cachedTransform);
-            zonePlaying = CreateSprite("ZonePlaying", null, -8, cachedTransform);
-            zoneClear = CreateSprite("ZoneClear", null, -7, cachedTransform);
+            zonePlaying = CreateSprite("ZonePlaying", null, -8, playRoot);
+            zoneClear = CreateSprite("ZoneClear", null, -7, playRoot);
             backgroundCamera = Camera.main;
             SetClearAmount(0f);
 
