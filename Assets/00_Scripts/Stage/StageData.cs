@@ -70,6 +70,9 @@ namespace ProjectShift.Stage
             return numberLocks[index];
         }
 
+        /// <summary>Target decimal value of the first number lock; -1 when the stage has no locks.</summary>
+        public int FirstLockTarget => NumberLockCount > 0 ? numberLocks[0].y : -1;
+
         /// <summary>True when robots cover the cell they stand on (counted as 0) in row values.</summary>
         public bool RobotsCoverBits => robotsCoverBits;
 
