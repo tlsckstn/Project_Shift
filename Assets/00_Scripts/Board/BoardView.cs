@@ -20,10 +20,11 @@ namespace ProjectShift.Board
         // Exit sprite centre above the cell centre: the 28 px door frame's bottom touches the cell top.
         private const float ExitOffsetPixels = 30f;
         // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
-        // Both key guides must stay inside the circuit keep-out (476 art px wide): 470 and 473 px measured.
+        // Both key guides must stay inside the circuit keep-out (476 art px wide): 461 and 464 px measured
+        // (TMP preferred width with the key caps).
         private static readonly string KeysText =
-            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DESCEND  " + PixelText.Key("Tab") + " SELECT ROW  " +
-            PixelText.Key("A") + PixelText.Key("D") + " SHIFT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART  " + PixelText.Key("M") + " MUTE  " + PixelText.Key("Esc") + " STAGES";
+            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Tab") + " SELECT ROW  " +
+            PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART  " + PixelText.Key("M") + " MUTE  " + PixelText.Key("Esc") + " STAGES";
         // Out of shifts: replaces the HOURS line.
         private static readonly string DawnText = "DAWN  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART";
         // Replaces the key panel on a cleared board.
@@ -36,8 +37,8 @@ namespace ProjectShift.Board
         private static readonly string TitleKeysText = PixelText.Key("Enter") + " START";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
-            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DESCEND  " + PixelText.Key("Tab") + " ROW  " +
-            PixelText.Key("A") + PixelText.Key("D") + " SHIFT  " + PixelText.Key("Q") + " ROBOT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESET  " + PixelText.Key("M") + " MUTE  " + PixelText.Key("Esc") + " STAGES";
+            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Tab") + " ROW  " +
+            PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Q") + " ROBOT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESET  " + PixelText.Key("M") + " MUTE  " + PixelText.Key("Esc") + " STAGES";
 
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
         [SerializeField] private Sprite rowHighlightSprite;

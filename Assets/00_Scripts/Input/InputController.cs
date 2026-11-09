@@ -89,8 +89,10 @@ namespace ProjectShift.Input
             }
 
             if (back.WasPressedThisFrame()) stageManager.Back();
-            if (walkLeft.WasPressedThisFrame()) stageManager.Walk(-1);
-            if (walkRight.WasPressedThisFrame()) stageManager.Walk(1);
+            // Shift + arrow shifts the row; the bare arrow binding also fires then, so walking waits for Shift to be up.
+            bool shiftHeld = Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
+            if (!shiftHeld && walkLeft.WasPressedThisFrame()) stageManager.Walk(-1);
+            if (!shiftHeld && walkRight.WasPressedThisFrame()) stageManager.Walk(1);
             if (descend.WasPressedThisFrame()) stageManager.Descend();
             if (nextRow.WasPressedThisFrame()) stageManager.SelectNextRow();
             if (shiftLeft.WasPressedThisFrame()) stageManager.Shift(-1);

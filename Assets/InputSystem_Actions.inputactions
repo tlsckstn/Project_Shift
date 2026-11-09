@@ -643,26 +643,70 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
+                    "name": "One Modifier",
                     "id": "e5591b57-a63c-4647-a16f-354b9f02474d",
-                    "path": "<Keyboard>/a",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ShiftLeft",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "7a1c3e58-2b9d-4f06-8e4a-91d5c7b3a2e0",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "ShiftLeft",
                     "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "c4e8b216-9f3a-4d71-a5c0-3b7e2d9f8a14",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ShiftLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "One Modifier",
+                    "id": "42924934-5275-493c-b98c-18177184242d",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ShiftRight",
+                    "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
-                    "id": "42924934-5275-493c-b98c-18177184242d",
-                    "path": "<Keyboard>/d",
+                    "name": "modifier",
+                    "id": "5d2f9a73-6c1e-4b88-b3d4-0e7a8c5f1b69",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "ShiftRight",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "e9b04c27-3a85-4f1d-9c6e-a2d8f7b5c310",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ShiftRight",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
