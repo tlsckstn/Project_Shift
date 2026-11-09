@@ -12,6 +12,7 @@ namespace ProjectShift.Menu
         private readonly float delay;
         private readonly float interval;
         private bool isHeld;
+        private bool isIgnored;
         private double heldSeconds;
         private double nextStepSeconds;
 
@@ -23,6 +24,16 @@ namespace ProjectShift.Menu
         }
 
         /// <summary>
+        /// Starts over. When <paramref name="heldNow"/> (the key is already down, for example held since before a menu opened),
+        /// that hold gives no steps at all; the key counts again from its next press.
+        /// </summary>
+        public void IgnoreUntilReleased(bool heldNow)
+        {
+            isHeld = false;
+            isIgnored = heldNow;
+        }
+
+        /// <summary>
         /// Call once per frame with whether the key is down; returns how many steps to apply this frame
         /// (1 on the press frame, more than 1 only after a long frame).
         /// </summary>
@@ -31,6 +42,12 @@ namespace ProjectShift.Menu
             if (!held)
             {
                 isHeld = false;
+                isIgnored = false;
+                return 0;
+            }
+
+            if (isIgnored)
+            {
                 return 0;
             }
 

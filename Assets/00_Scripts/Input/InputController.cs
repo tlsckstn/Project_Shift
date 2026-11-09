@@ -107,9 +107,9 @@ namespace ProjectShift.Input
                 if (stageManager.CanPause)
                 {
                     menu.Open();
-                    // A key still held from the puzzle must not start repeating in the menu.
-                    leftRepeat.Tick(false, 0f);
-                    rightRepeat.Tick(false, 0f);
+                    // An arrow still held from the puzzle must not change the volume; it counts from its next press.
+                    leftRepeat.IgnoreUntilReleased(walkLeft.IsPressed());
+                    rightRepeat.IgnoreUntilReleased(walkRight.IsPressed());
                     ShowMenu();
                     return;
                 }

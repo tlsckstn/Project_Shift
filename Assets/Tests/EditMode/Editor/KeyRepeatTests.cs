@@ -52,6 +52,33 @@ namespace ProjectShift.Tests
         }
 
         [Test]
+        public void Tick_HeldSinceIgnore_NoStepsUntilReleased()
+        {
+            KeyRepeat repeat = new KeyRepeat(Delay, Interval);
+
+            repeat.IgnoreUntilReleased(true);
+            int steps = 0;
+            for (int i = 0; i < 100; i++)
+            {
+                steps += repeat.Tick(true, 0.01f);
+            }
+
+            Assert.AreEqual(0, steps);
+            Assert.AreEqual(0, repeat.Tick(false, 0.016f));
+            Assert.AreEqual(1, repeat.Tick(true, 0.016f));
+        }
+
+        [Test]
+        public void Tick_NotHeldAtIgnore_StepsOnNextPress()
+        {
+            KeyRepeat repeat = new KeyRepeat(Delay, Interval);
+
+            repeat.IgnoreUntilReleased(false);
+
+            Assert.AreEqual(1, repeat.Tick(true, 0.016f));
+        }
+
+        [Test]
         public void Tick_NotHeld_NoSteps()
         {
             KeyRepeat repeat = new KeyRepeat(Delay, Interval);
