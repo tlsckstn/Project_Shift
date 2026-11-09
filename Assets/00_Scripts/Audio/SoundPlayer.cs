@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ProjectShift.Audio
 {
     /// <summary>
-    /// Plays the game's sound effects and the looping background music, and mutes everything on request.
+    /// Plays the game's sound effects and the looping background music, each at its own saved 0-8 level.
     /// Clips come from art-src/gen/sounds.py (synthesized, no third-party samples).
     /// </summary>
     public class SoundPlayer : MonoBehaviour
@@ -20,10 +20,27 @@ namespace ProjectShift.Audio
         [SerializeField] private AudioClip transitionOutClip;
         [SerializeField] private AudioClip transitionInClip;
 
-        private bool isMuted;
+        private float musicBase;
+        private float effectsBase;
+        private int bgmLevel;
+        private int sfxLevel;
+
+        /// <summary>Music level 0-8 (0 is silent).</summary>
+        public int BgmLevel => bgmLevel;
+
+        /// <summary>Sound effect level 0-8 (0 is silent).</summary>
+        public int SfxLevel => sfxLevel;
 
         private void Awake()
         {
+            // The scene's AudioSource volumes are the level-8 loudness.
+            musicBase = musicSource.volume;
+            effectsBase = effectsSource.volume;
+            bgmLevel = VolumeLevels.LoadBgm();
+            sfxLevel = VolumeLevels.LoadSfx();
+            musicSource.volume = VolumeLevels.ToVolume(musicBase, bgmLevel);
+            effectsSource.volume = VolumeLevels.ToVolume(effectsBase, sfxLevel);
+
             // The clips import with Preload Audio Data off, so each one would only start loading on its first play and that
             // play would be silent (seen on WebGL: "Trying to get length of sound which is not loaded yet").
             AudioClip[] clips = { walkClip, shiftClip, failClip, exitClip, clearClip, rewindClip, undoClip, transitionOutClip, transitionInClip, musicSource.clip };
@@ -57,11 +74,33 @@ namespace ProjectShift.Audio
         /// <summary>One cell step of the stage transition (<paramref name="arriving"/>: the new stage's rows are coming in).</summary>
         public void PlayTransitionStep(bool arriving) => effectsSource.PlayOneShot(arriving ? transitionInClip : transitionOutClip);
 
-        /// <summary>Switches all game audio off or back on.</summary>
-        public void ToggleMute()
+        /// <summary>Moves the music level by <paramref name="delta"/> (stops at 0 and 8); applies and saves it when it changed.</summary>
+        public void ChangeBgm(int delta)
         {
-            isMuted = !isMuted;
-            AudioListener.volume = isMuted ? 0f : 1f;
+            int level = VolumeLevels.Step(bgmLevel, delta);
+            if (level == bgmLevel)
+            {
+                return;
+            }
+
+            bgmLevel = level;
+            musicSource.volume = VolumeLevels.ToVolume(musicBase, level);
+            VolumeLevels.SaveBgm(level);
+        }
+
+        /// <summary>Moves the effect level by <paramref name="delta"/>; when it changed, applies, saves and plays the shift sound at the new level.</summary>
+        public void ChangeSfx(int delta)
+        {
+            int level = VolumeLevels.Step(sfxLevel, delta);
+            if (level == sfxLevel)
+            {
+                return;
+            }
+
+            sfxLevel = level;
+            effectsSource.volume = VolumeLevels.ToVolume(effectsBase, level);
+            VolumeLevels.SaveSfx(level);
+            effectsSource.PlayOneShot(shiftClip);
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 namespace ProjectShift.Input
 {
     /// <summary>
-    /// Maps the project-wide "Puzzle" action map to stage actions: walk, descend, select a row, shift it, switch robot, undo, restart, next stage, plus mute.
+    /// Maps the project-wide "Puzzle" action map to stage actions: walk, descend, select a row, shift it, switch robot, undo, restart, next stage.
     /// Bindings live in Assets/InputSystem_Actions.inputactions.
     /// </summary>
     public class InputController : MonoBehaviour
@@ -25,7 +25,6 @@ namespace ProjectShift.Input
         private InputAction undo;
         private InputAction restart;
         private InputAction next;
-        private InputAction mute;
         private InputAction up;
         private InputAction back;
 
@@ -51,7 +50,6 @@ namespace ProjectShift.Input
             undo = puzzleMap.FindAction("Undo", true);
             restart = puzzleMap.FindAction("Restart", true);
             next = puzzleMap.FindAction("Next", true);
-            mute = puzzleMap.FindAction("Mute", true);
             up = puzzleMap.FindAction("Up", true);
             back = puzzleMap.FindAction("Back", true);
         }
@@ -68,8 +66,6 @@ namespace ProjectShift.Input
 
         private void Update()
         {
-            if (mute.WasPressedThisFrame()) sound.ToggleMute();
-
             if (stageManager.IsOnTitle)
             {
                 if (next.WasPressedThisFrame()) stageManager.StartFromTitle();

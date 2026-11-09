@@ -24,21 +24,21 @@ namespace ProjectShift.Board
         // (TMP preferred width with the key caps).
         private static readonly string KeysText =
             PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Tab") + " SELECT ROW  " +
-            PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART  " + PixelText.Key("M") + " MUTE  " + PixelText.Key("Esc") + " STAGES";
+            PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART  " + PixelText.Key("Esc") + " STAGES";
         // Out of shifts: replaces the HOURS line.
         private static readonly string DawnText = "DAWN  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART";
         // Replaces the key panel on a cleared board.
         private static readonly string ClearChoiceText = PixelText.Key("R") + " RETRY   " + PixelText.Key("Enter") + " NEXT   " + PixelText.Key("Esc") + " STAGES";
         private static readonly string AllClearKeysText = PixelText.Key("Enter") + " TITLE";
         private static readonly string SelectKeysText =
-            PixelText.Key("Left") + PixelText.Key("Right") + PixelText.Key("Up") + PixelText.Key("Down") + " SELECT   " + PixelText.Key("Enter") + " PLAY   " + PixelText.Key("M") + " MUTE   " + PixelText.Key("Esc") + " TITLE";
+            PixelText.Key("Left") + PixelText.Key("Right") + PixelText.Key("Up") + PixelText.Key("Down") + " SELECT   " + PixelText.Key("Enter") + " PLAY   " + PixelText.Key("Esc") + " TITLE";
         // Working title; the final name is picked in Story 006 (release cleanup).
         private const string GameTitle = "NIGHT SHIFT <<";
         private static readonly string TitleKeysText = PixelText.Key("Enter") + " START";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
             PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Tab") + " ROW  " +
-            PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Q") + " ROBOT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESET  " + PixelText.Key("M") + " MUTE  " + PixelText.Key("Esc") + " STAGES";
+            PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Q") + " ROBOT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESET  " + PixelText.Key("Esc") + " STAGES";
 
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
         [SerializeField] private Sprite rowHighlightSprite;
