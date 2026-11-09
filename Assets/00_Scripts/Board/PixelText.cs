@@ -54,6 +54,18 @@ namespace ProjectShift.Board
             return StarTexts[count];
         }
 
+        /// <summary>A row of <paramref name="count"/> board LEDs, the first <paramref name="lit"/> lit (same tints as <see cref="Stars"/>).</summary>
+        public static string LedBar(int lit, int count)
+        {
+            System.Text.StringBuilder text = new System.Text.StringBuilder();
+            for (int i = 0; i < count; i++)
+            {
+                text.Append(i < lit ? LitLed : UnlitLed);
+            }
+
+            return text.ToString();
+        }
+
         /// <summary>A centred small-tier label <paramref name="width"/> units wide, one unit high.</summary>
         public static TextMeshPro CreateLabel(string objectName, Transform parent, TMP_FontAsset font, float width)
         {

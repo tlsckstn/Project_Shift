@@ -1,4 +1,5 @@
 using ProjectShift.Audio;
+using ProjectShift.Menu;
 using ProjectShift.Stage;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +14,15 @@ namespace ProjectShift.Input
     {
         [SerializeField] private StageManager stageManager;
         [SerializeField] private SoundPlayer sound;
+        [SerializeField] private PauseMenuView pauseView;
+        [Tooltip("Seconds Left / Right must be held in the pause menu before the volume starts repeating.")]
+        [SerializeField] private float repeatDelay = 0.3f;
+        [Tooltip("Seconds between repeated volume steps while Left / Right stays held.")]
+        [SerializeField] private float repeatInterval = 0.06f;
+
+        private readonly PauseMenu menu = new PauseMenu();
+        private KeyRepeat leftRepeat;
+        private KeyRepeat rightRepeat;
 
         private InputActionMap puzzleMap;
         private InputAction walkLeft;
@@ -52,6 +62,8 @@ namespace ProjectShift.Input
             next = puzzleMap.FindAction("Next", true);
             up = puzzleMap.FindAction("Up", true);
             back = puzzleMap.FindAction("Back", true);
+            leftRepeat = new KeyRepeat(repeatDelay, repeatInterval);
+            rightRepeat = new KeyRepeat(repeatDelay, repeatInterval);
         }
 
         private void OnEnable()
@@ -84,7 +96,27 @@ namespace ProjectShift.Input
                 return;
             }
 
-            if (back.WasPressedThisFrame()) stageManager.Back();
+            if (menu.IsOpen)
+            {
+                UpdateMenu();
+                return;
+            }
+
+            if (back.WasPressedThisFrame())
+            {
+                if (stageManager.CanPause)
+                {
+                    menu.Open();
+                    // A key still held from the puzzle must not start repeating in the menu.
+                    leftRepeat.Tick(false, 0f);
+                    rightRepeat.Tick(false, 0f);
+                    ShowMenu();
+                    return;
+                }
+
+                stageManager.Back();
+            }
+
             // Shift + arrow shifts the row; the bare arrow binding also fires then, so walking waits for Shift to be up.
             bool shiftHeld = Keyboard.current != null && Keyboard.current.shiftKey.isPressed;
             if (!shiftHeld && walkLeft.WasPressedThisFrame()) stageManager.Walk(-1);
@@ -97,6 +129,52 @@ namespace ProjectShift.Input
             if (undo.WasPressedThisFrame()) stageManager.Undo();
             if (restart.WasPressedThisFrame()) stageManager.Restart();
             if (next.WasPressedThisFrame()) stageManager.Next();
+        }
+
+        // Pause menu: Up / Down move the cursor, Left / Right (held repeats, Shift ignored) change the BGM or SFX level,
+        // Enter runs RESUME or STAGES, Esc / Backspace resumes. Returns before the puzzle sees any key this frame.
+        private void UpdateMenu()
+        {
+            if (back.WasPressedThisFrame())
+            {
+                CloseMenu();
+                return;
+            }
+
+            if (next.WasPressedThisFrame() && menu.Selected >= PauseItem.Resume)
+            {
+                bool toStages = menu.Selected == PauseItem.Stages;
+                CloseMenu();
+                if (toStages)
+                {
+                    stageManager.Back();
+                }
+
+                return;
+            }
+
+            bool moved = up.WasPressedThisFrame() || descend.WasPressedThisFrame();
+            if (up.WasPressedThisFrame()) menu.Move(-1);
+            if (descend.WasPressedThisFrame()) menu.Move(1);
+            int steps = rightRepeat.Tick(walkRight.IsPressed(), Time.unscaledDeltaTime) - leftRepeat.Tick(walkLeft.IsPressed(), Time.unscaledDeltaTime);
+            if (steps != 0 && menu.Selected == PauseItem.Bgm) sound.ChangeBgm(steps);
+            if (steps != 0 && menu.Selected == PauseItem.Sfx) sound.ChangeSfx(steps);
+            // Redraw only on a change: the view builds row strings.
+            if (moved || steps != 0)
+            {
+                ShowMenu();
+            }
+        }
+
+        private void ShowMenu()
+        {
+            pauseView.Show(menu.Selected, sound.BgmLevel, sound.SfxLevel);
+        }
+
+        private void CloseMenu()
+        {
+            menu.Close();
+            pauseView.Hide();
         }
     }
 }

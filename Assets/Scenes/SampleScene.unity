@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 306120836}
   - component: {fileID: 306120835}
   - component: {fileID: 306120837}
+  - component: {fileID: 306120838}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -254,6 +255,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Input.InputController
   stageManager: {fileID: 306120836}
   sound: {fileID: 1811674127}
+  pauseView: {fileID: 306120838}
+  repeatDelay: 0.3
+  repeatInterval: 0.06
 --- !u!114 &306120836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -350,6 +354,27 @@ MonoBehaviour:
   starColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   numberOnSlotColor: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   litTraceColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+--- !u!114 &306120838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306120832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f1381993959404daade71573525f63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Menu.PauseMenuView
+  pixelFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
+  pixelSprite: {fileID: 21300000, guid: e5a14745dde7e554f8dbdb1afe388780, type: 3}
+  dimColor: {r: 0, g: 0, b: 0, a: 0.6}
+  panelColor: {r: 0.13725491, g: 0.16470589, b: 0.21960784, a: 1}
+  frameColor: {r: 0.36078432, g: 0.4, b: 0.47058824, a: 1}
+  titleColor: {r: 1, g: 1, b: 1, a: 1}
+  itemColor: {r: 0.6509804, g: 0.68235296, b: 0.7411765, a: 1}
+  selectedColor: {r: 0.9019608, g: 0.8, b: 0.2, a: 1}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,6 +622,7 @@ GameObject:
   - component: {fileID: 1804223271}
   - component: {fileID: 1804223270}
   - component: {fileID: 1804223274}
+  - component: {fileID: 1804223275}
   m_Layer: 0
   m_Name: TestBoard
   m_TagString: Untagged
@@ -618,6 +644,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Input.InputController
   stageManager: {fileID: 1804223271}
   sound: {fileID: 1811674127}
+  pauseView: {fileID: 1804223275}
+  repeatDelay: 0.3
+  repeatInterval: 0.06
 --- !u!114 &1804223271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -789,6 +818,27 @@ MonoBehaviour:
   starColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   numberOnSlotColor: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   litTraceColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+--- !u!114 &1804223275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1804223269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f1381993959404daade71573525f63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectShift.Menu.PauseMenuView
+  pixelFont: {fileID: 11400000, guid: bd9bab4ffa731644d93387a7d8da1581, type: 2}
+  keyCapSprites: {fileID: 11400000, guid: 9095e56cd85132d4eb778984a6d501ff, type: 2}
+  pixelSprite: {fileID: 21300000, guid: e5a14745dde7e554f8dbdb1afe388780, type: 3}
+  dimColor: {r: 0, g: 0, b: 0, a: 0.6}
+  panelColor: {r: 0.13725491, g: 0.16470589, b: 0.21960784, a: 1}
+  frameColor: {r: 0.36078432, g: 0.4, b: 0.47058824, a: 1}
+  titleColor: {r: 1, g: 1, b: 1, a: 1}
+  itemColor: {r: 0.6509804, g: 0.68235296, b: 0.7411765, a: 1}
+  selectedColor: {r: 0.9019608, g: 0.8, b: 0.2, a: 1}
 --- !u!1 &1811674124
 GameObject:
   m_ObjectHideFlags: 0
