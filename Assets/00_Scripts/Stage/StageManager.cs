@@ -76,6 +76,7 @@ namespace ProjectShift.Stage
         private void Awake()
         {
             view.TransitionStepped += sound.PlayTransitionStep;
+            view.LedLit += sound.PlayLed;
         }
 
         private void Start()

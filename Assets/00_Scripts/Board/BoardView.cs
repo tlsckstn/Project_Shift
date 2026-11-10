@@ -102,6 +102,16 @@ namespace ProjectShift.Board
         [SerializeField] private float debrisSeconds = 0.4f;
         [Tooltip("Seconds an exit flashes bright when its robot arrives.")]
         [SerializeField] private float exitFlashSeconds = 0.12f;
+        [Tooltip("Seconds the white sparks around an arriving robot's exit fly out and fade.")]
+        [SerializeField] private float exitSparkSeconds = 0.25f;
+        [Tooltip("How far (art pixels) those sparks travel from the exit's centre.")]
+        [SerializeField] private float exitSparkPixels = 14f;
+        [Tooltip("Stage clear: starting opacity of the white flash over the board's rows; it fades to 0.")]
+        [SerializeField] private float clearFlashAlpha = 0.5f;
+        [Tooltip("Stage clear: seconds that flash takes to fade.")]
+        [SerializeField] private float clearFlashSeconds = 0.12f;
+        [Tooltip("Clear result: seconds between the earned rating LEDs lighting one by one.")]
+        [SerializeField] private float ledStepSeconds = 0.15f;
         [Tooltip("Stage clear: seconds every robot holds its arrival face before clocking out.")]
         [SerializeField] private float clearHoldSeconds = 0.2f;
         [Tooltip("Stage clear: seconds the robots take to rise into their bright exits and fade. Keep slide + hold + this under StageManager's clear delay.")]
@@ -222,6 +232,19 @@ namespace ProjectShift.Board
         // Exit arrival flash, per exit: -1 when idle. The sprite to go back to is the one Render chose.
         private readonly float[] exitFlashTimes = { -1f, -1f, -1f };
         private readonly Sprite[] exitRestSprites = new Sprite[MaxRobots];
+        // Arrival sparks, per exit: 8 pieces flying out from the exit in the 8 compass directions; -1 when idle.
+        private const int SparksPerExit = 8;
+        private const int RatingLeds = 3;
+        private readonly SpriteRenderer[] sparks = new SpriteRenderer[MaxRobots * SparksPerExit];
+        private readonly Transform[] sparkTransforms = new Transform[MaxRobots * SparksPerExit];
+        private readonly float[] sparkTimes = { -1f, -1f, -1f };
+        // Stage clear flash: one white bar over each row's cells.
+        private readonly SpriteRenderer[] clearFlashes = new SpriteRenderer[MaxRows];
+        // Clear result: the earned LEDs light one by one after the result line shows with every LED unlit; -1 when idle.
+        private float ledTime = -1f;
+        private string ledResult;
+        private int ledStars;
+        private int ledShown;
         // Stage clear clock-out: hold, then the robots rise and fade while every exit shows bright.
         private float clearTime = -1f;
         private bool clearStarted;
@@ -244,6 +267,9 @@ namespace ProjectShift.Board
 
         /// <summary>Raised on every cell step of the stage transition: false while the old rows leave, true while the new rows arrive.</summary>
         public event System.Action<bool> TransitionStepped;
+
+        /// <summary>Raised each time one rating LED lights on the clear result.</summary>
+        public event System.Action LedLit;
 
         private void Awake()
         {
@@ -362,6 +388,24 @@ namespace ProjectShift.Board
                 debris[i].color = debrisColor;
                 debrisTransforms[i] = debris[i].transform;
                 debris[i].enabled = false;
+            }
+
+            // Sparks are the debris piece (4x4 art pixels) in white, so they read on every crew's exit; above the robots.
+            for (int i = 0; i < sparks.Length; i++)
+            {
+                sparks[i] = CreateSprite("Spark", debrisSprite, 6, decorRoot);
+                sparkTransforms[i] = sparks[i].transform;
+                sparks[i].enabled = false;
+            }
+
+            // The 4x4 piece stretched over one row's 8 cells (32 art px each) and above the robots; placed when a clear starts.
+            float cellPixels = 32f / PixelsPerUnit;
+            Vector3 barScale = new Vector3(((BoardState.Columns - 1) * cellSize + cellPixels) * PixelsPerUnit / 4f, cellPixels * PixelsPerUnit / 4f, 1f);
+            for (int r = 0; r < MaxRows; r++)
+            {
+                clearFlashes[r] = CreateSprite("ClearFlash", debrisSprite, 6, boardRoot);
+                clearFlashes[r].transform.localScale = barScale;
+                clearFlashes[r].enabled = false;
             }
 
             walkGhost = CreateSprite("WalkGhost", robotIdleSprites[0], 4, decorRoot);
@@ -590,12 +634,25 @@ namespace ProjectShift.Board
 
         /// <summary>
         /// Shows the cleared stage's result (shifts used, and par when the stage has one) and the retry / next keys until the
-        /// next Render. The clear look stays because nothing renders meanwhile.
+        /// next Render. The clear look stays because nothing renders meanwhile. The rating shows as three unlit LEDs, then the
+        /// earned ones light one by one (LedLit each time).
         /// </summary>
         public void ShowClearChoice(int shiftsUsed, int par, int stars)
         {
             string result = par > 0 ? $"SHIFTS {shiftsUsed}  PAR {par}" : $"SHIFTS {shiftsUsed}";
-            ShowMessage(stars > 0 ? result + "  " + PixelText.Stars(stars) : result);
+            if (stars > 0)
+            {
+                ledResult = result + "  ";
+                ledStars = stars;
+                ledShown = 0;
+                ledTime = 0f;
+                ShowMessage(ledResult + PixelText.LedBar(0, RatingLeds));
+            }
+            else
+            {
+                ShowMessage(result);
+            }
+
             SetKeysText(ClearChoiceText);
             isKeysTextReplaced = true;
         }
@@ -847,11 +904,18 @@ namespace ProjectShift.Board
             SetFailedRobotsAlpha(0f);
         }
 
-        /// <summary>Flashes exit <paramref name="exit"/> bright for a moment. Call right after the Render that shows its robot arriving.</summary>
+        /// <summary>
+        /// Flashes exit <paramref name="exit"/> bright for a moment and sends white sparks out from it. Call right after the
+        /// Render that shows its robot arriving; both wait for a running shift slide to finish.
+        /// </summary>
         public void PlayExitFlash(int exit)
         {
             exitRestSprites[exit] = exitMarks[exit].sprite;
             exitFlashTimes[exit] = 0f;
+            if (exitSparkSeconds > 0f)
+            {
+                sparkTimes[exit] = 0f;
+            }
         }
 
         /// <summary>
@@ -862,6 +926,14 @@ namespace ProjectShift.Board
         {
             clearTime = 0f;
             clearStarted = false;
+            // Every exit bursts on a clear, not only those whose robot arrived on this move.
+            for (int i = 0; i < MaxRobots; i++)
+            {
+                if (exitMarks[i].enabled && exitSparkSeconds > 0f)
+                {
+                    sparkTimes[i] = 0f;
+                }
+            }
         }
 
         /// <summary>
@@ -911,10 +983,16 @@ namespace ProjectShift.Board
                 }
 
                 UpdateExitFlashes();
+                UpdateSparks();
                 if (clearTime >= 0f)
                 {
                     UpdateClear();
                 }
+            }
+
+            if (ledTime >= 0f)
+            {
+                UpdateLeds();
             }
 
             if (reappearTime >= 0f)
@@ -1155,6 +1233,66 @@ namespace ProjectShift.Board
             }
         }
 
+        // Piece k of an exit flies out along compass direction k (45 degrees apart), easing out, and fades. Fixed, no randomness.
+        private void UpdateSparks()
+        {
+            for (int e = 0; e < MaxRobots; e++)
+            {
+                if (sparkTimes[e] < 0f)
+                {
+                    continue;
+                }
+
+                sparkTimes[e] += Time.deltaTime;
+                float p = sparkTimes[e] / exitSparkSeconds;
+                bool done = p >= 1f;
+                float eased = 1f - (1f - p) * (1f - p);
+                float distance = 4f + exitSparkPixels * eased;
+                // Full brightness for the first half, then fade, like the shift debris.
+                float alpha = p < 0.5f ? 1f : 2f * (1f - p);
+                Vector3 centre = exitTransforms[e].localPosition;
+                for (int k = 0; k < SparksPerExit; k++)
+                {
+                    SpriteRenderer spark = sparks[e * SparksPerExit + k];
+                    spark.enabled = !done;
+                    if (done)
+                    {
+                        continue;
+                    }
+
+                    float angle = k * Mathf.PI / 4f;
+                    float x = Mathf.Round(Mathf.Cos(angle) * distance);
+                    float y = Mathf.Round(Mathf.Sin(angle) * distance);
+                    sparkTransforms[e * SparksPerExit + k].localPosition = centre + new Vector3(x, y, 0f) / PixelsPerUnit;
+                    SetAlpha(spark, alpha);
+                }
+
+                if (done)
+                {
+                    sparkTimes[e] = -1f;
+                }
+            }
+        }
+
+        // Lights the next earned LED once its step time has passed; a long frame can light two with one tick.
+        private void UpdateLeds()
+        {
+            ledTime += Time.deltaTime;
+            int lit = ledStepSeconds > 0f ? Mathf.Min(ledStars, Mathf.FloorToInt(ledTime / ledStepSeconds)) : ledStars;
+            if (lit == ledShown)
+            {
+                return;
+            }
+
+            ledShown = lit;
+            ShowMessage(ledResult + PixelText.LedBar(lit, RatingLeds));
+            LedLit?.Invoke();
+            if (lit == ledStars)
+            {
+                ledTime = -1f;
+            }
+        }
+
         private void UpdateClear()
         {
             if (!clearStarted)
@@ -1164,9 +1302,16 @@ namespace ProjectShift.Board
                 {
                     clearStarts[i] = robotTransforms[i].localPosition;
                 }
+
+                for (int r = 0; r < MaxRows; r++)
+                {
+                    clearFlashes[r].enabled = r < shownRowCount;
+                    clearFlashes[r].transform.localPosition = (CellPosition(r, 0, shownRowCount) + CellPosition(r, BoardState.Columns - 1, shownRowCount)) * 0.5f;
+                }
             }
 
             clearTime += Time.deltaTime;
+            UpdateClearFlash();
             if (clearTime < clearHoldSeconds)
             {
                 return;
@@ -1174,8 +1319,8 @@ namespace ProjectShift.Board
 
             float p = clockOutSeconds > 0f ? Mathf.Min(1f, (clearTime - clearHoldSeconds) / clockOutSeconds) : 1f;
             float risePixels = Mathf.Round(clockOutRisePixels * p);
-            // The screen brightens as the robots fade.
-            SetClearAmount(p);
+            // The screen brightens as the robots fade, fast at first and settling into the dawn look (ease-out).
+            SetClearAmount(1f - (1f - p) * (1f - p));
             selectedFrame.enabled = false;
             for (int i = 0; i < MaxRobots; i++)
             {
@@ -1198,17 +1343,46 @@ namespace ProjectShift.Board
             for (int i = 0; i < MaxRobots; i++)
             {
                 exitFlashTimes[i] = -1f;
+                sparkTimes[i] = -1f;
+            }
+
+            for (int i = 0; i < sparks.Length; i++)
+            {
+                sparks[i].enabled = false;
+            }
+        }
+
+        // The white bars over the rows fade from clearFlashAlpha to 0 over clearFlashSeconds from the clear's start.
+        private void UpdateClearFlash()
+        {
+            float alpha = clearFlashSeconds > 0f ? clearFlashAlpha * (1f - clearTime / clearFlashSeconds) : 0f;
+            for (int r = 0; r < MaxRows; r++)
+            {
+                if (alpha <= 0f)
+                {
+                    clearFlashes[r].enabled = false;
+                }
+                else if (clearFlashes[r].enabled)
+                {
+                    SetAlpha(clearFlashes[r], alpha);
+                }
             }
         }
 
         private void StopClear()
         {
+            ledTime = -1f;
             if (clearTime < 0f)
             {
                 return;
             }
 
             clearTime = -1f;
+            for (int r = 0; r < MaxRows; r++)
+            {
+                clearFlashes[r].enabled = false;
+            }
+
             SetClearAmount(0f);
             for (int i = 0; i < MaxRobots; i++)
             {
