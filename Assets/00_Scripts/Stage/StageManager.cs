@@ -105,6 +105,7 @@ namespace ProjectShift.Stage
                 return;
             }
 
+            sound.PlayScreen();
             ShowSelect(unlocked - 1);
         }
 
@@ -164,6 +165,7 @@ namespace ProjectShift.Stage
                 return;
             }
 
+            sound.PlayScreen();
             if (isSelecting)
             {
                 ShowTitle();

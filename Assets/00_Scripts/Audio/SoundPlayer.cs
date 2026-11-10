@@ -24,6 +24,8 @@ namespace ProjectShift.Audio
         [SerializeField] private AudioClip transitionInClip;
         [Tooltip("One rating LED lit on the clear result.")]
         [SerializeField] private AudioClip ledClip;
+        [Tooltip("Screen change: title to stage select, stage to stage select, stage select to title.")]
+        [SerializeField] private AudioClip screenClip;
 
         private float musicBase;
         private float effectsBase;
@@ -48,7 +50,7 @@ namespace ProjectShift.Audio
 
             // The clips import with Preload Audio Data off, so each one would only start loading on its first play and that
             // play would be silent (seen on WebGL: "Trying to get length of sound which is not loaded yet").
-            AudioClip[] clips = { walkClip, shiftClip, failClip, bugClip, exitClip, clearClip, rewindClip, undoClip, transitionOutClip, transitionInClip, ledClip, musicSource.clip };
+            AudioClip[] clips = { walkClip, shiftClip, failClip, bugClip, exitClip, clearClip, rewindClip, undoClip, transitionOutClip, transitionInClip, ledClip, screenClip, musicSource.clip };
             foreach (AudioClip clip in clips)
             {
                 clip.LoadAudioData();
@@ -81,6 +83,9 @@ namespace ProjectShift.Audio
 
         /// <summary>One rating LED lit on the clear result.</summary>
         public void PlayLed() => effectsSource.PlayOneShot(ledClip);
+
+        /// <summary>The screen changed: title to stage select, stage to stage select, or stage select to title.</summary>
+        public void PlayScreen() => effectsSource.PlayOneShot(screenClip);
 
         /// <summary>Moves the music level by <paramref name="delta"/> (stops at 0 and 8); applies and saves it when it changed.</summary>
         public void ChangeBgm(int delta)

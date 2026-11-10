@@ -267,6 +267,7 @@ MonoBehaviour:
   pauseView: {fileID: 306120838}
   repeatDelay: 0.3
   repeatInterval: 0.06
+  selectRepeatInterval: 0.1
 --- !u!114 &306120836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -656,6 +657,7 @@ MonoBehaviour:
   pauseView: {fileID: 1804223275}
   repeatDelay: 0.3
   repeatInterval: 0.06
+  selectRepeatInterval: 0.1
 --- !u!114 &1804223271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1095,6 +1097,7 @@ MonoBehaviour:
   transitionOutClip: {fileID: 8300000, guid: fc831ac9740a9904ebf48e5647978a06, type: 3}
   transitionInClip: {fileID: 8300000, guid: ed0182954018df04883df4aafde43ffd, type: 3}
   ledClip: {fileID: 8300000, guid: afe680cfc8cfec2489fad630a9c47525, type: 3}
+  screenClip: {fileID: 8300000, guid: 68c25ecb753ac9342a82df77b175b370, type: 3}
 --- !u!4 &1811674128
 Transform:
   m_ObjectHideFlags: 0
