@@ -9,7 +9,7 @@ namespace ProjectShift.Menu
         Stages
     }
 
-    /// <summary>Open state and cursor of the PAUSED panel. The cursor starts on BGM at every open and stops at the ends.</summary>
+    /// <summary>Open state and cursor of the PAUSED panel. The cursor starts on BGM at every open and wraps at the ends.</summary>
     public class PauseMenu
     {
         private bool isOpen;
@@ -34,20 +34,11 @@ namespace ProjectShift.Menu
             isOpen = false;
         }
 
-        /// <summary>Moves the cursor <paramref name="delta"/> rows (negative is up), without wrapping.</summary>
+        /// <summary>Moves the cursor <paramref name="delta"/> rows (negative is up), wrapping: up from BGM goes to STAGES and back.</summary>
         public void Move(int delta)
         {
-            int row = (int)selected + delta;
-            if (row < (int)PauseItem.Bgm)
-            {
-                row = (int)PauseItem.Bgm;
-            }
-            else if (row > (int)PauseItem.Stages)
-            {
-                row = (int)PauseItem.Stages;
-            }
-
-            selected = (PauseItem)row;
+            const int count = (int)PauseItem.Stages + 1;
+            selected = (PauseItem)((((int)selected + delta) % count + count) % count);
         }
     }
 }

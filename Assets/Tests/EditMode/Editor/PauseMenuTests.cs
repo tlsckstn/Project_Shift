@@ -20,16 +20,16 @@ namespace ProjectShift.Tests
         }
 
         [Test]
-        public void Move_PastEnds_DoesNotWrap()
+        public void Move_PastEnds_Wraps()
         {
             PauseMenu menu = new PauseMenu();
             menu.Open();
 
             menu.Move(-1);
-            Assert.AreEqual(PauseItem.Bgm, menu.Selected);
-
-            menu.Move(10);
             Assert.AreEqual(PauseItem.Stages, menu.Selected);
+
+            menu.Move(1);
+            Assert.AreEqual(PauseItem.Bgm, menu.Selected);
         }
 
         [Test]
