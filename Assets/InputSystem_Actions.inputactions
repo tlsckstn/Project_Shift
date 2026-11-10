@@ -634,6 +634,17 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "7c2f4a1e-5b3d-4e8f-9a6c-2d1b0e3f4a5c",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "NextRow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "One Modifier",
                     "id": "e5591b57-a63c-4647-a16f-354b9f02474d",
                     "path": "OneModifier",

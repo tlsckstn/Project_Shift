@@ -19,11 +19,11 @@ namespace ProjectShift.Board
         private const float RobotOffsetPixels = 25f;
         // Exit sprite centre above the cell centre: the 28 px door frame's bottom touches the cell top.
         private const float ExitOffsetPixels = 30f;
-        // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions.
+        // Must match the Puzzle map in Assets/InputSystem_Actions.inputactions (Tab still selects the row too, unlisted).
         // Both key guides must stay inside the circuit keep-out (476 art px wide): 407 and 410 px measured
         // (TMP preferred width with the key caps).
         private static readonly string KeysText =
-            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Tab") + " SELECT ROW  " +
+            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Space") + " SELECT ROW  " +
             PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART  " + PixelText.Key("Esc") + " MENU";
         // Out of shifts: replaces the HOURS line.
         private static readonly string DawnText = "DAWN  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART";
@@ -37,7 +37,7 @@ namespace ProjectShift.Board
         private static readonly string TitleKeysText = PixelText.Key("Enter") + " START";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
-            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Tab") + " ROW  " +
+            PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Space") + " ROW  " +
             PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Q") + " ROBOT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESET  " + PixelText.Key("Esc") + " MENU";
 
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
