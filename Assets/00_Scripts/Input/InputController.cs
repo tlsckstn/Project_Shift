@@ -19,10 +19,16 @@ namespace ProjectShift.Input
         [SerializeField] private float repeatDelay = 0.3f;
         [Tooltip("Seconds between repeated volume steps while Left / Right stays held.")]
         [SerializeField] private float repeatInterval = 0.06f;
+        [Tooltip("Stage select: seconds between repeated cursor steps while an arrow stays held (after Repeat Delay).")]
+        [SerializeField] private float selectRepeatInterval = 0.1f;
 
         private readonly PauseMenu menu = new PauseMenu();
         private KeyRepeat leftRepeat;
         private KeyRepeat rightRepeat;
+        // Stage select cursor: Left / Up step back, Right / Down step on.
+        private KeyRepeat selectBackRepeat;
+        private KeyRepeat selectOnRepeat;
+        private bool wasSelecting;
 
         private InputActionMap puzzleMap;
         private InputAction walkLeft;
@@ -64,6 +70,8 @@ namespace ProjectShift.Input
             back = puzzleMap.FindAction("Back", true);
             leftRepeat = new KeyRepeat(repeatDelay, repeatInterval);
             rightRepeat = new KeyRepeat(repeatDelay, repeatInterval);
+            selectBackRepeat = new KeyRepeat(repeatDelay, selectRepeatInterval);
+            selectOnRepeat = new KeyRepeat(repeatDelay, selectRepeatInterval);
         }
 
         private void OnEnable()
@@ -78,20 +86,34 @@ namespace ProjectShift.Input
 
         private void Update()
         {
+            bool backHeld = walkLeft.IsPressed() || up.IsPressed();
+            bool onHeld = walkRight.IsPressed() || descend.IsPressed();
+            // An arrow still held from the puzzle must not slide the cursor; it counts from its next press.
+            bool selecting = stageManager.IsSelecting;
+            if (selecting && !wasSelecting)
+            {
+                selectBackRepeat.IgnoreUntilReleased(backHeld);
+                selectOnRepeat.IgnoreUntilReleased(onHeld);
+            }
+
+            wasSelecting = selecting;
+
             if (stageManager.IsOnTitle)
             {
                 if (next.WasPressedThisFrame()) stageManager.StartFromTitle();
                 return;
             }
 
-            // Stage select: arrows move the cursor, Enter plays, Esc / Backspace back to the title.
+            // Stage select: arrows move the cursor (held repeats), Enter plays, Esc / Backspace back to the title.
             if (stageManager.IsSelecting)
             {
                 if (back.WasPressedThisFrame()) stageManager.Back();
-                if (walkLeft.WasPressedThisFrame()) stageManager.MoveSelection(-1);
-                if (walkRight.WasPressedThisFrame()) stageManager.MoveSelection(1);
-                if (up.WasPressedThisFrame()) stageManager.MoveSelection(-1);
-                if (descend.WasPressedThisFrame()) stageManager.MoveSelection(1);
+                int selectSteps = selectOnRepeat.Tick(onHeld, Time.unscaledDeltaTime) - selectBackRepeat.Tick(backHeld, Time.unscaledDeltaTime);
+                for (int i = 0; i < Mathf.Abs(selectSteps); i++)
+                {
+                    stageManager.MoveSelection(selectSteps > 0 ? 1 : -1);
+                }
+
                 if (next.WasPressedThisFrame()) stageManager.PlaySelected();
                 return;
             }
