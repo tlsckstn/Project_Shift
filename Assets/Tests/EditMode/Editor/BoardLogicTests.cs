@@ -17,6 +17,40 @@ namespace ProjectShift.Tests
         }
 
         [Test]
+        public void TryFindUndoneShift_RightShiftOnSecondRow_ReturnsRowAndRight()
+        {
+            BoardState before = new BoardState(new byte[] { 0b00100000, 0b00111001 }, 0, 2, 3);
+            BoardState shifted = before.Clone();
+            BoardLogic.TryShift(shifted, 1, 1);
+
+            Assert.IsTrue(BoardLogic.TryFindUndoneShift(shifted, before, out int row, out int direction));
+            Assert.AreEqual(1, row);
+            Assert.AreEqual(1, direction);
+        }
+
+        [Test]
+        public void TryFindUndoneShift_LeftShiftThatLostOffBit_ReturnsRowAndLeft()
+        {
+            BoardState before = new BoardState(new byte[] { 0b00111000 }, 0, 3, 3);
+            BoardState shifted = before.Clone();
+            BoardLogic.TryShift(shifted, 0, -1);
+
+            Assert.IsTrue(BoardLogic.TryFindUndoneShift(shifted, before, out int row, out int direction));
+            Assert.AreEqual(0, row);
+            Assert.AreEqual(-1, direction);
+        }
+
+        [Test]
+        public void TryFindUndoneShift_Walk_ReturnsFalse()
+        {
+            BoardState before = new BoardState(new byte[] { 0b00111000 }, 0, 2, 3);
+            BoardState walked = before.Clone();
+            BoardLogic.TryWalk(walked, 1);
+
+            Assert.IsFalse(BoardLogic.TryFindUndoneShift(walked, before, out _, out _));
+        }
+
+        [Test]
         public void TryShift_NoShiftsLeft_ReturnsFalseAndChangesNothing()
         {
             BoardState state = new BoardState(new byte[] { 0b00111000 }, 0, 2, 0);

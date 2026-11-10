@@ -198,6 +198,11 @@ namespace ProjectShift.Board
         private Vector3 debrisOrigin;
         private int debrisDirection;
         private float debrisTime = -1f;
+        private float debrisDuration;
+        // Undo plays the break backwards: pieces fly into this cell (index into cells), hidden until they arrive; -1 when none.
+        private bool debrisReversed;
+        private int regenCell = -1;
+        private const float RegenShare = 0.6f;
         // Seconds per side of the fail shake (it swings right, left, right ...).
         private const float ShakeStepSeconds = 0.03f;
         // Walk afterimage: a fading copy of the robot on the cell it left.
@@ -689,21 +694,42 @@ namespace ProjectShift.Board
             if (lostBit)
             {
                 float outsidePixels = cellSize * PixelsPerUnit / 2f + 8f;
-                StartDebris(CellPosition(row, slideLostCol, shownRowCount) + Vector3.right * (direction * outsidePixels / PixelsPerUnit), direction);
+                StartDebris(CellPosition(row, slideLostCol, shownRowCount) + Vector3.right * (direction * outsidePixels / PixelsPerUnit), direction, false);
             }
 
             ApplySlide(0f);
         }
 
-        private void StartDebris(Vector3 origin, int direction)
+        /// <summary>
+        /// Undo brought back the lit bit at (<paramref name="row"/>, <paramref name="col"/>) that a shift in
+        /// <paramref name="direction"/> pushed out: the break runs backwards, the pieces fly in from outside and the cell
+        /// shows once they arrive. Call right after the Render that shows the restored state.
+        /// </summary>
+        public void PlayRegenerate(int row, int col, int direction)
         {
             if (debrisSeconds <= 0f)
             {
                 return;
             }
 
+            StartDebris(CellPosition(row, col, shownRowCount), direction, true);
+            regenCell = row * BoardState.Columns + col;
+            SetAlpha(cells[regenCell], 0f);
+        }
+
+        private void StartDebris(Vector3 origin, int direction, bool reversed)
+        {
+            if (debrisSeconds <= 0f)
+            {
+                return;
+            }
+
+            ShowRegenCell();
             debrisOrigin = origin;
             debrisDirection = direction;
+            debrisReversed = reversed;
+            // Backwards it replays only the first part of the flight (pieces still high, close by) so the cell comes back quickly.
+            debrisDuration = reversed ? debrisSeconds * RegenShare : debrisSeconds;
             debrisTime = 0f;
             for (int i = 0; i < DebrisCount; i++)
             {
@@ -717,7 +743,7 @@ namespace ProjectShift.Board
         // Fixed per-piece speeds, no randomness, so every lost bit breaks the same way. Positions snap to whole art pixels.
         private void UpdateDebris()
         {
-            float p = debrisTime / debrisSeconds;
+            float p = debrisTime / debrisDuration;
             if (p >= 1f)
             {
                 debrisTime = -1f;
@@ -726,9 +752,13 @@ namespace ProjectShift.Board
                     debris[i].enabled = false;
                 }
 
+                ShowRegenCell();
                 return;
             }
 
+            // Backwards: flight time runs from the end of the replayed part down to 0, where the pieces sit on the cell.
+            float time = debrisReversed ? debrisDuration - debrisTime : debrisTime;
+            float alpha = debrisReversed || p < 0.5f ? 1f : 2f * (1f - p);
             for (int i = 0; i < DebrisCount; i++)
             {
                 int column = i % 3;
@@ -737,11 +767,23 @@ namespace ProjectShift.Board
                 float startY = row == 0 ? 6f : -6f;
                 float speedX = (50f + 25f * column) * debrisDirection;
                 float speedY = (row == 0 ? 110f : 60f) + 10f * column;
-                float x = Mathf.Round(startX + speedX * debrisTime);
-                float y = Mathf.Round(startY + speedY * debrisTime - 0.5f * DebrisGravityPixels * debrisTime * debrisTime);
+                float x = Mathf.Round(startX + speedX * time);
+                float y = Mathf.Round(startY + speedY * time - 0.5f * DebrisGravityPixels * time * time);
                 debrisTransforms[i].localPosition = debrisOrigin + new Vector3(x, y, 0f) / PixelsPerUnit;
-                SetAlpha(debris[i], p < 0.5f ? 1f : 2f * (1f - p));
+                SetAlpha(debris[i], alpha);
             }
+        }
+
+        // Ends a pending regenerate: its cell shows again (also when another break or regenerate cuts it short).
+        private void ShowRegenCell()
+        {
+            if (regenCell < 0)
+            {
+                return;
+            }
+
+            SetAlpha(cells[regenCell], 1f);
+            regenCell = -1;
         }
 
         /// <summary>
@@ -936,7 +978,12 @@ namespace ProjectShift.Board
                 cellTransforms[i].localPosition = CellPosition(slideRow, c, shownRowCount) + offset;
             }
 
-            SetAlpha(cells[slideRow * BoardState.Columns + slideEnterCol], eased);
+            // The entering cell fades in, unless an undo is re-forming it from debris (it shows when the pieces arrive).
+            int enterCell = slideRow * BoardState.Columns + slideEnterCol;
+            if (enterCell != regenCell)
+            {
+                SetAlpha(cells[enterCell], eased);
+            }
             lostCellTransform.localPosition = CellPosition(slideRow, slideLostCol, shownRowCount) + Vector3.right * (slideDirection * cellSize) + offset;
             SetAlpha(lostCell, 1f - eased);
 
@@ -963,7 +1010,10 @@ namespace ProjectShift.Board
 
             int row = slideRow;
             ApplySlide(1f);
-            SetAlpha(cells[row * BoardState.Columns + slideEnterCol], 1f);
+            if (row * BoardState.Columns + slideEnterCol != regenCell)
+            {
+                SetAlpha(cells[row * BoardState.Columns + slideEnterCol], 1f);
+            }
             lostCell.enabled = false;
             slideRow = -1;
         }

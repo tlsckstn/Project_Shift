@@ -327,8 +327,20 @@ namespace ProjectShift.Stage
                 return;
             }
 
+            BoardState undone = state;
             state = history.Undo(state);
             Render();
+            // An undone shift slides its row back; when the bit it had pushed out was lit, that bit also re-forms.
+            if (BoardLogic.TryFindUndoneShift(undone, state, out int row, out int direction))
+            {
+                view.PlayShift(row, -direction, false, state);
+                int col = direction > 0 ? BoardState.Columns - 1 : 0;
+                if (state.GetCell(row, col))
+                {
+                    view.PlayRegenerate(row, col, direction);
+                }
+            }
+
             sound.PlayUndo();
         }
 

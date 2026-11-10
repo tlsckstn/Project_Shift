@@ -32,6 +32,40 @@ namespace ProjectShift.Board
         }
 
         /// <summary>
+        /// Finds the shift an undo took back: true when one row of <paramref name="undone"/> is that row of
+        /// <paramref name="restored"/> shifted one cell. Gives the row and the direction the shift went (1 right, -1 left);
+        /// the bit it pushed out is the restored row's cell 7 (right) or cell 0 (left). False for any other undo (walk,
+        /// descend), and for a shift of an all-zero row, which changed nothing to show.
+        /// </summary>
+        public static bool TryFindUndoneShift(BoardState undone, BoardState restored, out int row, out int direction)
+        {
+            for (row = 0; row < restored.RowCount; row++)
+            {
+                int now = restored.GetRow(row);
+                int was = undone.GetRow(row);
+                if (was == now)
+                {
+                    continue;
+                }
+
+                if (was == now >> 1)
+                {
+                    direction = 1;
+                    return true;
+                }
+
+                if (was == ((now << 1) & 0xFF))
+                {
+                    direction = -1;
+                    return true;
+                }
+            }
+
+            direction = 0;
+            return false;
+        }
+
+        /// <summary>
         /// Shifts a row one cell left (cell 1 moves to cell 0). The right end becomes 0 and the bit pushed past the left end is lost.
         /// A robot on that row moves left with it and falls if it leaves cell 0.
         /// </summary>
