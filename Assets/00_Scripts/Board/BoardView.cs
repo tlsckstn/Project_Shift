@@ -11,7 +11,7 @@ namespace ProjectShift.Board
     /// </summary>
     public class BoardView : MonoBehaviour
     {
-        private const int MaxRows = 3;
+        internal const int MaxRows = 3;
         private const int MaxRobots = 3;
         // Sprites are 36 pixels per unit: one cell pitch (32 px cell + 4 px gap) is 1 unit.
         internal const float PixelsPerUnit = 36f;

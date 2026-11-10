@@ -52,7 +52,7 @@ namespace ProjectShift.Stage
         /// <summary>Exit cells of every robot, in robot order. Builds a new array: call it when a stage loads, not every frame.</summary>
         public Vector2Int[] GetExits()
         {
-            var exits = new Vector2Int[RobotCount];
+            Vector2Int[] exits = new Vector2Int[RobotCount];
             for (int i = 0; i < exits.Length; i++)
             {
                 exits[i] = GetExit(i);
@@ -135,7 +135,7 @@ namespace ProjectShift.Stage
         /// <summary>Builds a fresh board state from the row strings, robot starts, shift limit, locked rows, firewalls and bug cells.</summary>
         public BoardState CreateState()
         {
-            var bytes = new byte[rows.Length];
+            byte[] bytes = new byte[rows.Length];
             for (int i = 0; i < rows.Length; i++)
             {
                 bytes[i] = Convert.ToByte(rows[i], 2);
@@ -152,8 +152,8 @@ namespace ProjectShift.Stage
             }
 
             int robotCount = RobotCount;
-            var robotRows = new int[robotCount];
-            var robotCols = new int[robotCount];
+            int[] robotRows = new int[robotCount];
+            int[] robotCols = new int[robotCount];
             robotRows[0] = start.x;
             robotCols[0] = start.y;
             for (int i = 1; i < robotCount; i++)
@@ -168,6 +168,7 @@ namespace ProjectShift.Stage
         // Data-file boundary: catch a mistyped robot list as soon as the asset is edited.
         private void OnValidate()
         {
+            ValidateBoard();
             int starts = extraStarts == null ? 0 : extraStarts.Length;
             int exits = extraExits == null ? 0 : extraExits.Length;
             if (starts != exits || starts > 2)
@@ -191,6 +192,62 @@ namespace ProjectShift.Stage
             }
         }
 
+        // CreateState reads these unchecked: a short row parses as a shifted value, a cell off the board lands in another row or throws.
+        private void ValidateBoard()
+        {
+            bool rowsOk = rows != null && rows.Length >= 1 && rows.Length <= BoardView.MaxRows;
+            for (int i = 0; rowsOk && i < rows.Length; i++)
+            {
+                rowsOk = rows[i] != null && rows[i].Length == BoardState.Columns && rows[i].Trim('0', '1').Length == 0;
+            }
+
+            if (!rowsOk)
+            {
+                Debug.LogWarning($"{name}: Rows needs 1-{BoardView.MaxRows} rows of exactly {BoardState.Columns} characters, each 0 or 1.", this);
+                return;
+            }
+
+            WarnIfOffBoard("Start", start);
+            WarnIfOffBoard("Exit", exit);
+            WarnIfOffBoard("Extra Starts", extraStarts);
+            WarnIfOffBoard("Extra Exits", extraExits);
+            WarnIfOffBoard("Firewalls", firewalls);
+            WarnIfOffBoard("Bug Cells", bugCells);
+            if (lockedRows == null)
+            {
+                return;
+            }
+
+            foreach (int row in lockedRows)
+            {
+                if (row < 0 || row >= rows.Length)
+                {
+                    Debug.LogWarning($"{name}: Locked Rows entry {row} is outside the board's {rows.Length} rows.", this);
+                }
+            }
+        }
+
+        private void WarnIfOffBoard(string field, Vector2Int[] cells)
+        {
+            if (cells == null)
+            {
+                return;
+            }
+
+            foreach (Vector2Int cell in cells)
+            {
+                WarnIfOffBoard(field, cell);
+            }
+        }
+
+        private void WarnIfOffBoard(string field, Vector2Int cell)
+        {
+            if (cell.x < 0 || cell.x >= rows.Length || cell.y < 0 || cell.y >= BoardState.Columns)
+            {
+                Debug.LogWarning($"{name}: {field} cell (row {cell.x}, column {cell.y}) is off the {rows.Length}x{BoardState.Columns} board.", this);
+            }
+        }
+
         // One flag per board cell (row * Columns + column); null when the list is empty.
         private bool[] ToCellFlags(Vector2Int[] cells)
         {
@@ -199,7 +256,7 @@ namespace ProjectShift.Stage
                 return null;
             }
 
-            var flags = new bool[rows.Length * BoardState.Columns];
+            bool[] flags = new bool[rows.Length * BoardState.Columns];
             foreach (Vector2Int cell in cells)
             {
                 flags[cell.x * BoardState.Columns + cell.y] = true;
