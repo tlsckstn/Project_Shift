@@ -1228,9 +1228,9 @@ namespace ProjectShift.Board
 
         private SpriteRenderer CreateSprite(string objectName, Sprite sprite, int sortingOrder, Transform parent)
         {
-            var spriteObject = new GameObject(objectName);
+            GameObject spriteObject = new GameObject(objectName);
             spriteObject.transform.SetParent(parent, false);
-            var spriteRenderer = spriteObject.AddComponent<SpriteRenderer>();
+            SpriteRenderer spriteRenderer = spriteObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = sprite;
             spriteRenderer.sortingOrder = sortingOrder;
             return spriteRenderer;
