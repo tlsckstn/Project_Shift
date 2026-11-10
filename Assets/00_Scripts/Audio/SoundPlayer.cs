@@ -12,7 +12,10 @@ namespace ProjectShift.Audio
         [SerializeField] private AudioSource musicSource;
         [SerializeField] private AudioClip walkClip;
         [SerializeField] private AudioClip shiftClip;
+        [Tooltip("A robot fell off a row.")]
         [SerializeField] private AudioClip failClip;
+        [Tooltip("A robot entered a bug cell.")]
+        [SerializeField] private AudioClip bugClip;
         [SerializeField] private AudioClip exitClip;
         [SerializeField] private AudioClip clearClip;
         [SerializeField] private AudioClip rewindClip;
@@ -43,7 +46,7 @@ namespace ProjectShift.Audio
 
             // The clips import with Preload Audio Data off, so each one would only start loading on its first play and that
             // play would be silent (seen on WebGL: "Trying to get length of sound which is not loaded yet").
-            AudioClip[] clips = { walkClip, shiftClip, failClip, exitClip, clearClip, rewindClip, undoClip, transitionOutClip, transitionInClip, musicSource.clip };
+            AudioClip[] clips = { walkClip, shiftClip, failClip, bugClip, exitClip, clearClip, rewindClip, undoClip, transitionOutClip, transitionInClip, musicSource.clip };
             foreach (AudioClip clip in clips)
             {
                 clip.LoadAudioData();
@@ -56,8 +59,8 @@ namespace ProjectShift.Audio
         /// <summary>A row was shifted.</summary>
         public void PlayShift() => effectsSource.PlayOneShot(shiftClip);
 
-        /// <summary>A robot fell off a row or entered a bug cell.</summary>
-        public void PlayFail() => effectsSource.PlayOneShot(failClip);
+        /// <summary>A robot fell off a row, or entered a bug cell when <paramref name="bug"/> (each has its own sound).</summary>
+        public void PlayFail(bool bug) => effectsSource.PlayOneShot(bug ? bugClip : failClip);
 
         /// <summary>A robot reached its own exit without clearing the stage.</summary>
         public void PlayExit() => effectsSource.PlayOneShot(exitClip);

@@ -411,7 +411,7 @@ namespace ProjectShift.Stage
                 pendingClear = false;
                 Render();
                 view.PlayFail(state);
-                sound.PlayFail();
+                sound.PlayFail(!state.IsRobotFallen);
                 return;
             }
 

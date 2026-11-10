@@ -203,6 +203,10 @@ MonoBehaviour:
   fallSeconds: 0.45
   bugFadeSeconds: 0.3
   reappearSeconds: 0.15
+  failShakePixels: 3
+  failShakeSeconds: 0.2
+  debrisColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+  debrisSeconds: 0.4
   exitFlashSeconds: 0.12
   clearHoldSeconds: 0.2
   clockOutSeconds: 0.4
@@ -731,6 +735,10 @@ MonoBehaviour:
   fallSeconds: 0.45
   bugFadeSeconds: 0.3
   reappearSeconds: 0.15
+  failShakePixels: 3
+  failShakeSeconds: 0.2
+  debrisColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+  debrisSeconds: 0.4
   exitFlashSeconds: 0.12
   clearHoldSeconds: 0.2
   clockOutSeconds: 0.4
@@ -1069,6 +1077,7 @@ MonoBehaviour:
   walkClip: {fileID: 8300000, guid: 4f4ebfc37190da343a786fc7d5985907, type: 3}
   shiftClip: {fileID: 8300000, guid: 76d077a7f19d5694392f2ddc6e1ec7ef, type: 3}
   failClip: {fileID: 8300000, guid: 847ea95d937bcbe4fb7b10b7ebf6341f, type: 3}
+  bugClip: {fileID: 8300000, guid: 1fa78de3a3e42df49b83152fca32f193, type: 3}
   exitClip: {fileID: 8300000, guid: 3605472bae087f24eba5f7b639eb8b1a, type: 3}
   clearClip: {fileID: 8300000, guid: e06937c9065763640b00f8f74c924162, type: 3}
   rewindClip: {fileID: 8300000, guid: c0495ae0de8607a42853a1a719210b80, type: 3}
