@@ -215,6 +215,9 @@ namespace ProjectShift.Board
         /// <summary>True while a stage transition plays; StageManager ignores input meanwhile.</summary>
         public bool IsTransitioning => transitionTime >= 0f;
 
+        /// <summary>True while a shifted row slides into place.</summary>
+        public bool IsSliding => slideRow >= 0;
+
         /// <summary>Raised on every cell step of the stage transition: false while the old rows leave, true while the new rows arrive.</summary>
         public event System.Action<bool> TransitionStepped;
 

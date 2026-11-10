@@ -62,10 +62,10 @@ namespace ProjectShift.Stage
         private bool IsInputBlocked => isOnTitle || isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
         /// <summary>
-        /// True on a playable puzzle board (also one out of shifts) with no move, fail, rewind or transition running;
-        /// Esc then opens the pause menu. False on the title, the stage select, a cleared board and ALL CLEAR.
+        /// True on a playable puzzle board (also one out of shifts) with no move, fail, rewind, transition or row slide
+        /// running; Esc then opens the pause menu. False on the title, the stage select, a cleared board and ALL CLEAR.
         /// </summary>
-        public bool CanPause => !IsInputBlocked;
+        public bool CanPause => !IsInputBlocked && !view.IsSliding;
 
         /// <summary>True while the stage select shows; InputController then routes keys to MoveSelection / PlaySelected.</summary>
         public bool IsSelecting => isSelecting;
@@ -157,7 +157,8 @@ namespace ProjectShift.Stage
         /// </summary>
         public void Back()
         {
-            if (isOnTitle || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning)
+            // A row slide also blocks it, so Esc pressed mid-slide neither pauses (CanPause) nor leaves the board.
+            if (isOnTitle || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning || view.IsSliding)
             {
                 return;
             }
