@@ -100,13 +100,13 @@ namespace ProjectShift.Stage
         /// <summary>Leaves the title for the stage select, cursor on the last open stage.</summary>
         public void StartFromTitle()
         {
-            if (!isOnTitle)
+            if (!isOnTitle || view.IsTransitioning)
             {
                 return;
             }
 
             sound.PlayScreen();
-            ShowSelect(unlocked - 1);
+            view.PlayWipe(() => ShowSelect(unlocked - 1));
         }
 
         private void ShowTitle()
@@ -124,7 +124,7 @@ namespace ProjectShift.Stage
         /// </summary>
         public void MoveSelection(int delta)
         {
-            if (!isSelecting)
+            if (!isSelecting || view.IsTransitioning)
             {
                 return;
             }
@@ -142,7 +142,7 @@ namespace ProjectShift.Stage
         /// <summary>Starts the stage under the stage select cursor.</summary>
         public void PlaySelected()
         {
-            if (!isSelecting)
+            if (!isSelecting || view.IsTransitioning)
             {
                 return;
             }
@@ -168,11 +168,12 @@ namespace ProjectShift.Stage
             sound.PlayScreen();
             if (isSelecting)
             {
-                ShowTitle();
+                view.PlayWipe(ShowTitle);
                 return;
             }
 
-            ShowSelect(isFinished ? stages.Length - 1 : stageIndex);
+            int stage = isFinished ? stages.Length - 1 : stageIndex;
+            view.PlayWipe(() => ShowSelect(stage));
         }
 
         private void BuildPages()
@@ -350,6 +351,12 @@ namespace ProjectShift.Stage
         /// <summary>Loads the next stage on a cleared board waiting for the player's choice; on the ALL CLEAR screen goes to the title.</summary>
         public void Next()
         {
+            // A wipe leaving the clear screen must not also load the next stage.
+            if (view.IsTransitioning)
+            {
+                return;
+            }
+
             if (isFinished)
             {
                 ShowTitle();
