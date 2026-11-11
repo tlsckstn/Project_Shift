@@ -43,8 +43,9 @@ namespace ProjectShift.Stage
             {
                 case Zone.Ram: return $"MEMORY BANK A - {jobs} JOBS";
                 case Zone.Bus: return $"DATA LANES D7-D0 - {jobs} JOBS";
-                case Zone.Cores: return $"DIE 0 - 4C/3T - {jobs} JOBS";
-                default: return $"REGISTER FILE - {jobs} JOBS";
+                case Zone.Cores: return $"DIE 0 - 4C/4T - {jobs} JOBS";
+                // The robots work in the registers, which feed the ALU drawn beside them; the two are separate parts.
+                default: return $"REGISTER FILE > ALU - {jobs} JOBS";
             }
         }
 

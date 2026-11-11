@@ -34,6 +34,13 @@ namespace ProjectShift.Tests
         }
 
         [Test]
+        public void Subline_CoresAndAlu_UseRealHardwareTerms()
+        {
+            Assert.AreEqual("DIE 0 - 4C/4T - 7 JOBS", ChapterZones.Subline(Zone.Cores, 7));
+            Assert.AreEqual("REGISTER FILE > ALU - 8 JOBS", ChapterZones.Subline(Zone.Alu, 8));
+        }
+
+        [Test]
         public void SlotLabel_BusFirstSlot_IsD7()
         {
             Assert.AreEqual("D7", ChapterZones.SlotLabel(Zone.Bus, 0));
