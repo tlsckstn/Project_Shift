@@ -9,7 +9,9 @@ namespace ProjectShift.Stage
     /// <summary>Pure rules mapping chapters and stages to zone names, labels and slot states.</summary>
     public static class ChapterZones
     {
-        private static readonly string[] CoresLabels = { "CORE1", "CORE2", "CORE3", "CORE4", "L1", "L2", "L3", "IMC" };
+        // Inward along the data path: the memory bus (Night 2) meets the IMC, then L3 to L1, then the cores, whose ALU is
+        // Night 4.
+        private static readonly string[] CoresLabels = { "IMC", "L3", "L2", "L1", "CORE1", "CORE2", "CORE3", "CORE4" };
 
         /// <summary>Zone of a 0-based chapter: Ram, Bus, Cores, then Alu for every later chapter.</summary>
         public static Zone ZoneOf(int chapterIndex)

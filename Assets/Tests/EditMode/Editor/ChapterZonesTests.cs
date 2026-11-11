@@ -47,10 +47,12 @@ namespace ProjectShift.Tests
         }
 
         [Test]
-        public void SlotLabel_Cores_CountsCoresFromOneThenCaches()
+        public void SlotLabel_Cores_RunsInwardFromImcToCores()
         {
-            Assert.AreEqual("CORE1", ChapterZones.SlotLabel(Zone.Cores, 0));
-            Assert.AreEqual("L1", ChapterZones.SlotLabel(Zone.Cores, 4));
+            Assert.AreEqual("IMC", ChapterZones.SlotLabel(Zone.Cores, 0));
+            Assert.AreEqual("L1", ChapterZones.SlotLabel(Zone.Cores, 3));
+            Assert.AreEqual("CORE1", ChapterZones.SlotLabel(Zone.Cores, 4));
+            Assert.AreEqual("CORE4", ChapterZones.SlotLabel(Zone.Cores, 7));
         }
 
         [Test]
