@@ -191,9 +191,9 @@ namespace ProjectShift.Board
                 case Zone.Bus:
                     slots[i].sprite = junctionSprites[(int)state];
                     PlaceNumber(i, centre.x, centre.y, TextAlignmentOptions.Center);
-                    // Left edge 4 px past the junction (three stars centred at x + 22 would cover it), lifted off the lane so the
-                    // cursor robot standing on the next junction does not touch them.
-                    SetText(starLabels[i], starText, centre.x + 16f, centre.y + 8f, TextAlignmentOptions.Left);
+                    // Centred under the 24x16 junction, between its lane and the next one (22 px down), like the LEDs under
+                    // the RAM chips; the cursor robot stands above the junction, so the two never meet.
+                    SetText(starLabels[i], starText, centre.x, centre.y - 14f, TextAlignmentOptions.Center);
                     break;
                 case Zone.Cores:
                     slots[i].sprite = blockSprites[(int)state];
