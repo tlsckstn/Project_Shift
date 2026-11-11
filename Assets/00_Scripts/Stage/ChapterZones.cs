@@ -9,7 +9,7 @@ namespace ProjectShift.Stage
     /// <summary>Pure rules mapping chapters and stages to zone names, labels and slot states.</summary>
     public static class ChapterZones
     {
-        private static readonly string[] CoresLabels = { "CORE0", "CORE1", "CORE2", "CORE3", "L2", "L3", "IMC", "IO" };
+        private static readonly string[] CoresLabels = { "CORE1", "CORE2", "CORE3", "CORE4", "L1", "L2", "L3", "IMC" };
 
         /// <summary>Zone of a 0-based chapter: Ram, Bus, Cores, then Alu for every later chapter.</summary>
         public static Zone ZoneOf(int chapterIndex)
@@ -48,7 +48,7 @@ namespace ProjectShift.Stage
             }
         }
 
-        /// <summary>Label of slot 0-7 inside a zone, e.g. U1, D7, CORE0, R0.</summary>
+        /// <summary>Label of slot 0-7 inside a zone, e.g. U1, D7, CORE1, R0.</summary>
         public static string SlotLabel(Zone zone, int slot)
         {
             switch (zone)

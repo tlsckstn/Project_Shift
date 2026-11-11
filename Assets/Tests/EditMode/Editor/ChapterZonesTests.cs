@@ -37,7 +37,13 @@ namespace ProjectShift.Tests
         public void SlotLabel_BusFirstSlot_IsD7()
         {
             Assert.AreEqual("D7", ChapterZones.SlotLabel(Zone.Bus, 0));
-            Assert.AreEqual("IMC", ChapterZones.SlotLabel(Zone.Cores, 6));
+        }
+
+        [Test]
+        public void SlotLabel_Cores_CountsCoresFromOneThenCaches()
+        {
+            Assert.AreEqual("CORE1", ChapterZones.SlotLabel(Zone.Cores, 0));
+            Assert.AreEqual("L1", ChapterZones.SlotLabel(Zone.Cores, 4));
         }
 
         [Test]

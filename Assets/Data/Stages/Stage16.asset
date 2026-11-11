@@ -25,7 +25,8 @@ MonoBehaviour:
   - {x: 1, y: 5}
   shiftLimit: 9
   par: 7
-  hint: Three robots, one shared shift count.
+  hint: Firewalls and bugs work the same for all three.
+  chapterTitle: 
   lockedRows: 
   firewalls:
   - {x: 1, y: 0}
@@ -33,3 +34,5 @@ MonoBehaviour:
   bugCells:
   - {x: 0, y: 6}
   - {x: 0, y: 0}
+  numberLocks: []
+  robotsCoverBits: 0

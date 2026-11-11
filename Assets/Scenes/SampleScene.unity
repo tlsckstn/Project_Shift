@@ -234,6 +234,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6b1272517103fc14dabb3ac95afca614, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
+  wipeEdgeColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+  wipeEdgePixels: 2
+  wipeStepSeconds: 0.025
   stageSelect: {fileID: 306120837}
 --- !u!4 &306120834
 Transform:
@@ -299,6 +302,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7b2ca42fa03033e40932a1940f0445bb, type: 2}
   - {fileID: 11400000, guid: c29ca5c69d3565e4aa6942a12a164af4, type: 2}
   - {fileID: 11400000, guid: 3e53987c701255249b73cf7946eb4c2d, type: 2}
+  - {fileID: 11400000, guid: 96696c8cb05a8d64a88addd92303d755, type: 2}
   - {fileID: 11400000, guid: e55b84edd97ea2c408d6253310a32400, type: 2}
   - {fileID: 11400000, guid: 688a1aafb92c8d441a497a9bd9fc5cc6, type: 2}
   - {fileID: 11400000, guid: 717f162e1e492ab4394f9339625eb084, type: 2}
@@ -773,6 +777,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6b1272517103fc14dabb3ac95afca614, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
+  wipeEdgeColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+  wipeEdgePixels: 2
+  wipeStepSeconds: 0.025
   stageSelect: {fileID: 1804223274}
 --- !u!4 &1804223273
 Transform:
