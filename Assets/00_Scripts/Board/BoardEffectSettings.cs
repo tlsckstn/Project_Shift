@@ -135,6 +135,29 @@ namespace ProjectShift.Board
 
         /// <summary>Seconds of the pause between leaving and arriving; the screen wipe uses it too.</summary>
         public float GapSeconds => gapSeconds;
+
+        /// <summary>
+        /// Step reached at <paramref name="time"/>: 1..<paramref name="outSteps"/> leave, then one gap step (only after
+        /// leaving steps), then the arriving steps. Shared by the stage transition and the screen wipe, each with its own
+        /// <paramref name="stepSeconds"/>.
+        /// </summary>
+        public int StepAt(float time, int outSteps, float stepSeconds)
+        {
+            int gapSteps = outSteps > 0 ? 1 : 0;
+            float outSeconds = outSteps * stepSeconds;
+            float pause = gapSteps * gapSeconds;
+            if (time < outSeconds)
+            {
+                return Mathf.FloorToInt(time / stepSeconds) + 1;
+            }
+
+            if (time < outSeconds + pause)
+            {
+                return outSteps + 1;
+            }
+
+            return outSteps + gapSteps + 1 + Mathf.FloorToInt((time - outSeconds - pause) / stepSeconds);
+        }
     }
 
     /// <summary>Screen change (title, stage select, puzzle): covers close from the top and bottom onto a green line, then open.</summary>

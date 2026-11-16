@@ -231,23 +231,11 @@ namespace ProjectShift.Board
         private readonly byte[] transitionNewRows = new byte[MaxRows];
         private Sprite[] restCellSprites;
 
-        // Screen wipe (title, stage select, puzzle): a masked cover above everything; -1 when idle.
-        private const int WipeOrder = 30;
-        // Steps each way: the covers close in this many steps, then open in as many.
-        private const int WipeSteps = 16;
-        private GameObject wipeRoot;
-        // Top and bottom cover masks (left pivot), and the green line on each one's inner edge.
-        private readonly Transform[] wipeMasks = new Transform[2];
-        private readonly SpriteRenderer[] wipeEdgeLines = new SpriteRenderer[2];
-        private Vector2 wipeScreenSize;
-        private float wipeTime = -1f;
-        private int wipeStep;
-        // Last tick sound played; the wipe ticks every other step so the sound keeps the stage transition rhythm.
-        private int wipeTick;
-        private System.Action wipeSwap;
+        // Screen wipe (title, stage select, puzzle), built in Awake.
+        private ScreenWipe screenWipe;
 
         /// <summary>True while a stage transition or a screen wipe plays; StageManager ignores input meanwhile.</summary>
-        public bool IsTransitioning => transitionTime >= 0f || wipeTime >= 0f;
+        public bool IsTransitioning => transitionTime >= 0f || screenWipe.IsPlaying;
 
         /// <summary>True while a shifted row slides into place.</summary>
         public bool IsSliding => slideRow >= 0;
@@ -401,35 +389,7 @@ namespace ProjectShift.Board
             walkGhost = CreateSprite("WalkGhost", robotIdleSprites[0], 4, decorRoot);
             walkGhost.enabled = false;
 
-            // Screen wipe cover: the night background and circuit above everything (pause menu included), shown only inside
-            // the mask, so the circuit looks still while the screen content is covered. The 4x4 white texture at 4 px per unit
-            // is a 1x1 unit square; the mask's copy has a left pivot so scaling it grows the cover to the right.
-            wipeScreenSize = circuitPlayingSprite.bounds.size;
-            wipeRoot = new GameObject("Wipe");
-            wipeRoot.transform.SetParent(cachedTransform, false);
-            // The colour is baked into a 1x1 texture: tinting a white sprite drifts by 2 levels on this dark colour (linear
-            // vertex colour precision), which showed the cover's edges against the camera background.
-            Texture2D backgroundTexture = new Texture2D(1, 1);
-            backgroundTexture.SetPixel(0, 0, playingBackground);
-            backgroundTexture.Apply();
-            SpriteRenderer wipeBackground = CreateSprite("WipeBackground", Sprite.Create(backgroundTexture, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f), WipeOrder, wipeRoot.transform);
-            wipeBackground.transform.localScale = new Vector3(wipeScreenSize.x, wipeScreenSize.y, 1f);
-            wipeBackground.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
-            SpriteRenderer wipeCircuit = CreateSprite("WipeCircuit", circuitPlayingSprite, WipeOrder + 1, wipeRoot.transform);
-            wipeCircuit.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
-            Sprite maskSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0f, 0f, 4f, 4f), new Vector2(0f, 0.5f), 4f);
-            Sprite lineSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0f, 0f, 4f, 4f), new Vector2(0.5f, 0.5f), 4f);
-            for (int side = 0; side < 2; side++)
-            {
-                GameObject maskObject = new GameObject("WipeMask");
-                maskObject.transform.SetParent(wipeRoot.transform, false);
-                maskObject.AddComponent<SpriteMask>().sprite = maskSprite;
-                wipeMasks[side] = maskObject.transform;
-                wipeEdgeLines[side] = CreateSprite("WipeEdge", lineSprite, WipeOrder + 2, wipeRoot.transform);
-                wipeEdgeLines[side].color = wipe.EdgeColor;
-            }
-
-            wipeRoot.SetActive(false);
+            screenWipe = new ScreenWipe(cachedTransform, playingBackground, circuitPlayingSprite, wipe, stageTransition, arriving => TransitionStepped?.Invoke(arriving));
 
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
             shiftsLabel.rectTransform.SetParent(playRoot, false);
@@ -994,11 +954,7 @@ namespace ProjectShift.Board
                 UpdateTransition();
             }
 
-            if (wipeTime >= 0f)
-            {
-                wipeTime += Time.deltaTime;
-                UpdateWipe();
-            }
+            screenWipe.Tick(Time.deltaTime);
 
             // These effects start once the shift slide that caused them has finished.
             if (slideRow < 0)
@@ -1134,7 +1090,7 @@ namespace ProjectShift.Board
 
             int outSteps = transitionOldRowCount > 0 ? BoardState.Columns : 0;
             int gapSteps = outSteps > 0 ? 1 : 0;
-            int step = TransitionStepAt(transitionTime, outSteps, stageTransition.StepSeconds);
+            int step = stageTransition.StepAt(transitionTime, outSteps, stageTransition.StepSeconds);
             if (step == transitionStep)
             {
                 return;
@@ -1225,26 +1181,6 @@ namespace ProjectShift.Board
             decorRoot.gameObject.SetActive(true);
         }
 
-        // Step reached at <paramref name="time"/>: 1..outSteps leave, then one gap step (only after leaving steps), then the
-        // arriving steps. Shared by the stage transition and the screen wipe.
-        private int TransitionStepAt(float time, int outSteps, float stepSeconds)
-        {
-            int gapSteps = outSteps > 0 ? 1 : 0;
-            float outSeconds = outSteps * stepSeconds;
-            float gapSeconds = gapSteps * stageTransition.GapSeconds;
-            if (time < outSeconds)
-            {
-                return Mathf.FloorToInt(time / stepSeconds) + 1;
-            }
-
-            if (time < outSeconds + gapSeconds)
-            {
-                return outSteps + 1;
-            }
-
-            return outSteps + gapSteps + 1 + Mathf.FloorToInt((time - outSeconds - gapSeconds) / stepSeconds);
-        }
-
         /// <summary>
         /// Plays the screen wipe, an old monitor switching off and on: covers (night background and circuit) close from the top
         /// and bottom onto a green centre line over 16 steps, <paramref name="swap"/> changes the screen underneath, then the
@@ -1252,72 +1188,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayWipe(System.Action swap)
         {
-            wipeSwap = swap;
-            wipeTime = 0f;
-            wipeStep = -1;
-            wipeTick = -1;
-            wipeRoot.SetActive(true);
-            UpdateWipe();
-        }
-
-        private void UpdateWipe()
-        {
-            int halfSteps = WipeSteps;
-            // A zero step time would divide by zero below; swap at once instead.
-            int step = wipe.StepSeconds > 0f ? TransitionStepAt(wipeTime, halfSteps, wipe.StepSeconds) : 2 * halfSteps + 2;
-            if (step == wipeStep)
-            {
-                return;
-            }
-
-            wipeStep = step;
-            // Swapped on the first step past full cover; a long frame may jump straight into the arriving steps.
-            if (step > halfSteps && wipeSwap != null)
-            {
-                System.Action swap = wipeSwap;
-                wipeSwap = null;
-                swap();
-            }
-
-            int inStep = step - halfSteps - 1;
-            if (inStep > halfSteps)
-            {
-                wipeTime = -1f;
-                wipeRoot.SetActive(false);
-                return;
-            }
-
-            // Share of the half height (180 art px) each cover takes, in whole pixels: grows while leaving, full in the gap,
-            // shrinks back to the centre line while arriving.
-            int halfPixels = Mathf.RoundToInt(wipeScreenSize.y * PixelsPerUnit / 2f);
-            int closed = step <= halfSteps ? step : halfSteps - Mathf.Max(inStep, 0);
-            SetWipeCover(Mathf.RoundToInt((float)halfPixels * closed / halfSteps) / PixelsPerUnit);
-
-            // Ticks 0, 1, 2 ... while leaving and 100, 101 ... while arriving (none in the gap); one per two steps.
-            int tick = step <= halfSteps ? (step + 1) / 2 : inStep > 0 ? 100 + (inStep + 1) / 2 : wipeTick;
-            if (tick != wipeTick)
-            {
-                wipeTick = tick;
-                TransitionStepped?.Invoke(step > halfSteps);
-            }
-        }
-
-        // Covers `height` units from the top and the same from the bottom, with a green line centred on each inner edge; at
-        // full cover both lines meet as one line across the centre.
-        private void SetWipeCover(float height)
-        {
-            float line = wipe.EdgePixels / PixelsPerUnit;
-            float left = -wipeScreenSize.x / 2f;
-            float top = wipeScreenSize.y / 2f;
-            for (int side = 0; side < 2; side++)
-            {
-                float sign = side == 0 ? 1f : -1f;
-                wipeMasks[side].localPosition = new Vector3(left, sign * (top - height / 2f), 0f);
-                wipeMasks[side].localScale = new Vector3(wipeScreenSize.x, height, 1f);
-                wipeEdgeLines[side].enabled = height > 0f;
-                wipeEdgeLines[side].transform.localPosition = new Vector3(0f, sign * (top - height), 0f);
-                wipeEdgeLines[side].transform.localScale = new Vector3(wipeScreenSize.x, line, 1f);
-            }
+            screenWipe.Play(swap);
         }
 
         private void UpdateExitFlashes()
@@ -1666,7 +1537,7 @@ namespace ProjectShift.Board
             return false;
         }
 
-        private SpriteRenderer CreateSprite(string objectName, Sprite sprite, int sortingOrder, Transform parent)
+        internal static SpriteRenderer CreateSprite(string objectName, Sprite sprite, int sortingOrder, Transform parent)
         {
             GameObject spriteObject = new GameObject(objectName);
             spriteObject.transform.SetParent(parent, false);
