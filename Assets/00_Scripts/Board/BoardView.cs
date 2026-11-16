@@ -177,20 +177,14 @@ namespace ProjectShift.Board
         private int ledStars;
         private int ledShown;
 
-        // Stage transition: Render has already drawn the new stage; the cells and row values are overridden step by step
-        // and restored from what Render chose when it ends.
-        private float transitionTime = -1f;
-        private int transitionStep = -1;
-        private int transitionOldRowCount;
-        private readonly byte[] transitionOldRows = new byte[MaxRows];
-        private readonly byte[] transitionNewRows = new byte[MaxRows];
-        private Sprite[] restCellSprites;
+        // Stage to stage row shift (old rows out, new rows in); built in Awake.
+        private StageTransition rowTransition;
 
         // Screen wipe (title, stage select, puzzle), built in Awake.
         private ScreenWipe screenWipe;
 
         /// <summary>True while a stage transition or a screen wipe plays; StageManager ignores input meanwhile.</summary>
-        public bool IsTransitioning => transitionTime >= 0f || screenWipe.IsPlaying;
+        public bool IsTransitioning => rowTransition.IsPlaying || screenWipe.IsPlaying;
 
         /// <summary>True while a shifted row slides into place.</summary>
         public bool IsSliding => moveEffect.IsSliding;
@@ -323,6 +317,8 @@ namespace ProjectShift.Board
             clearEffect = new ClearEffect(clear, decorRoot, boardRoot, debrisSprite, barScale, robots, robotTransforms, exitMarks, exitTransforms, exitFlashSprites, selectedFrame, SetClearAmount);
 
             screenWipe = new ScreenWipe(cachedTransform, playingBackground, circuitPlayingSprite, wipe, stageTransition, arriving => TransitionStepped?.Invoke(arriving));
+            rowTransition = new StageTransition(stageTransition, cells, cellTransforms, valueLabels, shownValues, platformSprite, gapSprite,
+                decorRoot.gameObject, CellPosition, LabelPosition, ApplyPendingZone, arriving => TransitionStepped?.Invoke(arriving));
 
             shiftsLabel = new GameObject("ShiftsLeft").AddComponent<TextMeshPro>();
             shiftsLabel.rectTransform.SetParent(playRoot, false);
@@ -700,36 +696,12 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayTransition(BoardState from, BoardState to)
         {
-            transitionOldRowCount = from == null ? 0 : from.RowCount;
-            for (int r = 0; r < MaxRows; r++)
-            {
-                transitionOldRows[r] = r < transitionOldRowCount ? from.GetRow(r) : (byte)0;
-                transitionNewRows[r] = r < to.RowCount ? to.GetRow(r) : (byte)0;
-            }
-
-            if (restCellSprites == null)
-            {
-                restCellSprites = new Sprite[cells.Length];
-            }
-
-            for (int i = 0; i < cells.Length; i++)
-            {
-                restCellSprites[i] = cells[i].sprite;
-            }
-
-            decorRoot.gameObject.SetActive(false);
-            transitionTime = 0f;
-            transitionStep = -1;
-            UpdateTransition();
+            rowTransition.Play(from, to, shownRowCount);
         }
 
         private void Update()
         {
-            if (transitionTime >= 0f)
-            {
-                transitionTime += Time.deltaTime;
-                UpdateTransition();
-            }
+            rowTransition.Tick(Time.deltaTime);
 
             screenWipe.Tick(Time.deltaTime);
 
@@ -747,109 +719,6 @@ namespace ProjectShift.Board
 
             failEffect.TickReappear(Time.deltaTime);
             moveEffect.Tick(Time.deltaTime);
-        }
-
-        // Steps: 1..8 shift the old rows out (skipped without old rows), one empty step for the gap, then 8 steps shift the new rows in.
-        private void UpdateTransition()
-        {
-            // A zero step time would divide by zero below and never end the transition, locking input.
-            if (stageTransition.StepSeconds <= 0f)
-            {
-                EndTransition();
-                return;
-            }
-
-            int outSteps = transitionOldRowCount > 0 ? BoardState.Columns : 0;
-            int gapSteps = outSteps > 0 ? 1 : 0;
-            int step = stageTransition.StepAt(transitionTime, outSteps, stageTransition.StepSeconds);
-            if (step == transitionStep)
-            {
-                return;
-            }
-
-            transitionStep = step;
-            // The old rows are gone from here on; a long frame can skip the gap step, so this is not tied to it.
-            if (step > outSteps)
-            {
-                ApplyPendingZone();
-            }
-
-            int inStep = step - outSteps - gapSteps;
-            if (step <= outSteps)
-            {
-                // Old rows pushed right: bits leave past cell 7, zeros come in at cell 0.
-                ShowTransitionRows(transitionOldRows, transitionOldRowCount, step, 0);
-                TransitionStepped?.Invoke(false);
-            }
-            else if (inStep <= 0)
-            {
-                ShowTransitionRows(transitionOldRows, 0, 0, 0);
-            }
-            else if (inStep <= BoardState.Columns)
-            {
-                // New rows arrive from the left: at in-step k the row is still 8 - k cells short of its place.
-                ShowTransitionRows(transitionNewRows, shownRowCount, 0, BoardState.Columns - inStep);
-                TransitionStepped?.Invoke(true);
-            }
-            else
-            {
-                EndTransition();
-            }
-        }
-
-        private void ShowTransitionRows(byte[] rows, int rowCount, int shiftRight, int shiftLeft)
-        {
-            for (int r = 0; r < MaxRows; r++)
-            {
-                bool used = r < rowCount;
-                valueLabels[r].enabled = used;
-                byte value = used ? (byte)((rows[r] >> shiftRight) << shiftLeft) : (byte)0;
-                for (int c = 0; c < BoardState.Columns; c++)
-                {
-                    int i = r * BoardState.Columns + c;
-                    cells[i].enabled = used;
-                    if (used)
-                    {
-                        // Cell 0 is the top bit, as in BoardState.
-                        bool on = (value & (1 << (BoardState.Columns - 1 - c))) != 0;
-                        cells[i].sprite = on ? platformSprite : gapSprite;
-                        cellTransforms[i].localPosition = CellPosition(r, c, rowCount);
-                    }
-                }
-
-                if (used)
-                {
-                    valueLabels[r].SetText("{0}", value);
-                    PixelText.Place(valueLabels[r], LabelPosition(r, rowCount));
-                }
-            }
-        }
-
-        // Puts back exactly what the Render of the new stage drew.
-        private void EndTransition()
-        {
-            transitionTime = -1f;
-            ApplyPendingZone();
-            for (int r = 0; r < MaxRows; r++)
-            {
-                bool used = r < shownRowCount;
-                valueLabels[r].enabled = used;
-                for (int c = 0; c < BoardState.Columns; c++)
-                {
-                    int i = r * BoardState.Columns + c;
-                    cells[i].enabled = used;
-                    cells[i].sprite = restCellSprites[i];
-                    cellTransforms[i].localPosition = CellPosition(r, c, shownRowCount);
-                }
-
-                if (used)
-                {
-                    valueLabels[r].SetText("{0}", shownValues[r]);
-                    PixelText.Place(valueLabels[r], LabelPosition(r, shownRowCount));
-                }
-            }
-
-            decorRoot.gameObject.SetActive(true);
         }
 
         /// <summary>
