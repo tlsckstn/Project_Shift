@@ -2,10 +2,9 @@ using UnityEngine;
 
 namespace ProjectShift.Stage
 {
-    /// <summary>Saved progress: how many stages are open, counted from stage 1, and each stage's best clear. Lives in PlayerPrefs.</summary>
+    /// <summary>Saved progress: each stage's best clear, in PlayerPrefs. Which stages are open is derived from it.</summary>
     public static class StageProgress
     {
-        private const string UnlockedKey = "UnlockedStages";
         // Keyed by the stage asset name, so inserting or reordering stages keeps every record on its own stage.
         // Renaming a stage asset drops its record.
         private const string BestKeyPrefix = "Best_";
@@ -16,24 +15,29 @@ namespace ProjectShift.Stage
             return PlayerPrefs.GetInt(BestKeyPrefix + stageName, -1);
         }
 
-        /// <summary>Stores the stage's best clear. Saves at once, like SaveUnlocked.</summary>
+        /// <summary>Stores the stage's best clear. Saves at once so quitting right after a clear keeps it.</summary>
         public static void SaveBest(string stageName, int shifts)
         {
             PlayerPrefs.SetInt(BestKeyPrefix + stageName, shifts);
             PlayerPrefs.Save();
         }
 
-        /// <summary>Open stage count, clamped to 1..<paramref name="stageCount"/> so a missing, broken or stale value still loads.</summary>
-        public static int LoadUnlocked(int stageCount)
+        /// <summary>
+        /// Open stage count, from the best clears (-1 = never cleared) in stage order: every stage up to the one after
+        /// the last cleared stage. Derived instead of saved, so an inserted stage never hides later progress.
+        /// </summary>
+        public static int UnlockedFrom(int[] bestShifts)
         {
-            return Mathf.Clamp(PlayerPrefs.GetInt(UnlockedKey, 1), 1, stageCount);
-        }
+            int unlocked = 1;
+            for (int i = 0; i < bestShifts.Length - 1; i++)
+            {
+                if (bestShifts[i] >= 0)
+                {
+                    unlocked = i + 2;
+                }
+            }
 
-        /// <summary>Stores the open stage count. Saves at once: WebGL only writes PlayerPrefs to the browser on Save.</summary>
-        public static void SaveUnlocked(int unlocked)
-        {
-            PlayerPrefs.SetInt(UnlockedKey, unlocked);
-            PlayerPrefs.Save();
+            return unlocked;
         }
     }
 }

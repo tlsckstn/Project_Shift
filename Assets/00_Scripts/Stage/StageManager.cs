@@ -81,7 +81,6 @@ namespace ProjectShift.Stage
 
         private void Start()
         {
-            unlocked = StageProgress.LoadUnlocked(stages.Length);
             bestShifts = new int[stages.Length];
             stars = new int[stages.Length];
             firstLockTargets = new int[stages.Length];
@@ -92,6 +91,7 @@ namespace ProjectShift.Stage
                 stars[i] = stages[i].StarsFor(bestShifts[i]);
             }
 
+            unlocked = StageProgress.UnlockedFrom(bestShifts);
             BuildPages();
 
             ShowTitle();
@@ -442,14 +442,7 @@ namespace ProjectShift.Stage
 
             if (stages[stageIndex].IsCleared(state))
             {
-                // Saved now, so quitting on the clear screen keeps the next stage open.
-                if (stageIndex + 1 < stages.Length && unlocked < stageIndex + 2)
-                {
-                    unlocked = stageIndex + 2;
-                    StageProgress.SaveUnlocked(unlocked);
-                }
-
-                // A worse clear keeps the best and its stars.
+                // A worse clear keeps the best and its stars. Saved now, so quitting on the clear screen keeps the next stage open.
                 int used = stages[stageIndex].ShiftLimit - state.ShiftsLeft;
                 if (bestShifts[stageIndex] < 0 || used < bestShifts[stageIndex])
                 {
@@ -457,6 +450,8 @@ namespace ProjectShift.Stage
                     stars[stageIndex] = stages[stageIndex].StarsFor(used);
                     StageProgress.SaveBest(stages[stageIndex].name, used);
                 }
+
+                unlocked = StageProgress.UnlockedFrom(bestShifts);
 
                 pendingTimer = clearSeconds;
                 pendingClear = true;
