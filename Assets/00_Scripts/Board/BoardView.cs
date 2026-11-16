@@ -185,21 +185,12 @@ namespace ProjectShift.Board
         private bool debrisReversed;
         private int regenCell = -1;
         private const float RegenShare = 0.6f;
-        // Seconds per side of the fail shake (it swings right, left, right ...).
-        private const float ShakeStepSeconds = 0.03f;
         // Walk afterimage: a fading copy of the robot on the cell it left.
         private SpriteRenderer walkGhost;
         private float ghostTime = -1f;
 
-        // Fail effect, per robot: fell off the row (drops) or entered a bug cell (fades). Kept through the restart for the reappear.
-        private const int FailNone = 0;
-        private const int FailFell = 1;
-        private const int FailBug = 2;
-        private readonly int[] failModes = new int[MaxRobots];
-        private readonly Vector3[] failStarts = new Vector3[MaxRobots];
-        private float failTime = -1f;
-        private bool failStarted;
-        private float reappearTime = -1f;
+        // Fail drop, fade and shake, and the reappear after the restart; built in Awake.
+        private FailEffect failEffect;
 
         // Exit arrival flash, per exit: -1 when idle. The sprite to go back to is the one Render chose.
         private readonly float[] exitFlashTimes = { -1f, -1f, -1f };
@@ -347,6 +338,8 @@ namespace ProjectShift.Board
                 robotTransforms[i] = robots[i].transform;
             }
 
+            failEffect = new FailEffect(fail, boardRoot, robots, robotTransforms);
+
             // Below everything; centred on the board root, which sits at the camera centre.
             CreateSprite("Circuit", circuitPlayingSprite, -10, cachedTransform);
             circuitClear = CreateSprite("CircuitClear", circuitClearSprite, -9, cachedTransform);
@@ -447,8 +440,7 @@ namespace ProjectShift.Board
             // Every Render snaps to the new state: an action during a slide or afterimage finishes it at once.
             StopSlide();
             StopGhost();
-            StopFail();
-            StopReappear();
+            failEffect.Stop();
             StopExitFlashes();
             StopClear();
             shownRowCount = state.RowCount;
@@ -653,8 +645,7 @@ namespace ProjectShift.Board
         {
             StopSlide();
             StopGhost();
-            StopFail();
-            StopReappear();
+            failEffect.Stop();
             StopExitFlashes();
             StopClear();
             playRoot.gameObject.SetActive(false);
@@ -676,8 +667,7 @@ namespace ProjectShift.Board
         {
             StopSlide();
             StopGhost();
-            StopFail();
-            StopReappear();
+            failEffect.Stop();
             StopExitFlashes();
             StopClear();
             playRoot.gameObject.SetActive(false);
@@ -847,41 +837,14 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayFail(BoardState state)
         {
-            for (int i = 0; i < MaxRobots; i++)
-            {
-                failModes[i] = FailNone;
-                if (i >= state.RobotCount)
-                {
-                    continue;
-                }
-
-                int row = state.GetRobotRow(i);
-                int col = state.GetRobotCol(i);
-                if (col < 0 || col >= BoardState.Columns)
-                {
-                    failModes[i] = FailFell;
-                }
-                else if (state.IsBugCell(row, col))
-                {
-                    failModes[i] = FailBug;
-                }
-            }
-
-            failTime = 0f;
-            failStarted = false;
+            failEffect.Play(state);
             selectedFrame.enabled = false;
         }
 
         /// <summary>Fades the robots that failed back in at their start cells. Call right after the Render that shows the restarted stage.</summary>
         public void PlayReappear()
         {
-            if (fail.ReappearSeconds <= 0f)
-            {
-                return;
-            }
-
-            reappearTime = 0f;
-            SetFailedRobotsAlpha(0f);
+            failEffect.PlayReappear();
         }
 
         /// <summary>
@@ -959,11 +922,7 @@ namespace ProjectShift.Board
             // These effects start once the shift slide that caused them has finished.
             if (slideRow < 0)
             {
-                if (failTime >= 0f)
-                {
-                    UpdateFail();
-                }
-
+                failEffect.TickFail(Time.deltaTime);
                 UpdateExitFlashes();
                 UpdateSparks();
                 if (clearTime >= 0f)
@@ -977,18 +936,7 @@ namespace ProjectShift.Board
                 UpdateLeds();
             }
 
-            if (reappearTime >= 0f)
-            {
-                reappearTime += Time.deltaTime;
-                if (reappearTime >= fail.ReappearSeconds)
-                {
-                    StopReappear();
-                }
-                else
-                {
-                    SetFailedRobotsAlpha(reappearTime / fail.ReappearSeconds);
-                }
-            }
+            failEffect.TickReappear(Time.deltaTime);
 
             if (slideRow >= 0)
             {
@@ -1403,95 +1351,13 @@ namespace ProjectShift.Board
             }
         }
 
-        private void UpdateFail()
-        {
-            if (!failStarted)
-            {
-                failStarted = true;
-                for (int i = 0; i < MaxRobots; i++)
-                {
-                    failStarts[i] = robotTransforms[i].localPosition;
-                }
-            }
-
-            failTime += Time.deltaTime;
-            boardRoot.localPosition = Vector3.right * (ShakePixels(failTime) / PixelsPerUnit);
-            for (int i = 0; i < MaxRobots; i++)
-            {
-                if (failModes[i] == FailFell)
-                {
-                    // Accelerates like gravity (distance grows with time squared), snapped to whole art pixels; fades over the second half.
-                    float p = fail.FallSeconds > 0f ? Mathf.Min(1f, failTime / fail.FallSeconds) : 1f;
-                    float dropPixels = Mathf.Round(fail.FallPixels * p * p);
-                    robotTransforms[i].localPosition = failStarts[i] + Vector3.down * (dropPixels / PixelsPerUnit);
-                    SetAlpha(robots[i], p < 0.5f ? 1f : 2f * (1f - p));
-                }
-                else if (failModes[i] == FailBug)
-                {
-                    float p = fail.BugFadeSeconds > 0f ? Mathf.Min(1f, failTime / fail.BugFadeSeconds) : 1f;
-                    SetAlpha(robots[i], 1f - p);
-                }
-            }
-        }
-
-        // Keeps failModes: the restart's Render runs this, then PlayReappear still needs to know which robots failed.
-        private void StopFail()
-        {
-            if (failTime < 0f)
-            {
-                return;
-            }
-
-            failTime = -1f;
-            boardRoot.localPosition = Vector3.zero;
-            SetFailedRobotsAlpha(1f);
-        }
-
-        // Whole art pixels: starts at fail.ShakePixels and shrinks to 0 over fail.ShakeSeconds, swapping sides every ShakeStepSeconds.
-        private float ShakePixels(float time)
-        {
-            if (time >= fail.ShakeSeconds)
-            {
-                return 0f;
-            }
-
-            float amplitude = Mathf.Round(fail.ShakePixels * (1f - time / fail.ShakeSeconds));
-            return (int)(time / ShakeStepSeconds) % 2 == 0 ? amplitude : -amplitude;
-        }
-
-        private void StopReappear()
-        {
-            if (reappearTime < 0f)
-            {
-                return;
-            }
-
-            reappearTime = -1f;
-            SetFailedRobotsAlpha(1f);
-            for (int i = 0; i < MaxRobots; i++)
-            {
-                failModes[i] = FailNone;
-            }
-        }
-
-        private void SetFailedRobotsAlpha(float alpha)
-        {
-            for (int i = 0; i < MaxRobots; i++)
-            {
-                if (failModes[i] != FailNone)
-                {
-                    SetAlpha(robots[i], alpha);
-                }
-            }
-        }
-
         private void StopGhost()
         {
             ghostTime = -1f;
             walkGhost.enabled = false;
         }
 
-        private static void SetAlpha(SpriteRenderer spriteRenderer, float alpha)
+        internal static void SetAlpha(SpriteRenderer spriteRenderer, float alpha)
         {
             Color color = spriteRenderer.color;
             color.a = alpha;
