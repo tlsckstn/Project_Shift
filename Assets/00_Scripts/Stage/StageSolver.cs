@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using ProjectShift.Board;
-using ProjectShift.Stage;
 
-namespace ProjectShift.Editor
+namespace ProjectShift.Stage
 {
     /// <summary>One move in a solver solution.</summary>
     public enum SolverActionKind
@@ -62,16 +61,18 @@ namespace ProjectShift.Editor
     }
 
     /// <summary>
-    /// Editor-only breadth-first solver that finds a stage's par (fewest shifts). Walking, descending and switching
+    /// Breadth-first solver that finds a stage's par (fewest shifts). Walking, descending and switching
     /// robots cost no shift, so it works level by level: all free moves of one shift count first, then each shift.
     /// Every move goes through <see cref="BoardLogic"/>, so the solver never re-implements a rule.
     /// The search is bounded by the stage's shift limit (a stage with limit 0 only solves with no shifts).
+    /// WebGL has no threads, so a long search runs a slice per frame with <see cref="Step"/>; <see cref="Solve"/> runs it at once.
     /// </summary>
     /// <example>
     /// SolveResult result = StageSolver.Solve(stageData);
     /// UnityEngine.Debug.Log(result.Par + " via " + string.Join(", ", result.Actions));
+    /// // Across frames: var solver = new StageSolver(stageData); each frame: if (solver.Step(2000)) use solver.Result.
     /// </example>
-    public static class StageSolver
+    public class StageSolver
     {
         private readonly struct Node
         {
@@ -102,43 +103,73 @@ namespace ProjectShift.Editor
             public SolverAction Action { get; }
         }
 
+        private readonly StageData stage;
+        private readonly Dictionary<long, Node> visited = new Dictionary<long, Node>();
+        // Queue: the level being searched (states reached with shiftsUsed shifts); next: the states one more shift away.
+        private Queue<Entry> queue = new Queue<Entry>();
+        private List<Entry> next = new List<Entry>();
+        private int shiftsUsed;
+        private SolveResult result;
+
+        /// <summary>Prepares a search of <paramref name="stage"/>; nothing runs until <see cref="Step"/>.</summary>
+        public StageSolver(StageData stage)
+        {
+            this.stage = stage;
+            queue.Enqueue(new Entry(stage.CreateState(), -1, default));
+        }
+
+        /// <summary>The outcome once <see cref="Step"/> returned true; null while the search runs.</summary>
+        public SolveResult Result => result;
+
         /// <summary>Finds the fewest shifts that clear <paramref name="stage"/>, and one solution of that length.</summary>
         public static SolveResult Solve(StageData stage)
         {
-            BoardState start = stage.CreateState();
-            var visited = new Dictionary<long, Node>();
-            var current = new List<Entry> { new Entry(start, -1, default) };
-            int shiftsUsed = 0;
+            var solver = new StageSolver(stage);
+            solver.Step(int.MaxValue);
+            return solver.Result;
+        }
 
-            while (current.Count > 0)
+        /// <summary>
+        /// Searches up to <paramref name="maxStates"/> more queued states. Returns true once the search is over
+        /// (<see cref="Result"/> set); later calls do nothing and return true.
+        /// </summary>
+        public bool Step(int maxStates)
+        {
+            for (int i = 0; i < maxStates && result == null; i++)
             {
-                var next = new List<Entry>();
-                var queue = new Queue<Entry>(current);
-                while (queue.Count > 0)
+                if (queue.Count == 0)
                 {
-                    Entry entry = queue.Dequeue();
-                    long key = Key(entry.State);
-                    // Marked when taken off the queue, so a state first seen via a shift can still be reached free in this level.
-                    if (visited.ContainsKey(key))
+                    if (next.Count == 0)
                     {
-                        continue;
+                        result = new SolveResult(false, -1, new List<SolverAction>(), visited.Count);
+                        break;
                     }
 
-                    visited[key] = new Node(entry.Parent, entry.Action);
-                    if (stage.IsCleared(entry.State))
-                    {
-                        return new SolveResult(true, shiftsUsed, BuildPath(visited, key), visited.Count);
-                    }
-
-                    EnqueueFreeMoves(entry.State, key, queue);
-                    EnqueueShifts(entry.State, key, next);
+                    queue = new Queue<Entry>(next);
+                    next = new List<Entry>();
+                    shiftsUsed++;
                 }
 
-                current = next;
-                shiftsUsed++;
+                Entry entry = queue.Dequeue();
+                long key = Key(entry.State);
+                // Marked when taken off the queue, so a state first seen via a shift can still be reached free in this level.
+                if (visited.ContainsKey(key))
+                {
+                    continue;
+                }
+
+                visited[key] = new Node(entry.Parent, entry.Action);
+                if (stage.IsCleared(entry.State))
+                {
+                    result = new SolveResult(true, shiftsUsed, BuildPath(visited, key), visited.Count);
+                    break;
+                }
+
+                EnqueueFreeMoves(entry.State, key, queue);
+                EnqueueShifts(entry.State, key, next);
             }
 
-            return new SolveResult(false, -1, new List<SolverAction>(), visited.Count);
+            return result != null;
         }
 
         private static void EnqueueFreeMoves(BoardState state, long key, Queue<Entry> queue)

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using ProjectShift.Editor;
 using ProjectShift.Stage;
 using UnityEditor;
 
@@ -35,6 +34,23 @@ namespace ProjectShift.Tests
             // Brief: limit = par + 1-2 spare shifts.
             int spare = stage.ShiftLimit - stage.Par;
             Assert.That(spare, Is.InRange(1, 2), "spare shifts over par");
+        }
+
+        [TestCaseSource(nameof(StagePaths))]
+        public void Stage_SlicedStepsMatchSolve(string path)
+        {
+            StageData stage = AssetDatabase.LoadAssetAtPath<StageData>(path);
+            SolveResult whole = StageSolver.Solve(stage);
+            var solver = new StageSolver(stage);
+
+            // One state per slice: every level boundary falls between two calls.
+            while (!solver.Step(1))
+            {
+            }
+
+            Assert.AreEqual(whole.Par, solver.Result.Par);
+            Assert.AreEqual(whole.StatesVisited, solver.Result.StatesVisited);
+            Assert.AreEqual(string.Join(", ", whole.Actions), string.Join(", ", solver.Result.Actions));
         }
     }
 }
