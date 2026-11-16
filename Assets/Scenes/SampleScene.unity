@@ -196,30 +196,38 @@ MonoBehaviour:
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
-  shiftSlideSeconds: 0.1
-  walkGhostSeconds: 0.15
-  walkGhostAlpha: 0.45
-  fallPixels: 54
-  fallSeconds: 0.45
-  bugFadeSeconds: 0.3
-  reappearSeconds: 0.15
-  failShakePixels: 3
-  failShakeSeconds: 0.2
-  debrisColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
-  debrisSeconds: 0.4
-  exitFlashSeconds: 0.12
-  exitSparkSeconds: 0.25
-  exitSparkPixels: 14
-  clearFlashAlpha: 0.5
-  clearFlashSeconds: 0.12
-  ledStepSeconds: 0.15
-  clearHoldSeconds: 0.2
-  clockOutSeconds: 0.4
-  clockOutRisePixels: 3
-  transitionStepSeconds: 0.035
-  transitionGapSeconds: 0.1
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  move:
+    slideSeconds: 0.1
+    debrisColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+    debrisSeconds: 0.4
+    ghostSeconds: 0.15
+    ghostAlpha: 0.45
+  fail:
+    fallPixels: 54
+    fallSeconds: 0.45
+    bugFadeSeconds: 0.3
+    reappearSeconds: 0.15
+    shakePixels: 3
+    shakeSeconds: 0.2
+  clear:
+    exitFlashSeconds: 0.12
+    sparkSeconds: 0.25
+    sparkPixels: 14
+    flashAlpha: 0.5
+    flashSeconds: 0.12
+    ledStepSeconds: 0.15
+    holdSeconds: 0.2
+    clockOutSeconds: 0.4
+    clockOutRisePixels: 3
+  stageTransition:
+    stepSeconds: 0.035
+    gapSeconds: 0.1
+  wipe:
+    edgeColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+    edgePixels: 2
+    stepSeconds: 0.025
   circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
   zonePlayingSprites:
@@ -234,9 +242,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6b1272517103fc14dabb3ac95afca614, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
-  wipeEdgeColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
-  wipeEdgePixels: 2
-  wipeStepSeconds: 0.025
   stageSelect: {fileID: 306120837}
 --- !u!4 &306120834
 Transform:
@@ -742,30 +747,38 @@ MonoBehaviour:
   hintColor: {r: 0.9, g: 0.8, b: 0.2, a: 1}
   onColor: {r: 0.3, g: 0.9, b: 0.5, a: 1}
   lockedRowColor: {r: 0.55, g: 0.6, b: 0.68, a: 1}
-  shiftSlideSeconds: 0.1
-  walkGhostSeconds: 0.15
-  walkGhostAlpha: 0.45
-  fallPixels: 54
-  fallSeconds: 0.45
-  bugFadeSeconds: 0.3
-  reappearSeconds: 0.15
-  failShakePixels: 3
-  failShakeSeconds: 0.2
-  debrisColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
-  debrisSeconds: 0.4
-  exitFlashSeconds: 0.12
-  exitSparkSeconds: 0.25
-  exitSparkPixels: 14
-  clearFlashAlpha: 0.5
-  clearFlashSeconds: 0.12
-  ledStepSeconds: 0.15
-  clearHoldSeconds: 0.2
-  clockOutSeconds: 0.4
-  clockOutRisePixels: 3
-  transitionStepSeconds: 0.035
-  transitionGapSeconds: 0.1
   shiftsColor: {r: 1, g: 1, b: 1, a: 1}
   noShiftsColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  move:
+    slideSeconds: 0.1
+    debrisColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+    debrisSeconds: 0.4
+    ghostSeconds: 0.15
+    ghostAlpha: 0.45
+  fail:
+    fallPixels: 54
+    fallSeconds: 0.45
+    bugFadeSeconds: 0.3
+    reappearSeconds: 0.15
+    shakePixels: 3
+    shakeSeconds: 0.2
+  clear:
+    exitFlashSeconds: 0.12
+    sparkSeconds: 0.25
+    sparkPixels: 14
+    flashAlpha: 0.5
+    flashSeconds: 0.12
+    ledStepSeconds: 0.15
+    holdSeconds: 0.2
+    clockOutSeconds: 0.4
+    clockOutRisePixels: 3
+  stageTransition:
+    stepSeconds: 0.035
+    gapSeconds: 0.1
+  wipe:
+    edgeColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
+    edgePixels: 2
+    stepSeconds: 0.025
   circuitPlayingSprite: {fileID: 21300000, guid: 48686319ea554644b87e73dc0ccb9cd4, type: 3}
   circuitClearSprite: {fileID: 21300000, guid: 6ac92a949738f3746be61cdf92ff2cbc, type: 3}
   zonePlayingSprites:
@@ -780,9 +793,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6b1272517103fc14dabb3ac95afca614, type: 3}
   playingBackground: {r: 0.078431375, g: 0.101960786, b: 0.14901961, a: 1}
   clearBackground: {r: 0.09019608, g: 0.12156863, b: 0.18431373, a: 1}
-  wipeEdgeColor: {r: 0.3019608, g: 0.9019608, b: 0.5019608, a: 1}
-  wipeEdgePixels: 2
-  wipeStepSeconds: 0.025
   stageSelect: {fileID: 1804223274}
 --- !u!4 &1804223273
 Transform:

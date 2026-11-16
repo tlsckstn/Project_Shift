@@ -40,6 +40,7 @@ namespace ProjectShift.Board
             PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Space") + " ROW  " +
             PixelText.Key("Shift") + PixelText.Key("Left") + PixelText.Key("Right") + " SHIFT  " + PixelText.Key("Q") + " ROBOT  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESET  " + PixelText.Key("Esc") + " MENU";
 
+        [Header("Board Art")]
         [Tooltip("Corner brackets around the selected row, drawn inside the lock frame.")]
         [SerializeField] private Sprite rowHighlightSprite;
         [SerializeField] private Sprite platformSprite;
@@ -49,6 +50,8 @@ namespace ProjectShift.Board
         [SerializeField] private Sprite bugSprite;
         [SerializeField] private Sprite firewallSprite;
         [SerializeField] private Sprite lockFrameSprite;
+
+        [Header("Robots and Exits")]
         [Tooltip("Per crew in robot order (blue, pink, yellow).")]
         [SerializeField] private Sprite[] robotIdleSprites;
         [Tooltip("Per crew: the robot standing on its own exit.")]
@@ -63,6 +66,8 @@ namespace ProjectShift.Board
         [SerializeField] private Sprite[] exitOpenSprites;
         [Tooltip("Per crew: bright exit, shown briefly when its robot arrives and during the stage-clear clock-out.")]
         [SerializeField] private Sprite[] exitFlashSprites;
+
+        [Header("Layout and Text")]
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private float rowSpacing = 2f;
         [Tooltip("Silkscreen bitmap font asset for every label on the board (Assets/01_Art/Fonts).")]
@@ -78,52 +83,17 @@ namespace ProjectShift.Board
         [Tooltip("GOAL label color once the row value matches its lock.")]
         [SerializeField] private Color onColor = new Color(0.3f, 0.9f, 0.5f);
         [SerializeField] private Color lockedRowColor = new Color(0.55f, 0.6f, 0.68f);
-        [Tooltip("Seconds a shifted row (its cells and the robots on it) takes to slide one cell.")]
-        [SerializeField] private float shiftSlideSeconds = 0.1f;
-        [Tooltip("Seconds the faint copy left on the cell a robot walked or descended from takes to fade out.")]
-        [SerializeField] private float walkGhostSeconds = 0.15f;
-        [Tooltip("Starting opacity of that walk afterimage.")]
-        [SerializeField] private float walkGhostAlpha = 0.45f;
-        [Tooltip("How far (art pixels) a robot that fell off its row drops, accelerating, before it is gone.")]
-        [SerializeField] private float fallPixels = 54f;
-        [Tooltip("Seconds that drop takes; it fades over the second half. Keep slide + this under StageManager's fail delay.")]
-        [SerializeField] private float fallSeconds = 0.45f;
-        [Tooltip("Seconds a robot that entered a bug cell takes to fade out. Keep slide + this under StageManager's fail delay.")]
-        [SerializeField] private float bugFadeSeconds = 0.3f;
-        [Tooltip("Seconds a failed robot takes to fade back in at its start cell after the restart.")]
-        [SerializeField] private float reappearSeconds = 0.15f;
-        [Tooltip("Fail: how far (art pixels) the board shakes sideways at first; it settles to 0. The HUD lines stay still.")]
-        [SerializeField] private float failShakePixels = 3f;
-        [Tooltip("Fail: seconds that shake lasts.")]
-        [SerializeField] private float failShakeSeconds = 0.2f;
-        [Tooltip("Shift: color of the pieces a lit bit breaks into when it is pushed past the row end (art bible Platform 1).")]
-        [SerializeField] private Color debrisColor = new Color32(0x4D, 0xE6, 0x80, 0xFF);
-        [Tooltip("Shift: seconds those pieces fly out and fall; they fade over the second half.")]
-        [SerializeField] private float debrisSeconds = 0.4f;
-        [Tooltip("Seconds an exit flashes bright when its robot arrives.")]
-        [SerializeField] private float exitFlashSeconds = 0.12f;
-        [Tooltip("Seconds the white sparks around an arriving robot's exit fly out and fade.")]
-        [SerializeField] private float exitSparkSeconds = 0.25f;
-        [Tooltip("How far (art pixels) those sparks travel from the exit's centre.")]
-        [SerializeField] private float exitSparkPixels = 14f;
-        [Tooltip("Stage clear: starting opacity of the white flash over the board's rows; it fades to 0.")]
-        [SerializeField] private float clearFlashAlpha = 0.5f;
-        [Tooltip("Stage clear: seconds that flash takes to fade.")]
-        [SerializeField] private float clearFlashSeconds = 0.12f;
-        [Tooltip("Clear result: seconds between the earned rating LEDs lighting one by one.")]
-        [SerializeField] private float ledStepSeconds = 0.15f;
-        [Tooltip("Stage clear: seconds every robot holds its arrival face before clocking out.")]
-        [SerializeField] private float clearHoldSeconds = 0.2f;
-        [Tooltip("Stage clear: seconds the robots take to rise into their bright exits and fade. Keep slide + hold + this under StageManager's clear delay.")]
-        [SerializeField] private float clockOutSeconds = 0.4f;
-        [Tooltip("Stage clear: how far (art pixels) the robots rise while clocking out.")]
-        [SerializeField] private float clockOutRisePixels = 3f;
-        [Tooltip("Stage transition: seconds per one-cell shift. The old rows shift out right in 8 steps, then the new rows shift in.")]
-        [SerializeField] private float transitionStepSeconds = 0.035f;
-        [Tooltip("Stage transition: empty pause between the old rows leaving and the new rows arriving.")]
-        [SerializeField] private float transitionGapSeconds = 0.1f;
         [SerializeField] private Color shiftsColor = Color.white;
         [SerializeField] private Color noShiftsColor = new Color(1f, 0.3f, 0.3f);
+
+        [Header("Effects")]
+        [SerializeField] private MoveSettings move = new MoveSettings();
+        [SerializeField] private FailSettings fail = new FailSettings();
+        [SerializeField] private ClearSettings clear = new ClearSettings();
+        [SerializeField] private TransitionSettings stageTransition = new TransitionSettings();
+        [SerializeField] private WipeSettings wipe = new WipeSettings();
+
+        [Header("Background")]
         [Tooltip("Full-screen 640x360 circuit layer behind the board while playing.")]
         [SerializeField] private Sprite circuitPlayingSprite;
         [Tooltip("The same circuit one step brighter, shown with the clear background while the robots clock out.")]
@@ -134,12 +104,8 @@ namespace ProjectShift.Board
         [SerializeField] private Sprite[] zoneClearSprites;
         [SerializeField] private Color playingBackground = new Color32(0x14, 0x1A, 0x26, 0xFF);
         [SerializeField] private Color clearBackground = new Color32(0x17, 0x1F, 0x2F, 0xFF);
-        [Tooltip("Screen wipe: the line on each cover's inner edge, one line across the centre at full cover (Platform green).")]
-        [SerializeField] private Color wipeEdgeColor = new Color32(0x4D, 0xE6, 0x80, 0xFF);
-        [Tooltip("Screen wipe: thickness of that edge line in art pixels.")]
-        [SerializeField] private float wipeEdgePixels = 2f;
-        [Tooltip("Screen wipe: seconds per step (16 steps each way, plus the stage transition gap in between).")]
-        [SerializeField] private float wipeStepSeconds = 0.025f;
+
+        [Header("Stage Select")]
         [Tooltip("Draws the stage select pages (computer-part zones).")]
         [SerializeField] private StageSelectView stageSelect;
 
@@ -409,7 +375,7 @@ namespace ProjectShift.Board
             for (int i = 0; i < DebrisCount; i++)
             {
                 debris[i] = CreateSprite("Debris", debrisSprite, 3, decorRoot);
-                debris[i].color = debrisColor;
+                debris[i].color = move.DebrisColor;
                 debrisTransforms[i] = debris[i].transform;
                 debris[i].enabled = false;
             }
@@ -460,7 +426,7 @@ namespace ProjectShift.Board
                 maskObject.AddComponent<SpriteMask>().sprite = maskSprite;
                 wipeMasks[side] = maskObject.transform;
                 wipeEdgeLines[side] = CreateSprite("WipeEdge", lineSprite, WipeOrder + 2, wipeRoot.transform);
-                wipeEdgeLines[side].color = wipeEdgeColor;
+                wipeEdgeLines[side].color = wipe.EdgeColor;
             }
 
             wipeRoot.SetActive(false);
@@ -779,7 +745,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayShift(int row, int direction, bool lostBit, BoardState state)
         {
-            if (shiftSlideSeconds <= 0f)
+            if (move.SlideSeconds <= 0f)
             {
                 return;
             }
@@ -818,7 +784,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayRegenerate(int row, int col, int direction)
         {
-            if (debrisSeconds <= 0f)
+            if (move.DebrisSeconds <= 0f)
             {
                 return;
             }
@@ -830,7 +796,7 @@ namespace ProjectShift.Board
 
         private void StartDebris(Vector3 origin, int direction, bool reversed)
         {
-            if (debrisSeconds <= 0f)
+            if (move.DebrisSeconds <= 0f)
             {
                 return;
             }
@@ -840,7 +806,7 @@ namespace ProjectShift.Board
             debrisDirection = direction;
             debrisReversed = reversed;
             // Backwards it replays only the first part of the flight (pieces still high, close by) so the cell comes back quickly.
-            debrisDuration = reversed ? debrisSeconds * RegenShare : debrisSeconds;
+            debrisDuration = reversed ? move.DebrisSeconds * RegenShare : move.DebrisSeconds;
             debrisTime = 0f;
             for (int i = 0; i < DebrisCount; i++)
             {
@@ -903,7 +869,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayWalk(int robot, int fromRow, int fromCol)
         {
-            if (walkGhostSeconds <= 0f)
+            if (move.GhostSeconds <= 0f)
             {
                 return;
             }
@@ -912,7 +878,7 @@ namespace ProjectShift.Board
             walkGhost.transform.localPosition = CellPosition(fromRow, fromCol, shownRowCount) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
             walkGhost.enabled = true;
             ghostTime = 0f;
-            SetAlpha(walkGhost, walkGhostAlpha);
+            SetAlpha(walkGhost, move.GhostAlpha);
         }
 
         /// <summary>
@@ -949,7 +915,7 @@ namespace ProjectShift.Board
         /// <summary>Fades the robots that failed back in at their start cells. Call right after the Render that shows the restarted stage.</summary>
         public void PlayReappear()
         {
-            if (reappearSeconds <= 0f)
+            if (fail.ReappearSeconds <= 0f)
             {
                 return;
             }
@@ -966,7 +932,7 @@ namespace ProjectShift.Board
         {
             exitRestSprites[exit] = exitMarks[exit].sprite;
             exitFlashTimes[exit] = 0f;
-            if (exitSparkSeconds > 0f)
+            if (clear.SparkSeconds > 0f)
             {
                 sparkTimes[exit] = 0f;
             }
@@ -983,7 +949,7 @@ namespace ProjectShift.Board
             // Every exit bursts on a clear, not only those whose robot arrived on this move.
             for (int i = 0; i < MaxRobots; i++)
             {
-                if (exitMarks[i].enabled && exitSparkSeconds > 0f)
+                if (exitMarks[i].enabled && clear.SparkSeconds > 0f)
                 {
                     sparkTimes[i] = 0f;
                 }
@@ -1058,20 +1024,20 @@ namespace ProjectShift.Board
             if (reappearTime >= 0f)
             {
                 reappearTime += Time.deltaTime;
-                if (reappearTime >= reappearSeconds)
+                if (reappearTime >= fail.ReappearSeconds)
                 {
                     StopReappear();
                 }
                 else
                 {
-                    SetFailedRobotsAlpha(reappearTime / reappearSeconds);
+                    SetFailedRobotsAlpha(reappearTime / fail.ReappearSeconds);
                 }
             }
 
             if (slideRow >= 0)
             {
                 slideTime += Time.deltaTime;
-                float t = slideTime / shiftSlideSeconds;
+                float t = slideTime / move.SlideSeconds;
                 if (t >= 1f)
                 {
                     StopSlide();
@@ -1091,14 +1057,14 @@ namespace ProjectShift.Board
             if (ghostTime >= 0f)
             {
                 ghostTime += Time.deltaTime;
-                float t = ghostTime / walkGhostSeconds;
+                float t = ghostTime / move.GhostSeconds;
                 if (t >= 1f)
                 {
                     StopGhost();
                 }
                 else
                 {
-                    SetAlpha(walkGhost, walkGhostAlpha * (1f - t));
+                    SetAlpha(walkGhost, move.GhostAlpha * (1f - t));
                 }
             }
         }
@@ -1160,7 +1126,7 @@ namespace ProjectShift.Board
         private void UpdateTransition()
         {
             // A zero step time would divide by zero below and never end the transition, locking input.
-            if (transitionStepSeconds <= 0f)
+            if (stageTransition.StepSeconds <= 0f)
             {
                 EndTransition();
                 return;
@@ -1168,7 +1134,7 @@ namespace ProjectShift.Board
 
             int outSteps = transitionOldRowCount > 0 ? BoardState.Columns : 0;
             int gapSteps = outSteps > 0 ? 1 : 0;
-            int step = TransitionStepAt(transitionTime, outSteps, transitionStepSeconds);
+            int step = TransitionStepAt(transitionTime, outSteps, stageTransition.StepSeconds);
             if (step == transitionStep)
             {
                 return;
@@ -1265,7 +1231,7 @@ namespace ProjectShift.Board
         {
             int gapSteps = outSteps > 0 ? 1 : 0;
             float outSeconds = outSteps * stepSeconds;
-            float gapSeconds = gapSteps * transitionGapSeconds;
+            float gapSeconds = gapSteps * stageTransition.GapSeconds;
             if (time < outSeconds)
             {
                 return Mathf.FloorToInt(time / stepSeconds) + 1;
@@ -1298,7 +1264,7 @@ namespace ProjectShift.Board
         {
             int halfSteps = WipeSteps;
             // A zero step time would divide by zero below; swap at once instead.
-            int step = wipeStepSeconds > 0f ? TransitionStepAt(wipeTime, halfSteps, wipeStepSeconds) : 2 * halfSteps + 2;
+            int step = wipe.StepSeconds > 0f ? TransitionStepAt(wipeTime, halfSteps, wipe.StepSeconds) : 2 * halfSteps + 2;
             if (step == wipeStep)
             {
                 return;
@@ -1340,7 +1306,7 @@ namespace ProjectShift.Board
         // full cover both lines meet as one line across the centre.
         private void SetWipeCover(float height)
         {
-            float line = wipeEdgePixels / PixelsPerUnit;
+            float line = wipe.EdgePixels / PixelsPerUnit;
             float left = -wipeScreenSize.x / 2f;
             float top = wipeScreenSize.y / 2f;
             for (int side = 0; side < 2; side++)
@@ -1364,7 +1330,7 @@ namespace ProjectShift.Board
                 }
 
                 exitFlashTimes[i] += Time.deltaTime;
-                bool flashing = exitFlashTimes[i] < exitFlashSeconds;
+                bool flashing = exitFlashTimes[i] < clear.ExitFlashSeconds;
                 exitMarks[i].sprite = flashing ? exitFlashSprites[i] : exitRestSprites[i];
                 if (!flashing)
                 {
@@ -1384,10 +1350,10 @@ namespace ProjectShift.Board
                 }
 
                 sparkTimes[e] += Time.deltaTime;
-                float p = sparkTimes[e] / exitSparkSeconds;
+                float p = sparkTimes[e] / clear.SparkSeconds;
                 bool done = p >= 1f;
                 float eased = 1f - (1f - p) * (1f - p);
-                float distance = 4f + exitSparkPixels * eased;
+                float distance = 4f + clear.SparkPixels * eased;
                 // Full brightness for the first half, then fade, like the shift debris.
                 float alpha = p < 0.5f ? 1f : 2f * (1f - p);
                 Vector3 centre = exitTransforms[e].localPosition;
@@ -1418,7 +1384,7 @@ namespace ProjectShift.Board
         private void UpdateLeds()
         {
             ledTime += Time.deltaTime;
-            int lit = ledStepSeconds > 0f ? Mathf.Min(ledStars, Mathf.FloorToInt(ledTime / ledStepSeconds)) : ledStars;
+            int lit = clear.LedStepSeconds > 0f ? Mathf.Min(ledStars, Mathf.FloorToInt(ledTime / clear.LedStepSeconds)) : ledStars;
             if (lit == ledShown)
             {
                 return;
@@ -1452,13 +1418,13 @@ namespace ProjectShift.Board
 
             clearTime += Time.deltaTime;
             UpdateClearFlash();
-            if (clearTime < clearHoldSeconds)
+            if (clearTime < clear.HoldSeconds)
             {
                 return;
             }
 
-            float p = clockOutSeconds > 0f ? Mathf.Min(1f, (clearTime - clearHoldSeconds) / clockOutSeconds) : 1f;
-            float risePixels = Mathf.Round(clockOutRisePixels * p);
+            float p = clear.ClockOutSeconds > 0f ? Mathf.Min(1f, (clearTime - clear.HoldSeconds) / clear.ClockOutSeconds) : 1f;
+            float risePixels = Mathf.Round(clear.ClockOutRisePixels * p);
             // The screen brightens as the robots fade, fast at first and settling into the dawn look (ease-out).
             SetClearAmount(1f - (1f - p) * (1f - p));
             selectedFrame.enabled = false;
@@ -1492,10 +1458,10 @@ namespace ProjectShift.Board
             }
         }
 
-        // The white bars over the rows fade from clearFlashAlpha to 0 over clearFlashSeconds from the clear's start.
+        // The white bars over the rows fade from clear.FlashAlpha to 0 over clear.FlashSeconds from the clear's start.
         private void UpdateClearFlash()
         {
-            float alpha = clearFlashSeconds > 0f ? clearFlashAlpha * (1f - clearTime / clearFlashSeconds) : 0f;
+            float alpha = clear.FlashSeconds > 0f ? clear.FlashAlpha * (1f - clearTime / clear.FlashSeconds) : 0f;
             for (int r = 0; r < MaxRows; r++)
             {
                 if (alpha <= 0f)
@@ -1584,14 +1550,14 @@ namespace ProjectShift.Board
                 if (failModes[i] == FailFell)
                 {
                     // Accelerates like gravity (distance grows with time squared), snapped to whole art pixels; fades over the second half.
-                    float p = fallSeconds > 0f ? Mathf.Min(1f, failTime / fallSeconds) : 1f;
-                    float dropPixels = Mathf.Round(fallPixels * p * p);
+                    float p = fail.FallSeconds > 0f ? Mathf.Min(1f, failTime / fail.FallSeconds) : 1f;
+                    float dropPixels = Mathf.Round(fail.FallPixels * p * p);
                     robotTransforms[i].localPosition = failStarts[i] + Vector3.down * (dropPixels / PixelsPerUnit);
                     SetAlpha(robots[i], p < 0.5f ? 1f : 2f * (1f - p));
                 }
                 else if (failModes[i] == FailBug)
                 {
-                    float p = bugFadeSeconds > 0f ? Mathf.Min(1f, failTime / bugFadeSeconds) : 1f;
+                    float p = fail.BugFadeSeconds > 0f ? Mathf.Min(1f, failTime / fail.BugFadeSeconds) : 1f;
                     SetAlpha(robots[i], 1f - p);
                 }
             }
@@ -1610,15 +1576,15 @@ namespace ProjectShift.Board
             SetFailedRobotsAlpha(1f);
         }
 
-        // Whole art pixels: starts at failShakePixels and shrinks to 0 over failShakeSeconds, swapping sides every ShakeStepSeconds.
+        // Whole art pixels: starts at fail.ShakePixels and shrinks to 0 over fail.ShakeSeconds, swapping sides every ShakeStepSeconds.
         private float ShakePixels(float time)
         {
-            if (time >= failShakeSeconds)
+            if (time >= fail.ShakeSeconds)
             {
                 return 0f;
             }
 
-            float amplitude = Mathf.Round(failShakePixels * (1f - time / failShakeSeconds));
+            float amplitude = Mathf.Round(fail.ShakePixels * (1f - time / fail.ShakeSeconds));
             return (int)(time / ShakeStepSeconds) % 2 == 0 ? amplitude : -amplitude;
         }
 
