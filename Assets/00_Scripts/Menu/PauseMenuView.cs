@@ -7,6 +7,7 @@ namespace ProjectShift.Menu
 {
     /// <summary>
     /// Draws the PAUSED panel over a dimmed board: BGM and SFX as 8-LED bars, then RESUME and STAGES, and a key line.
+    /// The sound-only panel (title, stage select) is a shorter panel headed SOUND with only BGM and SFX.
     /// Built on the first Show and reused. Layout numbers are art px from the screen centre, y up.
     /// </summary>
     public class PauseMenuView : MonoBehaviour
@@ -15,6 +16,10 @@ namespace ProjectShift.Menu
         private const float ScreenHeight = 360f;
         private const float PanelWidth = 240f;
         private const float PanelHeight = 132f;
+        // Without the divider, RESUME and STAGES (42 px): the title and the volume rows move down, the key line up, by half.
+        private const float SoundPanelHeight = 90f;
+        private const float TitleY = 46f;
+        private const float KeysY = -56f;
         private const float RowX = -104f;
         // Row names start right of the cursor column, so the cursor never moves them.
         private const float NameX = -94f;
@@ -31,6 +36,9 @@ namespace ProjectShift.Menu
         private static readonly string KeysText =
             PixelText.Key("Up") + PixelText.Key("Down") + " SELECT  " + PixelText.Key("Left") + PixelText.Key("Right") + " VOLUME  " +
             PixelText.Key("Enter") + " OK  " + PixelText.Key("Esc") + " RESUME";
+        private static readonly string SoundKeysText =
+            PixelText.Key("Up") + PixelText.Key("Down") + " SELECT  " + PixelText.Key("Left") + PixelText.Key("Right") + " VOLUME  " +
+            PixelText.Key("Esc") + " BACK";
 
         [Tooltip("Silkscreen bitmap font asset (Assets/01_Art/Fonts).")]
         [SerializeField] private TMP_FontAsset pixelFont;
@@ -46,15 +54,27 @@ namespace ProjectShift.Menu
         [SerializeField] private Color selectedColor = new Color32(0xE6, 0xCC, 0x33, 0xFF);
 
         private Transform root;
+        private Transform frame;
+        private Transform panel;
+        private TextMeshPro divider;
+        private TextMeshPro title;
+        private TextMeshPro keys;
         private TextMeshPro[] rows;
         private TextMeshPro cursor;
         private TextMeshPro bgmLeds;
         private TextMeshPro sfxLeds;
         private int shownBgm = -1;
         private int shownSfx = -1;
+        // null until the first Show, so the first one always lays out the mode.
+        private bool? shownSoundOnly;
+        // How far the title and rows sit below their PAUSED place (0 on the PAUSED panel).
+        private float rowShift;
 
-        /// <summary>Shows the panel with the cursor on <paramref name="selected"/> and the two volume levels (0-8) as LEDs.</summary>
-        public void Show(PauseItem selected, int bgmLevel, int sfxLevel)
+        /// <summary>
+        /// Shows the panel with the cursor on <paramref name="selected"/> and the two volume levels (0-8) as LEDs;
+        /// <paramref name="soundOnly"/> shows the shorter SOUND panel with only BGM and SFX.
+        /// </summary>
+        public void Show(PauseItem selected, int bgmLevel, int sfxLevel, bool soundOnly)
         {
             // Active before building and placing: TMP only lays out (and PixelText.Place only snaps) active text.
             if (root == null)
@@ -63,25 +83,58 @@ namespace ProjectShift.Menu
             }
 
             root.gameObject.SetActive(true);
+            if (shownSoundOnly != soundOnly)
+            {
+                shownSoundOnly = soundOnly;
+                LayOut(soundOnly);
+                // The LED bars move with the rows: place them again below.
+                shownBgm = -1;
+                shownSfx = -1;
+            }
+
             for (int i = 0; i < rows.Length; i++)
             {
                 rows[i].color = i == (int)selected ? selectedColor : itemColor;
             }
 
-            PixelText.Place(cursor, Pixels(RowX, RowY[(int)selected]));
+            PixelText.Place(cursor, Pixels(RowX, RowY[(int)selected] - rowShift));
 
             if (bgmLevel != shownBgm)
             {
                 shownBgm = bgmLevel;
                 bgmLeds.SetText(PixelText.LedBar(bgmLevel, VolumeLevels.Max));
-                PixelText.Place(bgmLeds, Pixels(LedX, RowY[(int)PauseItem.Bgm] + LedDropY));
+                PixelText.Place(bgmLeds, Pixels(LedX, RowY[(int)PauseItem.Bgm] - rowShift + LedDropY));
             }
 
             if (sfxLevel != shownSfx)
             {
                 shownSfx = sfxLevel;
                 sfxLeds.SetText(PixelText.LedBar(sfxLevel, VolumeLevels.Max));
-                PixelText.Place(sfxLeds, Pixels(LedX, RowY[(int)PauseItem.Sfx] + LedDropY));
+                PixelText.Place(sfxLeds, Pixels(LedX, RowY[(int)PauseItem.Sfx] - rowShift + LedDropY));
+            }
+        }
+
+        // PAUSED: full panel, every row and the divider. SOUND: shorter panel, BGM and SFX only, centred the same way.
+        private void LayOut(bool soundOnly)
+        {
+            float height = soundOnly ? SoundPanelHeight : PanelHeight;
+            rowShift = (PanelHeight - height) / 2f;
+            SetRect(frame, -PanelWidth / 2f, -height / 2f, PanelWidth, height);
+            SetRect(panel, -PanelWidth / 2f + 1f, -height / 2f + 1f, PanelWidth - 2f, height - 2f);
+
+            title.SetText(soundOnly ? "SOUND" : "PAUSED");
+            PixelText.Place(title, Pixels(0f, TitleY - rowShift));
+            keys.SetText(soundOnly ? SoundKeysText : KeysText);
+            PixelText.Place(keys, Pixels(0f, KeysY + rowShift));
+            divider.gameObject.SetActive(!soundOnly);
+            for (int i = 0; i < rows.Length; i++)
+            {
+                bool shown = !soundOnly || i <= (int)PauseItem.Sfx;
+                rows[i].gameObject.SetActive(shown);
+                if (shown)
+                {
+                    PixelText.Place(rows[i], Pixels(NameX, RowY[i] - rowShift));
+                }
             }
         }
 
@@ -99,31 +152,25 @@ namespace ProjectShift.Menu
             root = new GameObject("PauseMenu").transform;
             root.SetParent(transform, false);
             CreateRect("Dim", -ScreenWidth / 2f, -ScreenHeight / 2f, ScreenWidth, ScreenHeight, dimColor, DimOrder);
-            float left = -PanelWidth / 2f;
-            float bottom = -PanelHeight / 2f;
-            CreateRect("Frame", left, bottom, PanelWidth, PanelHeight, frameColor, PanelOrder);
-            CreateRect("Panel", left + 1f, bottom + 1f, PanelWidth - 2f, PanelHeight - 2f, panelColor, PanelOrder + 1);
+            // Frame and panel are sized per mode in LayOut.
+            frame = CreateRect("Frame", 0f, 0f, 1f, 1f, frameColor, PanelOrder);
+            panel = CreateRect("Panel", 0f, 0f, 1f, 1f, panelColor, PanelOrder + 1);
 
-            TextMeshPro title = CreateLabel("PauseTitle", titleColor, TextAlignmentOptions.Center);
+            title = CreateLabel("PauseTitle", titleColor, TextAlignmentOptions.Center);
             title.fontSize = PixelText.LargeFontSize;
-            title.SetText("PAUSED");
-            PixelText.Place(title, Pixels(0f, 46f));
 
-            TextMeshPro divider = CreateLabel("PauseDivider", frameColor, TextAlignmentOptions.Center);
+            divider = CreateLabel("PauseDivider", frameColor, TextAlignmentOptions.Center);
             divider.SetText("- - - - - - - -");
             PixelText.Place(divider, Pixels(0f, -6f));
 
-            TextMeshPro keys = CreateLabel("PauseKeys", itemColor, TextAlignmentOptions.Center);
+            keys = CreateLabel("PauseKeys", itemColor, TextAlignmentOptions.Center);
             keys.spriteAsset = keyCapSprites;
-            keys.SetText(KeysText);
-            PixelText.Place(keys, Pixels(0f, -56f));
 
             rows = new TextMeshPro[RowNames.Length];
             for (int i = 0; i < rows.Length; i++)
             {
                 rows[i] = CreateLabel("PauseRow", itemColor, TextAlignmentOptions.Left);
                 rows[i].SetText(RowNames[i]);
-                PixelText.Place(rows[i], Pixels(NameX, RowY[i]));
             }
 
             cursor = CreateLabel("PauseCursor", selectedColor, TextAlignmentOptions.Left);
@@ -135,16 +182,23 @@ namespace ProjectShift.Menu
             sfxLeds.spriteAsset = keyCapSprites;
         }
 
-        private void CreateRect(string objectName, float x, float y, float width, float height, Color color, int sortingOrder)
+        private Transform CreateRect(string objectName, float x, float y, float width, float height, Color color, int sortingOrder)
         {
             GameObject rect = new GameObject(objectName);
             rect.transform.SetParent(root, false);
-            rect.transform.localPosition = Pixels(x, y);
-            rect.transform.localScale = new Vector3(width, height, 1f);
+            SetRect(rect.transform, x, y, width, height);
             SpriteRenderer spriteRenderer = rect.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = pixelSprite;
             spriteRenderer.color = color;
             spriteRenderer.sortingOrder = sortingOrder;
+            return rect.transform;
+        }
+
+        // The pixel sprite has a bottom-left pivot: (x, y) is the bottom-left corner, the scale its size in art px.
+        private static void SetRect(Transform rect, float x, float y, float width, float height)
+        {
+            rect.localPosition = Pixels(x, y);
+            rect.localScale = new Vector3(width, height, 1f);
         }
 
         // The pivot follows the alignment, so x is the left edge, centre or right edge of the text.

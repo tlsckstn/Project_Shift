@@ -31,10 +31,10 @@ namespace ProjectShift.Board
         private static readonly string ClearChoiceText = PixelText.Key("R") + " RETRY   " + PixelText.Key("Enter") + " NEXT   " + PixelText.Key("Esc") + " STAGES";
         private static readonly string AllClearKeysText = PixelText.Key("Enter") + " TITLE";
         private static readonly string SelectKeysText =
-            PixelText.Key("Left") + PixelText.Key("Right") + PixelText.Key("Up") + PixelText.Key("Down") + " SELECT   " + PixelText.Key("Enter") + " PLAY   " + PixelText.Key("Esc") + " TITLE";
+            PixelText.Key("Left") + PixelText.Key("Right") + PixelText.Key("Up") + PixelText.Key("Down") + " SELECT   " + PixelText.Key("Enter") + " PLAY   " + PixelText.Key("P") + " SOUND   " + PixelText.Key("Esc") + " TITLE";
         // Working title; the final name is picked in Story 006 (release cleanup).
         private const string GameTitle = "NIGHT SHIFT <<";
-        private static readonly string TitleKeysText = PixelText.Key("Enter") + " START";
+        private static readonly string TitleKeysText = PixelText.Key("Enter") + " START   " + PixelText.Key("P") + " SOUND";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
             PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Space") + " ROW  " +

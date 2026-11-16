@@ -98,6 +98,21 @@ namespace ProjectShift.Input
 
             wasSelecting = selecting;
 
+            if (menu.IsOpen)
+            {
+                UpdateMenu();
+                return;
+            }
+
+            // P opens the sound panel (BGM, SFX) on the title and the stage select; the puzzle has it in its Esc menu.
+            // Read straight from the keyboard: the "Puzzle" map has no P action and only these two screens use it.
+            bool soundPressed = Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame;
+            if (soundPressed && stageManager.CanOpenSound)
+            {
+                OpenMenu(true);
+                return;
+            }
+
             if (stageManager.IsOnTitle)
             {
                 if (next.WasPressedThisFrame()) stageManager.StartFromTitle();
@@ -118,21 +133,11 @@ namespace ProjectShift.Input
                 return;
             }
 
-            if (menu.IsOpen)
-            {
-                UpdateMenu();
-                return;
-            }
-
             if (back.WasPressedThisFrame())
             {
                 if (stageManager.CanPause)
                 {
-                    menu.Open();
-                    // An arrow still held from the puzzle must not change the volume; it counts from its next press.
-                    leftRepeat.IgnoreUntilReleased(walkLeft.IsPressed());
-                    rightRepeat.IgnoreUntilReleased(walkRight.IsPressed());
-                    ShowMenu();
+                    OpenMenu(false);
                     return;
                 }
 
@@ -154,10 +159,13 @@ namespace ProjectShift.Input
         }
 
         // Pause menu: Up / Down move the cursor, Left / Right (held repeats, Shift ignored) change the BGM or SFX level,
-        // Enter runs RESUME or STAGES, Esc / Backspace resumes. Returns before the puzzle sees any key this frame.
+        // Enter runs RESUME or STAGES (the sound panel has neither, so Enter does nothing there), Esc / Backspace closes,
+        // P also closes the sound panel.
+        // Returns before the screen behind sees any key this frame.
         private void UpdateMenu()
         {
-            if (back.WasPressedThisFrame())
+            bool soundClose = menu.IsSoundOnly && Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame;
+            if (back.WasPressedThisFrame() || soundClose)
             {
                 CloseMenu();
                 return;
@@ -188,15 +196,27 @@ namespace ProjectShift.Input
             }
         }
 
+        private void OpenMenu(bool soundOnly)
+        {
+            menu.Open(soundOnly);
+            // An arrow still held from the screen behind must not change the volume; it counts from its next press.
+            leftRepeat.IgnoreUntilReleased(walkLeft.IsPressed());
+            rightRepeat.IgnoreUntilReleased(walkRight.IsPressed());
+            ShowMenu();
+        }
+
         private void ShowMenu()
         {
-            pauseView.Show(menu.Selected, sound.BgmLevel, sound.SfxLevel);
+            pauseView.Show(menu.Selected, sound.BgmLevel, sound.SfxLevel, menu.IsSoundOnly);
         }
 
         private void CloseMenu()
         {
             menu.Close();
             pauseView.Hide();
+            // Same for the stage select cursor behind the sound panel: an arrow held on closing counts from its next press.
+            selectBackRepeat.IgnoreUntilReleased(walkLeft.IsPressed() || up.IsPressed());
+            selectOnRepeat.IgnoreUntilReleased(walkRight.IsPressed() || descend.IsPressed());
         }
     }
 }

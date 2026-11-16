@@ -33,6 +33,33 @@ namespace ProjectShift.Tests
         }
 
         [Test]
+        public void Move_SoundOnlyPastEnds_WrapsBetweenBgmAndSfx()
+        {
+            PauseMenu menu = new PauseMenu();
+            menu.Open(soundOnly: true);
+
+            menu.Move(-1);
+            Assert.AreEqual(PauseItem.Sfx, menu.Selected);
+
+            menu.Move(1);
+            Assert.AreEqual(PauseItem.Bgm, menu.Selected);
+        }
+
+        [Test]
+        public void Open_AfterSoundOnly_HasStagesAgain()
+        {
+            PauseMenu menu = new PauseMenu();
+            menu.Open(soundOnly: true);
+            menu.Close();
+
+            menu.Open();
+            menu.Move(-1);
+
+            Assert.IsFalse(menu.IsSoundOnly);
+            Assert.AreEqual(PauseItem.Stages, menu.Selected);
+        }
+
+        [Test]
         public void Close_Open_IsOpenFalse()
         {
             PauseMenu menu = new PauseMenu();

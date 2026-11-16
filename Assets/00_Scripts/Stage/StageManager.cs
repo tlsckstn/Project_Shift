@@ -67,6 +67,9 @@ namespace ProjectShift.Stage
         /// </summary>
         public bool CanPause => !IsInputBlocked && !view.IsSliding;
 
+        /// <summary>True on the title or the stage select with no screen wipe running; P then opens the sound panel.</summary>
+        public bool CanOpenSound => (isOnTitle || isSelecting) && !view.IsTransitioning;
+
         /// <summary>True while the stage select shows; InputController then routes keys to MoveSelection / PlaySelected.</summary>
         public bool IsSelecting => isSelecting;
 
