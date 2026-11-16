@@ -160,34 +160,8 @@ namespace ProjectShift.Board
         private int shownPar = -1;
         private int shownRowCount;
 
-        // Shift slide: Render places everything at its final spot, then PlayShift offsets the row back one cell and Update eases it in.
-        private int slideRow = -1;
-        private int slideDirection;
-        private float slideTime;
-        private int slideEnterCol;
-        private int slideLostCol;
-        private readonly bool[] slideRobots = new bool[MaxRobots];
-        private readonly Vector3[] slideRobotEnds = new Vector3[MaxRobots];
-        private bool slideMovesSelectedFrame;
-        private Vector3 slideSelectedFrameEnd;
-        // The bit pushed past the row end: an off bit slides out and fades, a lit one breaks into debris pieces.
-        private SpriteRenderer lostCell;
-        private Transform lostCellTransform;
-        private const int DebrisCount = 6;
-        private const float DebrisGravityPixels = 500f;
-        private readonly SpriteRenderer[] debris = new SpriteRenderer[DebrisCount];
-        private readonly Transform[] debrisTransforms = new Transform[DebrisCount];
-        private Vector3 debrisOrigin;
-        private int debrisDirection;
-        private float debrisTime = -1f;
-        private float debrisDuration;
-        // Undo plays the break backwards: pieces fly into this cell (index into cells), hidden until they arrive; -1 when none.
-        private bool debrisReversed;
-        private int regenCell = -1;
-        private const float RegenShare = 0.6f;
-        // Walk afterimage: a fading copy of the robot on the cell it left.
-        private SpriteRenderer walkGhost;
-        private float ghostTime = -1f;
+        // Shift slide, lost-bit debris (and its undo replay) and the walk afterimage; built in Awake.
+        private MoveEffect moveEffect;
 
         // Fail drop, fade and shake, and the reappear after the restart; built in Awake.
         private FailEffect failEffect;
@@ -219,7 +193,7 @@ namespace ProjectShift.Board
         public bool IsTransitioning => transitionTime >= 0f || screenWipe.IsPlaying;
 
         /// <summary>True while a shifted row slides into place.</summary>
-        public bool IsSliding => slideRow >= 0;
+        public bool IsSliding => moveEffect.IsSliding;
 
         /// <summary>
         /// Raised on every cell step of the stage transition and the screen wipe: false while the old rows (or screen) leave,
@@ -338,26 +312,15 @@ namespace ProjectShift.Board
             backgroundCamera = Camera.main;
             SetClearAmount(0f);
 
-            lostCell = CreateSprite("LostCell", gapSprite, 2, decorRoot);
-            lostCellTransform = lostCell.transform;
-            lostCell.enabled = false;
             // A built-in 4x4 white texture at the art's pixels-per-unit: each piece is a 4x4 art-pixel square, no asset needed.
             Sprite debrisSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0f, 0f, 4f, 4f), new Vector2(0.5f, 0.5f), PixelsPerUnit);
-            for (int i = 0; i < DebrisCount; i++)
-            {
-                debris[i] = CreateSprite("Debris", debrisSprite, 3, decorRoot);
-                debris[i].color = move.DebrisColor;
-                debrisTransforms[i] = debris[i].transform;
-                debris[i].enabled = false;
-            }
+            moveEffect = new MoveEffect(move, cellSize, decorRoot, gapSprite, debrisSprite, cells, cellTransforms, robotTransforms, selectedFrame,
+                robotIdleSprites, Vector3.up * (RobotOffsetPixels / PixelsPerUnit), (row, col) => CellPosition(row, col, shownRowCount));
 
             // The clear's row bar is the 4x4 piece stretched over one row's 8 cells (32 art px each).
             float cellPixels = 32f / PixelsPerUnit;
             Vector3 barScale = new Vector3(((BoardState.Columns - 1) * cellSize + cellPixels) * PixelsPerUnit / 4f, cellPixels * PixelsPerUnit / 4f, 1f);
             clearEffect = new ClearEffect(clear, decorRoot, boardRoot, debrisSprite, barScale, robots, robotTransforms, exitMarks, exitTransforms, exitFlashSprites, selectedFrame, SetClearAmount);
-
-            walkGhost = CreateSprite("WalkGhost", robotIdleSprites[0], 4, decorRoot);
-            walkGhost.enabled = false;
 
             screenWipe = new ScreenWipe(cachedTransform, playingBackground, circuitPlayingSprite, wipe, stageTransition, arriving => TransitionStepped?.Invoke(arriving));
 
@@ -415,8 +378,7 @@ namespace ProjectShift.Board
         public void Render(BoardState state, int selectedRow, Vector2Int[] exits, int parLeft, int[] rowValues, int[] lockTargets, bool robotsCoverBits)
         {
             // Every Render snaps to the new state: an action during a slide or afterimage finishes it at once.
-            StopSlide();
-            StopGhost();
+            moveEffect.Stop();
             failEffect.Stop();
             clearEffect.Stop();
             ledTime = -1f;
@@ -620,8 +582,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void ShowStageSelect(int pageStart, int pageCount, string title, int page, int pageTotal, int chapter, int unlocked, int selected, int[] stars, int[] firstLockTargets)
         {
-            StopSlide();
-            StopGhost();
+            moveEffect.Stop();
             failEffect.Stop();
             clearEffect.Stop();
             ledTime = -1f;
@@ -642,8 +603,7 @@ namespace ProjectShift.Board
         /// <summary>Hides the stage and the stage select and shows the title screen with the Enter START key guide.</summary>
         public void ShowTitle()
         {
-            StopSlide();
-            StopGhost();
+            moveEffect.Stop();
             failEffect.Stop();
             clearEffect.Stop();
             ledTime = -1f;
@@ -672,36 +632,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayShift(int row, int direction, bool lostBit, BoardState state)
         {
-            if (move.SlideSeconds <= 0f)
-            {
-                return;
-            }
-
-            slideRow = row;
-            slideDirection = direction;
-            slideTime = 0f;
-            // Shifting right pushes out cell 7 and a new 0 enters at cell 0; shifting left the other way round.
-            slideEnterCol = direction > 0 ? 0 : BoardState.Columns - 1;
-            slideLostCol = direction > 0 ? BoardState.Columns - 1 : 0;
-            slideMovesSelectedFrame = false;
-            slideSelectedFrameEnd = selectedFrameTransform.localPosition;
-            for (int i = 0; i < MaxRobots; i++)
-            {
-                slideRobots[i] = i < state.RobotCount && state.GetRobotRow(i) == row;
-                slideRobotEnds[i] = robotTransforms[i].localPosition;
-                slideMovesSelectedFrame |= slideRobots[i] && selectedFrame.enabled && i == state.SelectedRobot;
-            }
-
-            // A lit bit breaks apart at once just past the row end; an off bit slides out and fades as before. The pieces start
-            // outside the row (half a cell + 8 px, the piece grid's half width) so none lands on the cell that now fills the end.
-            lostCell.enabled = !lostBit;
-            if (lostBit)
-            {
-                float outsidePixels = cellSize * PixelsPerUnit / 2f + 8f;
-                StartDebris(CellPosition(row, slideLostCol, shownRowCount) + Vector3.right * (direction * outsidePixels / PixelsPerUnit), direction, false);
-            }
-
-            ApplySlide(0f);
+            moveEffect.PlayShift(row, direction, lostBit, state);
         }
 
         /// <summary>
@@ -711,83 +642,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayRegenerate(int row, int col, int direction)
         {
-            if (move.DebrisSeconds <= 0f)
-            {
-                return;
-            }
-
-            StartDebris(CellPosition(row, col, shownRowCount), direction, true);
-            regenCell = row * BoardState.Columns + col;
-            SetAlpha(cells[regenCell], 0f);
-        }
-
-        private void StartDebris(Vector3 origin, int direction, bool reversed)
-        {
-            if (move.DebrisSeconds <= 0f)
-            {
-                return;
-            }
-
-            ShowRegenCell();
-            debrisOrigin = origin;
-            debrisDirection = direction;
-            debrisReversed = reversed;
-            // Backwards it replays only the first part of the flight (pieces still high, close by) so the cell comes back quickly.
-            debrisDuration = reversed ? move.DebrisSeconds * RegenShare : move.DebrisSeconds;
-            debrisTime = 0f;
-            for (int i = 0; i < DebrisCount; i++)
-            {
-                debris[i].enabled = true;
-            }
-
-            UpdateDebris();
-        }
-
-        // Piece i sits in a 3 x 2 grid over the cell and flies outward (the shift direction) and up, then falls with gravity.
-        // Fixed per-piece speeds, no randomness, so every lost bit breaks the same way. Positions snap to whole art pixels.
-        private void UpdateDebris()
-        {
-            float p = debrisTime / debrisDuration;
-            if (p >= 1f)
-            {
-                debrisTime = -1f;
-                for (int i = 0; i < DebrisCount; i++)
-                {
-                    debris[i].enabled = false;
-                }
-
-                ShowRegenCell();
-                return;
-            }
-
-            // Backwards: flight time runs from the end of the replayed part down to 0, where the pieces sit on the cell.
-            float time = debrisReversed ? debrisDuration - debrisTime : debrisTime;
-            float alpha = debrisReversed || p < 0.5f ? 1f : 2f * (1f - p);
-            for (int i = 0; i < DebrisCount; i++)
-            {
-                int column = i % 3;
-                int row = i / 3;
-                float startX = (column - 1) * 8f * debrisDirection;
-                float startY = row == 0 ? 6f : -6f;
-                float speedX = (50f + 25f * column) * debrisDirection;
-                float speedY = (row == 0 ? 110f : 60f) + 10f * column;
-                float x = Mathf.Round(startX + speedX * time);
-                float y = Mathf.Round(startY + speedY * time - 0.5f * DebrisGravityPixels * time * time);
-                debrisTransforms[i].localPosition = debrisOrigin + new Vector3(x, y, 0f) / PixelsPerUnit;
-                SetAlpha(debris[i], alpha);
-            }
-        }
-
-        // Ends a pending regenerate: its cell shows again (also when another break or regenerate cuts it short).
-        private void ShowRegenCell()
-        {
-            if (regenCell < 0)
-            {
-                return;
-            }
-
-            SetAlpha(cells[regenCell], 1f);
-            regenCell = -1;
+            moveEffect.PlayRegenerate(row, col, direction);
         }
 
         /// <summary>
@@ -796,16 +651,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void PlayWalk(int robot, int fromRow, int fromCol)
         {
-            if (move.GhostSeconds <= 0f)
-            {
-                return;
-            }
-
-            walkGhost.sprite = robotIdleSprites[robot];
-            walkGhost.transform.localPosition = CellPosition(fromRow, fromCol, shownRowCount) + Vector3.up * (RobotOffsetPixels / PixelsPerUnit);
-            walkGhost.enabled = true;
-            ghostTime = 0f;
-            SetAlpha(walkGhost, move.GhostAlpha);
+            moveEffect.PlayWalk(robot, fromRow, fromCol);
         }
 
         /// <summary>
@@ -888,7 +734,7 @@ namespace ProjectShift.Board
             screenWipe.Tick(Time.deltaTime);
 
             // These effects start once the shift slide that caused them has finished.
-            if (slideRow < 0)
+            if (!moveEffect.IsSliding)
             {
                 failEffect.TickFail(Time.deltaTime);
                 clearEffect.Tick(Time.deltaTime);
@@ -900,93 +746,7 @@ namespace ProjectShift.Board
             }
 
             failEffect.TickReappear(Time.deltaTime);
-
-            if (slideRow >= 0)
-            {
-                slideTime += Time.deltaTime;
-                float t = slideTime / move.SlideSeconds;
-                if (t >= 1f)
-                {
-                    StopSlide();
-                }
-                else
-                {
-                    ApplySlide(t);
-                }
-            }
-
-            if (debrisTime >= 0f)
-            {
-                debrisTime += Time.deltaTime;
-                UpdateDebris();
-            }
-
-            if (ghostTime >= 0f)
-            {
-                ghostTime += Time.deltaTime;
-                float t = ghostTime / move.GhostSeconds;
-                if (t >= 1f)
-                {
-                    StopGhost();
-                }
-                else
-                {
-                    SetAlpha(walkGhost, move.GhostAlpha * (1f - t));
-                }
-            }
-        }
-
-        // t is 0..1 linear time; the motion eases out. Positions snap to whole art pixels so the pixel art stays crisp.
-        private void ApplySlide(float t)
-        {
-            float eased = 1f - (1f - t) * (1f - t);
-            float offsetPixels = Mathf.Round((1f - eased) * -slideDirection * PixelsPerUnit * cellSize);
-            Vector3 offset = Vector3.right * (offsetPixels / PixelsPerUnit);
-
-            for (int c = 0; c < BoardState.Columns; c++)
-            {
-                int i = slideRow * BoardState.Columns + c;
-                cellTransforms[i].localPosition = CellPosition(slideRow, c, shownRowCount) + offset;
-            }
-
-            // The entering cell fades in, unless an undo is re-forming it from debris (it shows when the pieces arrive).
-            int enterCell = slideRow * BoardState.Columns + slideEnterCol;
-            if (enterCell != regenCell)
-            {
-                SetAlpha(cells[enterCell], eased);
-            }
-            lostCellTransform.localPosition = CellPosition(slideRow, slideLostCol, shownRowCount) + Vector3.right * (slideDirection * cellSize) + offset;
-            SetAlpha(lostCell, 1f - eased);
-
-            for (int i = 0; i < MaxRobots; i++)
-            {
-                if (slideRobots[i])
-                {
-                    robotTransforms[i].localPosition = slideRobotEnds[i] + offset;
-                }
-            }
-
-            if (slideMovesSelectedFrame)
-            {
-                selectedFrameTransform.localPosition = slideSelectedFrameEnd + offset;
-            }
-        }
-
-        private void StopSlide()
-        {
-            if (slideRow < 0)
-            {
-                return;
-            }
-
-            int row = slideRow;
-            ApplySlide(1f);
-            if (row * BoardState.Columns + slideEnterCol != regenCell)
-            {
-                SetAlpha(cells[row * BoardState.Columns + slideEnterCol], 1f);
-            }
-            lostCell.enabled = false;
-            slideRow = -1;
+            moveEffect.Tick(Time.deltaTime);
         }
 
         // Steps: 1..8 shift the old rows out (skipped without old rows), one empty step for the gap, then 8 steps shift the new rows in.
@@ -1155,12 +915,6 @@ namespace ProjectShift.Board
             {
                 backgroundCamera.backgroundColor = Color.Lerp(playingBackground, clearBackground, amount);
             }
-        }
-
-        private void StopGhost()
-        {
-            ghostTime = -1f;
-            walkGhost.enabled = false;
         }
 
         internal static void SetAlpha(SpriteRenderer spriteRenderer, float alpha)
