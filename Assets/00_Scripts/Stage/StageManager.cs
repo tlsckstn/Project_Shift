@@ -1,5 +1,6 @@
 using ProjectShift.Audio;
 using ProjectShift.Board;
+using ProjectShift.Custom;
 using UnityEngine;
 
 namespace ProjectShift.Stage
@@ -13,6 +14,7 @@ namespace ProjectShift.Stage
         [SerializeField] private StageData[] stages;
         [SerializeField] private BoardView view;
         [SerializeField] private SoundPlayer sound;
+        [SerializeField] private StageEditorView editor;
         [Tooltip("Seconds the failed board stays on screen before the stage restarts. Must cover BoardView's shift slide plus its fall drop or bug fade.")]
         [SerializeField] private float failRestartSeconds = 0.6f;
         [Tooltip("Seconds the clear plays before the retry / next choice appears. Must cover BoardView's shift slide plus its clear hold and clock-out.")]
@@ -47,6 +49,8 @@ namespace ProjectShift.Stage
         private int selectedStage;
         // True while the title screen shows (at launch, after ALL CLEAR, and on Back from the stage select).
         private bool isOnTitle;
+        // True while the stage editor shows (E on the title).
+        private bool isEditing;
         // Stages 0..unlocked-1 are open; saved in StageProgress.
         private int unlocked;
         // Per stage: fewest shifts it was cleared with (-1 never), and the stars that best earns (0-3). Saved in StageProgress.
@@ -59,7 +63,7 @@ namespace ProjectShift.Stage
         private readonly System.Collections.Generic.List<int> pageChapters = new System.Collections.Generic.List<int>();
         private int[] firstLockTargets;
 
-        private bool IsInputBlocked => isOnTitle || isSelecting || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
+        private bool IsInputBlocked => isOnTitle || isSelecting || isEditing || isFinished || isAwaitingChoice || pendingTimer >= 0f || rewindTimer >= 0f || view.IsTransitioning;
 
         /// <summary>
         /// True on a playable puzzle board (also one out of shifts) with no move, fail, rewind, transition or row slide
@@ -73,8 +77,17 @@ namespace ProjectShift.Stage
         /// <summary>True while the stage select shows; InputController then routes keys to MoveSelection / PlaySelected.</summary>
         public bool IsSelecting => isSelecting;
 
-        /// <summary>True while the title screen shows; InputController then only routes Enter to StartFromTitle.</summary>
+        /// <summary>True while the title screen shows; InputController then only routes Enter to StartFromTitle and E to OpenEditor.</summary>
         public bool IsOnTitle => isOnTitle;
+
+        /// <summary>True while the stage editor shows; InputController then routes keys to <see cref="Editor"/>.</summary>
+        public bool IsEditing => isEditing;
+
+        /// <summary>True in the editor with no screen wipe running: edit keys apply.</summary>
+        public bool CanEdit => isEditing && !view.IsTransitioning;
+
+        /// <summary>The stage editor screen.</summary>
+        public StageEditorView Editor => editor;
 
         private void Awake()
         {
@@ -112,9 +125,31 @@ namespace ProjectShift.Stage
             view.PlayWipe(() => ShowSelect(unlocked - 1));
         }
 
+        /// <summary>Leaves the title for the stage editor. The board edited last time is still there.</summary>
+        public void OpenEditor()
+        {
+            if (!isOnTitle || view.IsTransitioning)
+            {
+                return;
+            }
+
+            sound.PlayScreen();
+            view.PlayWipe(ShowEditor);
+        }
+
+        private void ShowEditor()
+        {
+            isOnTitle = false;
+            isEditing = true;
+            view.ShowEditor();
+            editor.Show();
+        }
+
         private void ShowTitle()
         {
             isOnTitle = true;
+            isEditing = false;
+            editor.Hide();
             isSelecting = false;
             isFinished = false;
             isAwaitingChoice = false;
@@ -169,7 +204,7 @@ namespace ProjectShift.Stage
             }
 
             sound.PlayScreen();
-            if (isSelecting)
+            if (isSelecting || isEditing)
             {
                 view.PlayWipe(ShowTitle);
                 return;

@@ -34,7 +34,7 @@ namespace ProjectShift.Board
             PixelText.Key("Left") + PixelText.Key("Right") + PixelText.Key("Up") + PixelText.Key("Down") + " SELECT   " + PixelText.Key("Enter") + " PLAY   " + PixelText.Key("P") + " SOUND   " + PixelText.Key("Esc") + " TITLE";
         // Working title; the final name is picked in Story 006 (release cleanup).
         private const string GameTitle = "NIGHT SHIFT <<";
-        private static readonly string TitleKeysText = PixelText.Key("Enter") + " START   " + PixelText.Key("P") + " SOUND";
+        private static readonly string TitleKeysText = PixelText.Key("Enter") + " START   " + PixelText.Key("E") + " EDITOR   " + PixelText.Key("P") + " SOUND";
         // Shown instead of KeysText on stages with more than one robot. Shorter words keep it inside the circuit keep-out.
         private static readonly string KeysTextMultiRobot =
             PixelText.Key("Left") + PixelText.Key("Right") + " WALK  " + PixelText.Key("Down") + " DOWN  " + PixelText.Key("Space") + " ROW  " +
@@ -143,6 +143,8 @@ namespace ProjectShift.Board
         private bool shownMultiRobot;
         // Set while the key panel shows the clear choice; the next Render brings the key guide back.
         private bool isKeysTextReplaced;
+        // Set while the stage editor shows: Render then keeps the key panel empty.
+        private bool isEditing;
         // One exit per robot, same order as the robots.
         private SpriteRenderer[] exitMarks;
         private Transform[] exitTransforms;
@@ -481,7 +483,8 @@ namespace ProjectShift.Board
                 selectedFrameTransform.localPosition = robotTransforms[state.SelectedRobot].localPosition;
             }
 
-            if (multiRobot != shownMultiRobot || isKeysTextReplaced)
+            // The stage editor draws its own key guide, so its renders leave the key panel empty.
+            if (!isEditing && (multiRobot != shownMultiRobot || isKeysTextReplaced))
             {
                 shownMultiRobot = multiRobot;
                 isKeysTextReplaced = false;
@@ -490,7 +493,8 @@ namespace ProjectShift.Board
 
             for (int i = 0; i < MaxRobots; i++)
             {
-                bool hasExit = i < exits.Length;
+                // The stage editor passes (-1, -1) for a robot whose exit is not placed yet.
+                bool hasExit = i < exits.Length && exits[i].x >= 0;
                 exitMarks[i].enabled = hasExit;
                 if (!hasExit)
                 {
@@ -578,6 +582,7 @@ namespace ProjectShift.Board
         /// </summary>
         public void ShowStageSelect(int pageStart, int pageCount, string title, int page, int pageTotal, int chapter, int unlocked, int selected, int[] stars, int[] firstLockTargets)
         {
+            isEditing = false;
             moveEffect.Stop();
             failEffect.Stop();
             clearEffect.Stop();
@@ -599,6 +604,7 @@ namespace ProjectShift.Board
         /// <summary>Hides the stage and the stage select and shows the title screen with the Enter START key guide.</summary>
         public void ShowTitle()
         {
+            isEditing = false;
             moveEffect.Stop();
             failEffect.Stop();
             clearEffect.Stop();
@@ -619,6 +625,24 @@ namespace ProjectShift.Board
 
             SetKeysText(TitleKeysText);
             isKeysTextReplaced = true;
+        }
+
+        /// <summary>
+        /// Shows the board area for the stage editor: hides the title and the stage select and clears the key panel
+        /// (StageEditorView draws its own key guide). The editor then draws the board with <see cref="Render"/>.
+        /// </summary>
+        public void ShowEditor()
+        {
+            moveEffect.Stop();
+            failEffect.Stop();
+            clearEffect.Stop();
+            ledTime = -1f;
+            titleRoot.gameObject.SetActive(false);
+            stageSelect.Hide();
+            playRoot.gameObject.SetActive(true);
+            isEditing = true;
+            isKeysTextReplaced = true;
+            SetKeysText(string.Empty);
         }
 
         /// <summary>
@@ -811,7 +835,8 @@ namespace ProjectShift.Board
             return new Vector3(0f, CellPosition(0, 0, shownRowCount).y + rowSpacing, 0f);
         }
 
-        private Vector3 CellPosition(int row, int col, int rowCount)
+        /// <summary>Centre of cell (<paramref name="row"/>, <paramref name="col"/>) in this view's local space, on a board of <paramref name="rowCount"/> rows.</summary>
+        internal Vector3 CellPosition(int row, int col, int rowCount)
         {
             float x = (col - (BoardState.Columns - 1) * 0.5f) * cellSize;
             float y = ((rowCount - 1) * 0.5f - row) * rowSpacing;

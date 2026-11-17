@@ -1,4 +1,5 @@
 using ProjectShift.Audio;
+using ProjectShift.Custom;
 using ProjectShift.Menu;
 using ProjectShift.Stage;
 using UnityEngine;
@@ -116,6 +117,14 @@ namespace ProjectShift.Input
             if (stageManager.IsOnTitle)
             {
                 if (next.WasPressedThisFrame()) stageManager.StartFromTitle();
+                // E opens the stage editor; read straight from the keyboard like P.
+                else if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) stageManager.OpenEditor();
+                return;
+            }
+
+            if (stageManager.IsEditing)
+            {
+                UpdateEditor();
                 return;
             }
 
@@ -156,6 +165,64 @@ namespace ProjectShift.Input
             if (undo.WasPressedThisFrame()) stageManager.Undo();
             if (restart.WasPressedThisFrame()) stageManager.Restart();
             if (next.WasPressedThisFrame()) stageManager.Next();
+        }
+
+        // Stage editor: arrows move the cell cursor, Space toggles a bit, 1-3 place robots (Shift: their exits), B bug, F firewall,
+        // L locked row, N number lock (goal = the row's value now), C robot cover, - / = row count, , / . shift limit, Esc / Backspace
+        // back to the title. The editor keys are not in the "Puzzle" map, so they are read straight from the keyboard.
+        private void UpdateEditor()
+        {
+            if (back.WasPressedThisFrame())
+            {
+                stageManager.Back();
+                return;
+            }
+
+            Keyboard keyboard = Keyboard.current;
+            if (!stageManager.CanEdit || keyboard == null)
+            {
+                return;
+            }
+
+            StageEditor editor = stageManager.Editor.Editor;
+            bool shiftHeld = keyboard.shiftKey.isPressed;
+            bool edited = true;
+            if (walkLeft.WasPressedThisFrame()) editor.MoveCursor(0, -1);
+            else if (walkRight.WasPressedThisFrame()) editor.MoveCursor(0, 1);
+            else if (up.WasPressedThisFrame()) editor.MoveCursor(-1, 0);
+            else if (descend.WasPressedThisFrame()) editor.MoveCursor(1, 0);
+            else if (keyboard.spaceKey.wasPressedThisFrame) editor.ToggleBit();
+            else if (keyboard.digit1Key.wasPressedThisFrame) PlaceRobotOrExit(editor, 0, shiftHeld);
+            else if (keyboard.digit2Key.wasPressedThisFrame) PlaceRobotOrExit(editor, 1, shiftHeld);
+            else if (keyboard.digit3Key.wasPressedThisFrame) PlaceRobotOrExit(editor, 2, shiftHeld);
+            else if (keyboard.bKey.wasPressedThisFrame) editor.ToggleBug();
+            else if (keyboard.fKey.wasPressedThisFrame) editor.ToggleFirewall();
+            else if (keyboard.lKey.wasPressedThisFrame) editor.ToggleLockedRow();
+            else if (keyboard.nKey.wasPressedThisFrame) editor.ToggleNumberLock();
+            else if (keyboard.cKey.wasPressedThisFrame) editor.ToggleCover();
+            else if (keyboard.minusKey.wasPressedThisFrame) editor.ChangeRowCount(-1);
+            else if (keyboard.equalsKey.wasPressedThisFrame) editor.ChangeRowCount(1);
+            else if (keyboard.commaKey.wasPressedThisFrame) editor.ChangeShiftLimit(-1);
+            else if (keyboard.periodKey.wasPressedThisFrame) editor.ChangeShiftLimit(1);
+            else edited = false;
+
+            if (edited)
+            {
+                sound.PlayWalk();
+                stageManager.Editor.Redraw();
+            }
+        }
+
+        private static void PlaceRobotOrExit(StageEditor editor, int robot, bool exit)
+        {
+            if (exit)
+            {
+                editor.ToggleExit(robot);
+            }
+            else
+            {
+                editor.ToggleRobot(robot);
+            }
         }
 
         // Pause menu: Up / Down move the cursor, Left / Right (held repeats, Shift ignored) change the BGM or SFX level,
