@@ -168,10 +168,18 @@ namespace ProjectShift.Input
         }
 
         // Stage editor: arrows move the cell cursor, Space toggles a bit, 1-3 place robots (Shift: their exits), B bug, F firewall,
-        // L locked row, N number lock (goal = the row's value now), C robot cover, - / = row count, , / . shift limit, Esc / Backspace
+        // L locked row, N number lock (goal = the row's value now), C robot cover, - / = row count, , / . hours over par (verified board only), Esc / Backspace
         // back to the title. The editor keys are not in the "Puzzle" map, so they are read straight from the keyboard.
         private void UpdateEditor()
         {
+            StageEditorView editorView = stageManager.Editor;
+            // The verify panel takes every key: Esc cancels the check or closes the result, Enter closes a result.
+            if (editorView.IsPanelOpen)
+            {
+                if (back.WasPressedThisFrame() || (next.WasPressedThisFrame() && editorView.HasResult)) editorView.ClosePanel();
+                return;
+            }
+
             if (back.WasPressedThisFrame())
             {
                 stageManager.Back();
@@ -184,7 +192,24 @@ namespace ProjectShift.Input
                 return;
             }
 
-            StageEditor editor = stageManager.Editor.Editor;
+            // Tab moves between the board and the button row; on the row, Left / Right pick and Enter presses.
+            // Tab is read from the keyboard, not NextRow: NextRow is also bound to Space, which toggles a bit here.
+            if (keyboard.tabKey.wasPressedThisFrame)
+            {
+                sound.PlayWalk();
+                editorView.ToggleFocus();
+                return;
+            }
+
+            if (editorView.ButtonsFocused)
+            {
+                if (walkLeft.WasPressedThisFrame()) editorView.MoveButton(-1);
+                else if (walkRight.WasPressedThisFrame()) editorView.MoveButton(1);
+                else if (next.WasPressedThisFrame() && editorView.PressButton()) sound.PlayScreen();
+                return;
+            }
+
+            StageEditor editor = editorView.Editor;
             bool shiftHeld = keyboard.shiftKey.isPressed;
             bool edited = true;
             if (walkLeft.WasPressedThisFrame()) editor.MoveCursor(0, -1);
@@ -202,8 +227,8 @@ namespace ProjectShift.Input
             else if (keyboard.cKey.wasPressedThisFrame) editor.ToggleCover();
             else if (keyboard.minusKey.wasPressedThisFrame) editor.ChangeRowCount(-1);
             else if (keyboard.equalsKey.wasPressedThisFrame) editor.ChangeRowCount(1);
-            else if (keyboard.commaKey.wasPressedThisFrame) editor.ChangeShiftLimit(-1);
-            else if (keyboard.periodKey.wasPressedThisFrame) editor.ChangeShiftLimit(1);
+            else if (keyboard.commaKey.wasPressedThisFrame) edited = editorView.ChangeExtraHours(-1);
+            else if (keyboard.periodKey.wasPressedThisFrame) edited = editorView.ChangeExtraHours(1);
             else edited = false;
 
             if (edited)

@@ -252,6 +252,53 @@ namespace ProjectShift.Custom
                 lockRows.ToArray(), targets.ToArray(), robotsCoverBits);
         }
 
+        /// <summary>Replaces the whole board with <paramref name="data"/>, which must pass <see cref="StageCode.Validate"/>. The cursor goes to the top left.</summary>
+        public void Load(StageCodeData data)
+        {
+            rowCount = data.Rows.Length;
+            System.Array.Clear(rows, 0, MaxRows);
+            System.Array.Copy(data.Rows, rows, rowCount);
+            robots.Clear();
+            robots.AddRange(data.Starts);
+            for (int i = 0; i < exits.Length; i++)
+            {
+                exits[i] = i < data.Exits.Length ? data.Exits[i] : -1;
+            }
+
+            System.Array.Clear(bugs, 0, CellCount);
+            foreach (int cell in data.BugCells)
+            {
+                bugs[cell] = true;
+            }
+
+            System.Array.Clear(firewalls, 0, CellCount);
+            foreach (int cell in data.Firewalls)
+            {
+                firewalls[cell] = true;
+            }
+
+            System.Array.Clear(lockedRows, 0, MaxRows);
+            foreach (int row in data.LockedRows)
+            {
+                lockedRows[row] = true;
+            }
+
+            for (int i = 0; i < lockTargets.Length; i++)
+            {
+                lockTargets[i] = -1;
+            }
+
+            for (int i = 0; i < data.LockRows.Length; i++)
+            {
+                lockTargets[data.LockRows[i]] = data.LockTargets[i];
+            }
+
+            shiftLimit = data.ShiftLimit;
+            robotsCoverBits = data.RobotsCoverBits;
+            cursorRow = 0;
+            cursorCol = 0;
+        }
+
         /// <summary>The board as a playable state for drawing (robots may stand anywhere while editing).</summary>
         public BoardState CreateState()
         {
