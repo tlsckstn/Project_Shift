@@ -33,6 +33,7 @@ namespace ProjectShift.Menu
         private const int TextOrder = 23;
         private static readonly float[] RowY = { 22f, 8f, -20f, -34f };
         private static readonly string[] RowNames = { "BGM", "SFX", "RESUME", "STAGES" };
+        private const string EditorRowName = "EDITOR";
         private static readonly string KeysText =
             PixelText.Key("Up") + PixelText.Key("Down") + " SELECT  " + PixelText.Key("Left") + PixelText.Key("Right") + " VOLUME  " +
             PixelText.Key("Enter") + " OK  " + PixelText.Key("Esc") + " RESUME";
@@ -63,6 +64,7 @@ namespace ProjectShift.Menu
         private TextMeshPro cursor;
         private TextMeshPro bgmLeds;
         private TextMeshPro sfxLeds;
+        private string shownStagesName = "STAGES";
         private int shownBgm = -1;
         private int shownSfx = -1;
         // null until the first Show, so the first one always lays out the mode.
@@ -72,9 +74,10 @@ namespace ProjectShift.Menu
 
         /// <summary>
         /// Shows the panel with the cursor on <paramref name="selected"/> and the two volume levels (0-8) as LEDs;
-        /// <paramref name="soundOnly"/> shows the shorter SOUND panel with only BGM and SFX.
+        /// <paramref name="soundOnly"/> shows the shorter SOUND panel with only BGM and SFX;
+        /// <paramref name="toEditor"/> names the last row EDITOR instead of STAGES (a stage played from the editor).
         /// </summary>
-        public void Show(PauseItem selected, int bgmLevel, int sfxLevel, bool soundOnly)
+        public void Show(PauseItem selected, int bgmLevel, int sfxLevel, bool soundOnly, bool toEditor)
         {
             // Active before building and placing: TMP only lays out (and PixelText.Place only snaps) active text.
             if (root == null)
@@ -90,6 +93,13 @@ namespace ProjectShift.Menu
                 // The LED bars move with the rows: place them again below.
                 shownBgm = -1;
                 shownSfx = -1;
+            }
+
+            string stagesName = toEditor ? EditorRowName : RowNames[(int)PauseItem.Stages];
+            if (stagesName != shownStagesName)
+            {
+                shownStagesName = stagesName;
+                rows[(int)PauseItem.Stages].SetText(stagesName);
             }
 
             for (int i = 0; i < rows.Length; i++)

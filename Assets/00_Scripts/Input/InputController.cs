@@ -299,7 +299,7 @@ namespace ProjectShift.Input
 
         private void ShowMenu()
         {
-            pauseView.Show(menu.Selected, sound.BgmLevel, sound.SfxLevel, menu.IsSoundOnly);
+            pauseView.Show(menu.Selected, sound.BgmLevel, sound.SfxLevel, menu.IsSoundOnly, stageManager.IsCustomPlay);
         }
 
         private void CloseMenu()

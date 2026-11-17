@@ -25,6 +25,9 @@ namespace ProjectShift.Stage
         [SerializeField] private float rewindMaxSeconds = 0.6f;
 
         private int stageIndex;
+        // The stage played from the editor, built at runtime and destroyed on the way back; null while an official stage plays.
+        // Custom play never touches stageIndex, bestShifts, stars or StageProgress.
+        private StageData customStage;
         private BoardState state;
         private BoardHistory history;
         private int selectedRow;
@@ -89,8 +92,15 @@ namespace ProjectShift.Stage
         /// <summary>The stage editor screen.</summary>
         public StageEditorView Editor => editor;
 
+        /// <summary>True while a stage from the editor plays: Esc and the clear screen lead back to the editor, there is no next stage.</summary>
+        public bool IsCustomPlay => customStage != null;
+
+        // The stage being played: the custom one, else the official stage at stageIndex.
+        private StageData Current => customStage != null ? customStage : stages[stageIndex];
+
         private void Awake()
         {
+            editor.PlayRequested += PlayCustom;
             view.TransitionStepped += sound.PlayTransitionStep;
             view.LedLit += sound.PlayLed;
         }
@@ -135,6 +145,36 @@ namespace ProjectShift.Stage
 
             sound.PlayScreen();
             view.PlayWipe(ShowEditor);
+        }
+
+        // The editor's PLAY button: plays the verified board through the normal stage flow, behind the screen wipe.
+        private void PlayCustom()
+        {
+            if (!isEditing || view.IsTransitioning)
+            {
+                return;
+            }
+
+            // The press sound comes from InputController, like every editor button.
+            view.PlayWipe(() =>
+            {
+                customStage = editor.CreatePlayStage();
+                isEditing = false;
+                editor.Hide();
+                view.ShowPlay();
+                view.SetZone(Zone.Ram);
+                StartStage(customStage);
+                view.PlayTransition(null, state);
+            });
+        }
+
+        // Custom play back to the editor, which still holds the board and its verified result.
+        private void ReturnToEditor()
+        {
+            Destroy(customStage);
+            customStage = null;
+            isAwaitingChoice = false;
+            ShowEditor();
         }
 
         private void ShowEditor()
@@ -210,6 +250,12 @@ namespace ProjectShift.Stage
                 return;
             }
 
+            if (customStage != null)
+            {
+                view.PlayWipe(ReturnToEditor);
+                return;
+            }
+
             int stage = isFinished ? stages.Length - 1 : stageIndex;
             view.PlayWipe(() => ShowSelect(stage));
         }
@@ -266,10 +312,10 @@ namespace ProjectShift.Stage
 
             if (pendingClear)
             {
-                StageData stage = stages[stageIndex];
+                StageData stage = Current;
                 int used = stage.ShiftLimit - state.ShiftsLeft;
                 isAwaitingChoice = true;
-                view.ShowClearChoice(used, stage.Par, stage.StarsFor(used));
+                view.ShowClearChoice(used, stage.Par, stage.StarsFor(used), customStage != null);
                 return;
             }
 
@@ -395,6 +441,12 @@ namespace ProjectShift.Stage
                 return;
             }
 
+            // A custom map has no next stage: its clear screen offers RETRY and the editor only.
+            if (customStage != null)
+            {
+                return;
+            }
+
             if (isFinished)
             {
                 ShowTitle();
@@ -478,18 +530,22 @@ namespace ProjectShift.Stage
             Render();
             bool arrived = FlashArrivals(before);
 
-            if (stages[stageIndex].IsCleared(state))
+            if (Current.IsCleared(state))
             {
-                // A worse clear keeps the best and its stars. Saved now, so quitting on the clear screen keeps the next stage open.
-                int used = stages[stageIndex].ShiftLimit - state.ShiftsLeft;
-                if (bestShifts[stageIndex] < 0 || used < bestShifts[stageIndex])
+                // Custom play records nothing: official progress is only the stages[] bests.
+                if (customStage == null)
                 {
-                    bestShifts[stageIndex] = used;
-                    stars[stageIndex] = stages[stageIndex].StarsFor(used);
-                    StageProgress.SaveBest(stages[stageIndex].name, used);
-                }
+                    // A worse clear keeps the best and its stars. Saved now, so quitting on the clear screen keeps the next stage open.
+                    int used = stages[stageIndex].ShiftLimit - state.ShiftsLeft;
+                    if (bestShifts[stageIndex] < 0 || used < bestShifts[stageIndex])
+                    {
+                        bestShifts[stageIndex] = used;
+                        stars[stageIndex] = stages[stageIndex].StarsFor(used);
+                        StageProgress.SaveBest(stages[stageIndex].name, used);
+                    }
 
-                unlocked = StageProgress.UnlockedFrom(bestShifts);
+                    unlocked = StageProgress.UnlockedFrom(bestShifts);
+                }
 
                 pendingTimer = clearSeconds;
                 pendingClear = true;
@@ -533,8 +589,16 @@ namespace ProjectShift.Stage
             }
 
             stageIndex = index;
-            state = stages[index].CreateState();
-            exits = stages[index].GetExits();
+            customStage = null;
+            view.SetZone(ChapterZones.ZoneOf(pageChapters[StagePages.PageOf(pageStarts, index)]));
+            StartStage(stages[index]);
+        }
+
+        // Puts a stage on the board: state, exits, number locks, hint, a fresh history and the first Render.
+        private void StartStage(StageData stage)
+        {
+            state = stage.CreateState();
+            exits = stage.GetExits();
             rowValues = new int[state.RowCount];
             lockTargets = new int[state.RowCount];
             for (int r = 0; r < lockTargets.Length; r++)
@@ -542,14 +606,13 @@ namespace ProjectShift.Stage
                 lockTargets[r] = -1;
             }
 
-            for (int i = 0; i < stages[index].NumberLockCount; i++)
+            for (int i = 0; i < stage.NumberLockCount; i++)
             {
-                Vector2Int numberLock = stages[index].GetNumberLock(i);
+                Vector2Int numberLock = stage.GetNumberLock(i);
                 lockTargets[numberLock.x] = numberLock.y;
             }
 
-            view.SetZone(ChapterZones.ZoneOf(pageChapters[StagePages.PageOf(pageStarts, index)]));
-            view.ShowHint(stages[index].Hint);
+            view.ShowHint(stage.Hint);
             history = new BoardHistory(state);
             selectedRow = 0;
             Render();
@@ -557,7 +620,7 @@ namespace ProjectShift.Stage
 
         private void Render()
         {
-            StageData stage = stages[stageIndex];
+            StageData stage = Current;
             // Shifts still inside par: counts down with every shift, stops at 0 once over par; -1 hides PAR.
             int parLeft = stage.Par > 0 ? Mathf.Max(0, stage.Par - (stage.ShiftLimit - state.ShiftsLeft)) : -1;
             for (int r = 0; r < rowValues.Length; r++)

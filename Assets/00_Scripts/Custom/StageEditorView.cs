@@ -44,12 +44,13 @@ namespace ProjectShift.Custom
         {
             Verify,
             CopyCode,
-            PasteCode
+            PasteCode,
+            Play
         }
 
-        private static readonly string[] ButtonNames = { "VERIFY", "COPY CODE", "PASTE CODE" };
+        private static readonly string[] ButtonNames = { "VERIFY", "COPY CODE", "PASTE CODE", "PLAY" };
         // Left edge of each button label, art px from the screen centre; the Tab cap sits before VERIFY at the board's left edge.
-        private static readonly float[] ButtonX = { -116f, -48f, 32f };
+        private static readonly float[] ButtonX = { -116f, -62f, 8f, 92f };
         private static readonly string TabGuide = PixelText.Key("Tab");
         private static readonly string CheckingKeys = PixelText.Key("Esc") + " CANCEL";
         private static readonly string ResultKeys = PixelText.Key("Enter") + " OK";
@@ -106,6 +107,9 @@ namespace ProjectShift.Custom
         private int extraHours = DefaultExtraHours;
         // HOURS of the last pasted code, -1 for none; the next solved VERIFY turns it into extraHours once.
         private int pastedHours = -1;
+
+        /// <summary>Raised when PLAY is pressed on a verified board; the listener plays <see cref="CreatePlayStage"/>.</summary>
+        public event System.Action PlayRequested;
 
         /// <summary>The board being edited; InputController applies key edits to it, then calls <see cref="Redraw"/>.</summary>
         public StageEditor Editor => editor;
@@ -186,6 +190,10 @@ namespace ProjectShift.Custom
                 message = "COPIED";
                 Draw();
             }
+            else if (selectedButton == Button.Play && canCopy)
+            {
+                PlayRequested?.Invoke();
+            }
             else if (selectedButton == Button.PasteCode)
             {
                 // Drop text pasted earlier, then read the clipboard; Update takes the answer.
@@ -199,6 +207,15 @@ namespace ProjectShift.Custom
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// A new stage of the verified board with the solver's par and HOURS as its shift limit, for PLAY. The caller owns it
+        /// and destroys it when the play ends. Only valid while the board is verified.
+        /// </summary>
+        public StageData CreatePlayStage()
+        {
+            return StageData.Create(WithShiftLimit(editor.ToCodeData(), Hours), verifiedPar, out _);
         }
 
         /// <summary>Closes the verify panel. While the check still runs this cancels it and no result is kept.</summary>

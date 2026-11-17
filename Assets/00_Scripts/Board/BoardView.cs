@@ -29,6 +29,8 @@ namespace ProjectShift.Board
         private static readonly string DawnText = "DAWN  " + PixelText.Key("Z") + " UNDO  " + PixelText.Key("R") + " RESTART";
         // Replaces the key panel on a cleared board.
         private static readonly string ClearChoiceText = PixelText.Key("R") + " RETRY   " + PixelText.Key("Enter") + " NEXT   " + PixelText.Key("Esc") + " STAGES";
+        // Same, for a stage played from the editor: no next stage, Esc goes back to the editor.
+        private static readonly string CustomClearChoiceText = PixelText.Key("R") + " RETRY   " + PixelText.Key("Esc") + " EDITOR";
         private static readonly string AllClearKeysText = PixelText.Key("Enter") + " TITLE";
         private static readonly string SelectKeysText =
             PixelText.Key("Left") + PixelText.Key("Right") + PixelText.Key("Up") + PixelText.Key("Down") + " SELECT   " + PixelText.Key("Enter") + " PLAY   " + PixelText.Key("P") + " SOUND   " + PixelText.Key("Esc") + " TITLE";
@@ -548,7 +550,7 @@ namespace ProjectShift.Board
         /// next Render. The clear look stays because nothing renders meanwhile. The rating shows as three unlit LEDs, then the
         /// earned ones light one by one (LedLit each time).
         /// </summary>
-        public void ShowClearChoice(int shiftsUsed, int par, int stars)
+        public void ShowClearChoice(int shiftsUsed, int par, int stars, bool customPlay = false)
         {
             string result = par > 0 ? $"SHIFTS {shiftsUsed}  PAR {par}" : $"SHIFTS {shiftsUsed}";
             if (stars > 0)
@@ -564,7 +566,7 @@ namespace ProjectShift.Board
                 ShowMessage(result);
             }
 
-            SetKeysText(ClearChoiceText);
+            SetKeysText(customPlay ? CustomClearChoiceText : ClearChoiceText);
             isKeysTextReplaced = true;
         }
 
@@ -594,11 +596,21 @@ namespace ProjectShift.Board
             isKeysTextReplaced = true;
         }
 
+        /// <summary>Leaves the editor look for a stage played from it: the next Render brings back the play key guide.</summary>
+        public void ShowPlay()
+        {
+            isEditing = false;
+            isKeysTextReplaced = true;
+            playRoot.gameObject.SetActive(true);
+            zonePlaying.enabled = true;
+        }
+
         /// <summary>Hides the stage select and shows the stage again. Call before loading the stage to play.</summary>
         public void HideStageSelect()
         {
             stageSelect.Hide();
             playRoot.gameObject.SetActive(true);
+            zonePlaying.enabled = true;
         }
 
         /// <summary>Hides the stage and the stage select and shows the title screen with the Enter START key guide.</summary>
@@ -640,6 +652,9 @@ namespace ProjectShift.Board
             titleRoot.gameObject.SetActive(false);
             stageSelect.Hide();
             playRoot.gameObject.SetActive(true);
+            // The editor shares the play root; its background stays plain whatever zone the last stage used.
+            zonePlaying.enabled = false;
+            zoneClear.enabled = false;
             isEditing = true;
             isKeysTextReplaced = true;
             SetKeysText(string.Empty);
