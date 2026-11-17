@@ -1,5 +1,6 @@
 using System;
 using ProjectShift.Board;
+using ProjectShift.Custom;
 using UnityEngine;
 
 namespace ProjectShift.Stage
@@ -131,6 +132,60 @@ namespace ProjectShift.Stage
 
         /// <summary>Stage select chapter title when this stage starts a chapter; empty or null when it continues the one before.</summary>
         public string ChapterTitle => chapterTitle;
+
+        /// <summary>
+        /// Builds a stage in memory from a parsed stage code; the only way to fill the inspector-only fields at runtime.
+        /// <paramref name="par"/> 0 means not known yet (before the solver runs): no PAR and no stars.
+        /// Returns null with <paramref name="error"/> set when <paramref name="data"/> fails <see cref="StageCode.Validate"/>.
+        /// The stage is never saved to disk; Destroy it when done.
+        /// </summary>
+        public static StageData Create(StageCodeData data, int par, out string error)
+        {
+            error = StageCode.Validate(data);
+            if (error != null)
+            {
+                return null;
+            }
+
+            var stage = CreateInstance<StageData>();
+            stage.name = "Custom Stage";
+            stage.rows = new string[data.Rows.Length];
+            for (int i = 0; i < data.Rows.Length; i++)
+            {
+                stage.rows[i] = Convert.ToString(data.Rows[i], 2).PadLeft(BoardState.Columns, '0');
+            }
+
+            Vector2Int[] starts = ToVectors(data.Starts);
+            Vector2Int[] exits = ToVectors(data.Exits);
+            stage.start = starts[0];
+            stage.exit = exits[0];
+            stage.extraStarts = starts[1..];
+            stage.extraExits = exits[1..];
+            stage.shiftLimit = data.ShiftLimit;
+            stage.par = par;
+            stage.lockedRows = (int[])data.LockedRows.Clone();
+            stage.firewalls = ToVectors(data.Firewalls);
+            stage.bugCells = ToVectors(data.BugCells);
+            stage.numberLocks = new Vector2Int[data.LockRows.Length];
+            for (int i = 0; i < data.LockRows.Length; i++)
+            {
+                stage.numberLocks[i] = new Vector2Int(data.LockRows[i], data.LockTargets[i]);
+            }
+
+            stage.robotsCoverBits = data.RobotsCoverBits;
+            return stage;
+        }
+
+        private static Vector2Int[] ToVectors(int[] cells)
+        {
+            Vector2Int[] vectors = new Vector2Int[cells.Length];
+            for (int i = 0; i < cells.Length; i++)
+            {
+                vectors[i] = new Vector2Int(cells[i] / BoardState.Columns, cells[i] % BoardState.Columns);
+            }
+
+            return vectors;
+        }
 
         /// <summary>Builds a fresh board state from the row strings, robot starts, shift limit, locked rows, firewalls and bug cells.</summary>
         public BoardState CreateState()

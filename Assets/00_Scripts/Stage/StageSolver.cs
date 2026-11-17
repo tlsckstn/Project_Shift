@@ -39,16 +39,20 @@ namespace ProjectShift.Stage
     /// <summary>Outcome of <see cref="StageSolver.Solve"/>.</summary>
     public class SolveResult
     {
-        public SolveResult(bool solved, int par, List<SolverAction> actions, int statesVisited)
+        public SolveResult(bool solved, int par, List<SolverAction> actions, int statesVisited, bool tooComplex = false)
         {
             Solved = solved;
             Par = par;
             Actions = actions;
             StatesVisited = statesVisited;
+            TooComplex = tooComplex;
         }
 
         /// <summary>True when the stage can be cleared within its shift limit.</summary>
         public bool Solved { get; }
+
+        /// <summary>True when the search hit its state cap first: neither solved nor proven unsolvable.</summary>
+        public bool TooComplex { get; }
 
         /// <summary>Fewest shifts that clear the stage; -1 when not solved.</summary>
         public int Par { get; }
@@ -87,16 +91,19 @@ namespace ProjectShift.Stage
             public SolverAction Action { get; }
         }
 
+        // A queued state as its packed key, not a BoardState: the queues then hold no object references, and the WebGL
+        // garbage collector, whose pause grows with the references it must follow, stays fast at 200,000 states
+        // (production/qa/evidence/story-004-solver-link/README.md).
         private readonly struct Entry
         {
-            public Entry(BoardState state, long parent, SolverAction action)
+            public Entry(long key, long parent, SolverAction action)
             {
-                State = state;
+                Key = key;
                 Parent = parent;
                 Action = action;
             }
 
-            public BoardState State { get; }
+            public long Key { get; }
 
             public long Parent { get; }
 
@@ -104,6 +111,8 @@ namespace ProjectShift.Stage
         }
 
         private readonly StageData stage;
+        private readonly BoardState start;
+        private readonly int stateCap;
         private readonly Dictionary<long, Node> visited = new Dictionary<long, Node>();
         // Queue: the level being searched (states reached with shiftsUsed shifts); next: the states one more shift away.
         private Queue<Entry> queue = new Queue<Entry>();
@@ -111,15 +120,23 @@ namespace ProjectShift.Stage
         private int shiftsUsed;
         private SolveResult result;
 
-        /// <summary>Prepares a search of <paramref name="stage"/>; nothing runs until <see cref="Step"/>.</summary>
-        public StageSolver(StageData stage)
+        /// <summary>
+        /// Prepares a search of <paramref name="stage"/>; nothing runs until <see cref="Step"/>.
+        /// The search gives up with <see cref="SolveResult.TooComplex"/> once <paramref name="stateCap"/> distinct states are visited.
+        /// </summary>
+        public StageSolver(StageData stage, int stateCap = int.MaxValue)
         {
             this.stage = stage;
-            queue.Enqueue(new Entry(stage.CreateState(), -1, default));
+            this.stateCap = stateCap;
+            start = stage.CreateState();
+            queue.Enqueue(new Entry(Key(start), -1, default));
         }
 
         /// <summary>The outcome once <see cref="Step"/> returned true; null while the search runs.</summary>
         public SolveResult Result => result;
+
+        /// <summary>Distinct states visited so far: the search's progress.</summary>
+        public int StatesVisited => visited.Count;
 
         /// <summary>Finds the fewest shifts that clear <paramref name="stage"/>, and one solution of that length.</summary>
         public static SolveResult Solve(StageData stage)
@@ -151,7 +168,7 @@ namespace ProjectShift.Stage
                 }
 
                 Entry entry = queue.Dequeue();
-                long key = Key(entry.State);
+                long key = entry.Key;
                 // Marked when taken off the queue, so a state first seen via a shift can still be reached free in this level.
                 if (visited.ContainsKey(key))
                 {
@@ -159,14 +176,21 @@ namespace ProjectShift.Stage
                 }
 
                 visited[key] = new Node(entry.Parent, entry.Action);
-                if (stage.IsCleared(entry.State))
+                BoardState state = Unpack(key);
+                if (stage.IsCleared(state))
                 {
                     result = new SolveResult(true, shiftsUsed, BuildPath(visited, key), visited.Count);
                     break;
                 }
 
-                EnqueueFreeMoves(entry.State, key, queue);
-                EnqueueShifts(entry.State, key, next);
+                if (visited.Count >= stateCap)
+                {
+                    result = new SolveResult(false, -1, new List<SolverAction>(), visited.Count, true);
+                    break;
+                }
+
+                EnqueueFreeMoves(state, key, queue);
+                EnqueueShifts(state, key, next);
             }
 
             return result != null;
@@ -177,26 +201,26 @@ namespace ProjectShift.Stage
             BoardState walkLeft = state.Clone();
             if (BoardLogic.TryWalk(walkLeft, -1) && !walkLeft.IsFailed)
             {
-                queue.Enqueue(new Entry(walkLeft, key, new SolverAction(SolverActionKind.WalkLeft, 0)));
+                queue.Enqueue(new Entry(Key(walkLeft), key, new SolverAction(SolverActionKind.WalkLeft, 0)));
             }
 
             BoardState walkRight = state.Clone();
             if (BoardLogic.TryWalk(walkRight, 1) && !walkRight.IsFailed)
             {
-                queue.Enqueue(new Entry(walkRight, key, new SolverAction(SolverActionKind.WalkRight, 0)));
+                queue.Enqueue(new Entry(Key(walkRight), key, new SolverAction(SolverActionKind.WalkRight, 0)));
             }
 
             BoardState descended = state.Clone();
             if (BoardLogic.TryDescend(descended) && !descended.IsFailed)
             {
-                queue.Enqueue(new Entry(descended, key, new SolverAction(SolverActionKind.Descend, 0)));
+                queue.Enqueue(new Entry(Key(descended), key, new SolverAction(SolverActionKind.Descend, 0)));
             }
 
             if (state.RobotCount > 1)
             {
                 BoardState switched = state.Clone();
                 switched.SelectNextRobot();
-                queue.Enqueue(new Entry(switched, key, new SolverAction(SolverActionKind.SwitchRobot, 0)));
+                queue.Enqueue(new Entry(Key(switched), key, new SolverAction(SolverActionKind.SwitchRobot, 0)));
             }
         }
 
@@ -210,7 +234,7 @@ namespace ProjectShift.Stage
                     if (BoardLogic.TryShift(shifted, row, direction) && !shifted.IsFailed)
                     {
                         SolverActionKind kind = direction < 0 ? SolverActionKind.ShiftLeft : SolverActionKind.ShiftRight;
-                        next.Add(new Entry(shifted, key, new SolverAction(kind, row)));
+                        next.Add(new Entry(Key(shifted), key, new SolverAction(kind, row)));
                     }
                 }
             }
@@ -232,6 +256,38 @@ namespace ProjectShift.Stage
             }
 
             return (key << 2) | (long)state.SelectedRobot;
+        }
+
+        // The reverse of Key for a state of the level being searched: the start state's fixed flags (locked rows,
+        // firewalls, bugs) with the key's rows, robots and selection, and the shifts this level has spent.
+        private BoardState Unpack(long key)
+        {
+            BoardState state = start.Clone();
+            int selected = (int)(key & 3);
+            key >>= 2;
+            for (int robot = state.RobotCount - 1; robot >= 0; robot--)
+            {
+                state.SetRobot(robot, (int)(key >> 3 & 3), (int)(key & 7));
+                key >>= 5;
+            }
+
+            for (int row = state.RowCount - 1; row >= 0; row--)
+            {
+                state.SetRow(row, (byte)(key & 0xFF));
+                key >>= 8;
+            }
+
+            while (state.SelectedRobot != selected)
+            {
+                state.SelectNextRobot();
+            }
+
+            for (int i = 0; i < shiftsUsed; i++)
+            {
+                state.UseShift();
+            }
+
+            return state;
         }
 
         private static List<SolverAction> BuildPath(Dictionary<long, Node> visited, long goalKey)
